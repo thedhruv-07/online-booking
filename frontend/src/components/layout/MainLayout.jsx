@@ -10,7 +10,7 @@ const MainLayout = () => {
   const { isSidebarCollapsed } = useUIStore();
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex transition-colors duration-300">
       {/* Sidebar */}
       <Sidebar />
 
@@ -18,12 +18,12 @@ const MainLayout = () => {
       <div 
         className={cn(
           "flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out",
-          isSidebarCollapsed ? "pl-[80px]" : "pl-[260px]"
+          isSidebarCollapsed ? "pl-[90px]" : "pl-[280px]"
         )}
       >
         <Navbar />
         
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-10 lg:p-12">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -33,8 +33,8 @@ const MainLayout = () => {
           </motion.div>
         </main>
 
-        <footer className="py-4 px-8 text-center text-slate-400 text-sm border-t border-slate-100 bg-white">
-          &copy; {new Date().getFullYear()} BookingSaaS. All rights reserved.
+        <footer className="py-8 px-12 text-center text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] border-t border-slate-100 bg-white transition-colors">
+          &copy; {new Date().getFullYear()} BookingSaaS Infrastructure. All rights reserved.
         </footer>
       </div>
     </div>

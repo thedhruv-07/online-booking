@@ -139,18 +139,6 @@ const Login = () => {
           </Link>
         </p>
 
-        {/* Demo Credentials */}
-        <div className="mt-8 pt-6 border-t border-slate-100">
-          <div className="bg-slate-50 rounded-2xl p-4 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-slate-800 uppercase tracking-tight">Demo Credentials</p>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">Use any valid email and password for this preview.</p>
-            </div>
-          </div>
-        </div>
       </motion.div>
     </div>
   );

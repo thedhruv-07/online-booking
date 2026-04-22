@@ -37,8 +37,8 @@ const LocationStep = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
       // If country changes, reset city
       ...(name === 'country' ? { city: '' } : {})
@@ -84,7 +84,7 @@ const LocationStep = () => {
 
           {/* Dynamic State/City Selection */}
           <AnimatePresence mode="wait">
-            <motion.div 
+            <motion.div
               key={formData.country || 'no-country'}
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -140,15 +140,15 @@ const LocationStep = () => {
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row justify-between gap-4">
-          <Button 
-            type="button" 
-            variant="secondary" 
+          <Button
+            type="button"
+            variant="secondary"
             onClick={prevStep}
             className="h-14 px-8 rounded-2xl font-bold border-slate-200 hover:bg-slate-50 order-2 sm:order-1"
           >
             Back
           </Button>
-          <Button 
+          <Button
             type="submit"
             className="h-14 px-10 rounded-2xl font-black bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100 order-1 sm:order-2"
           >

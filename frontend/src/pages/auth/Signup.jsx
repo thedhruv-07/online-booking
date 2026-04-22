@@ -1,39 +1,32 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ShieldCheck, 
-  Mail, 
-  Lock, 
-  User, 
-  Phone, 
-  ArrowRight, 
-  Loader2,
-  CheckCircle2
-} from 'lucide-react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../store/authStore';
-import { cn } from '../../utils/cn';
+import { getCountries } from '../../utils/geoData';
 
 const Signup = () => {
   const navigate = useNavigate();
   const { signup, loading, error, clearError } = useAuth();
 
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    phone: '',
-    acceptTerms: false,
+    country: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [validationError, setValidationError] = useState('');
 
+  const countries = getCountries();
+
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     }));
     if (validationError) setValidationError('');
     clearError();
@@ -42,31 +35,15 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.password) {
-      setValidationError('Please fill in all required fields');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setValidationError('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      setValidationError('Password must be at least 8 characters');
-      return;
-    }
-
-    if (!formData.acceptTerms) {
-      setValidationError('Please accept the terms and conditions');
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.country) {
+      setValidationError('Please fill in all mandatory fields');
       return;
     }
 
     const result = await signup({
-      name: formData.name,
+      name: `${formData.firstName} ${formData.lastName}`.trim(),
       email: formData.email,
       password: formData.password,
-      phone: formData.phone,
     });
 
     if (result.success) {
@@ -94,7 +71,7 @@ const Signup = () => {
             to="/login" 
             className="inline-flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-700 text-lg transition-colors"
           >
-            Return to Login <ArrowRight size={20} />
+            Return to Login
           </Link>
         </motion.div>
       </div>
@@ -102,24 +79,17 @@ const Signup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-12 sm:px-6 lg:px-8">
-      {/* Background Decor */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-100 rounded-full blur-[120px] opacity-60"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100 rounded-full blur-[120px] opacity-60"></div>
-      </div>
-
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-12">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10"
+        className="max-w-2xl w-full bg-white rounded-xl shadow-lg border border-slate-200 p-8 sm:p-12"
       >
-        <div className="text-center mb-10">
-          <div className="mx-auto w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-200">
-            <ShieldCheck className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Create Account</h1>
-          <p className="text-slate-500 mt-2 font-medium">Join us and start managing your inspections</p>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-slate-800 mb-6">Registration</h1>
+          <p className="text-red-500 font-medium">
+            <span className="text-red-500">*</span> All fields are mandatory.
+          </p>
         </div>
 
         <AnimatePresence>
@@ -128,125 +98,125 @@ const Signup = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-sm font-medium"
+              className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-lg text-rose-600 text-sm font-medium text-center"
             >
               {error || validationError}
             </motion.div>
           )}
         </AnimatePresence>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
-            <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="John Doe"
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
-            <div className="relative group">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="name@company.com"
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
-            <div className="relative group">
-              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="+1 (555) 000-0000"
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-slate-700 ml-1">Password</label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium text-sm"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-slate-700 ml-1">Confirm</label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium text-sm"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 py-2 px-1">
-            <input
-              id="accept-terms"
-              name="acceptTerms"
-              type="checkbox"
-              checked={formData.acceptTerms}
-              onChange={handleChange}
-              className="w-5 h-5 text-indigo-600 border-slate-300 rounded-lg focus:ring-indigo-600 transition-all cursor-pointer"
-            />
-            <label htmlFor="accept-terms" className="text-xs font-medium text-slate-500 leading-tight">
-              I agree to the <Link to="/terms" className="text-indigo-600 font-bold hover:underline">Terms</Link> and <Link to="/privacy" className="text-indigo-600 font-bold hover:underline">Privacy Policy</Link>
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto">
+          {/* First Name */}
+          <div className="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] items-center gap-4">
+            <label className="text-right text-slate-700 font-bold text-sm whitespace-nowrap">
+              First Name <span className="text-red-500">*</span> :-
             </label>
+            <input
+              type="text"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              placeholder="Enter first name ..."
+              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+              required
+            />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-indigo-100"
-          >
-            {loading ? (
-              <Loader2 className="w-6 h-6 animate-spin" />
-            ) : (
-              <>
-                Create Account
-                <ArrowRight className="w-5 h-5" />
-              </>
-            )}
-          </button>
+          {/* Last Name */}
+          <div className="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] items-center gap-4">
+            <label className="text-right text-slate-700 font-bold text-sm whitespace-nowrap">
+              Last Name <span className="text-red-500">*</span> :-
+            </label>
+            <input
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Enter last name ..."
+              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div className="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] items-center gap-4">
+            <label className="text-right text-slate-700 font-bold text-sm whitespace-nowrap">
+              Email <span className="text-red-500">*</span> :-
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email id ..."
+              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+              required
+            />
+          </div>
+
+          {/* Password */}
+          <div className="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] items-start gap-4">
+            <label className="text-right text-slate-700 font-bold text-sm whitespace-nowrap mt-3">
+              Password <span className="text-red-500">*</span> :-
+            </label>
+            <div>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password ..."
+                className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+                required
+              />
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="showPassword"
+                  checked={showPassword}
+                  onChange={(e) => setShowPassword(e.target.checked)}
+                  className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                />
+                <label htmlFor="showPassword" className="text-sm text-slate-600 cursor-pointer">
+                  Show Password
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Country */}
+          <div className="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] items-center gap-4">
+            <label className="text-right text-slate-700 font-bold text-sm whitespace-nowrap">
+              Country <span className="text-red-500">*</span> :-
+            </label>
+            <select
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors appearance-none"
+              required
+            >
+              <option value="">Select Country</option>
+              {countries.map(country => (
+                <option key={country.id} value={country.id}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="pt-6 border-t border-slate-100 flex justify-center">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-indigo-600 text-white px-10 py-3 rounded font-bold hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all flex items-center justify-center gap-2"
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Register'}
+            </button>
+          </div>
         </form>
 
-        <p className="text-center mt-8 text-slate-500 font-medium">
+        <p className="text-center mt-8 text-slate-500 text-sm">
           Already have an account?{' '}
           <Link to="/login" className="text-indigo-600 font-bold hover:text-indigo-700">
             Sign In

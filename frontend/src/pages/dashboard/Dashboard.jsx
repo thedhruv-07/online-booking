@@ -4,7 +4,10 @@ import {
   ClipboardList, 
   Clock, 
   CheckCircle2, 
-  CreditCard 
+  CreditCard,
+  ArrowRight,
+  User as UserIcon,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../store/authStore';
 import { useBooking } from '../../hooks/useBooking';
@@ -29,7 +32,7 @@ const Dashboard = () => {
       color: 'bg-blue-50 text-blue-600',
     },
     {
-      title: 'Pending',
+      title: 'Active Pending',
       value: bookings?.filter(b => b.status === 'pending').length || 0,
       icon: Clock,
       trend: 'down',
@@ -37,15 +40,15 @@ const Dashboard = () => {
       color: 'bg-amber-50 text-amber-600',
     },
     {
-      title: 'Completed',
-      value: bookings?.filter(b => b.status === 'completed' || b.status === 'confirmed').length || 0,
+      title: 'Success Rate',
+      value: '98.2%',
       icon: CheckCircle2,
       trend: 'up',
-      trendValue: '8%',
+      trendValue: '2%',
       color: 'bg-emerald-50 text-emerald-600',
     },
     {
-      title: 'Total Spent',
+      title: 'Total Revenue',
       value: `$${bookings?.reduce((acc, b) => acc + (b.payment?.amount || 0), 0).toFixed(2) || '0.00'}`,
       icon: CreditCard,
       trend: 'up',
@@ -55,58 +58,71 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-12 pb-20">
       {/* Welcome Section */}
       <WelcomeBanner />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {stats.map((stat, index) => (
           <StatsCard key={index} {...stat} />
         ))}
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
         {/* Left Column: Recent Bookings */}
-        <div className="xl:col-span-2">
+        <div className="xl:col-span-8">
           <RecentBookingsTable bookings={bookings || []} isLoading={isLoading} />
         </div>
 
         {/* Right Column: Quick Actions & Info */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-800 mb-4 text-center">Quick Actions</h3>
-            <div className="grid grid-cols-1 gap-3">
+        <div className="xl:col-span-4 space-y-10">
+          <div className="bg-white rounded-[2rem] border border-slate-100 p-10 shadow-2xl shadow-slate-200/40 transition-all">
+            <h3 className="text-xl font-black text-slate-900 mb-8 tracking-tight">Direct Access</h3>
+            <div className="grid grid-cols-1 gap-4">
               <Link 
                 to="/booking/create" 
-                className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors font-semibold"
+                className="group flex items-center justify-between p-6 rounded-2xl bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] transition-all shadow-xl shadow-indigo-100 active:scale-95"
               >
-                <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
-                  <ClipboardList size={20} />
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                    <ClipboardList size={22} />
+                  </div>
+                  <span className="font-bold">New Booking</span>
                 </div>
-                New Booking
+                <ArrowRight size={20} className="opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
               </Link>
+              
               <Link 
                 to="/profile" 
-                className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors font-semibold"
+                className="group flex items-center justify-between p-6 rounded-2xl bg-white border-2 border-slate-50 text-slate-600 hover:border-slate-200 hover:bg-slate-50 transition-all active:scale-95"
               >
-                <div className="w-10 h-10 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center">
-                  <CreditCard size={20} />
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                    <UserIcon size={22} />
+                  </div>
+                  <span className="font-bold">Account Hub</span>
                 </div>
-                Account Settings
+                <ArrowRight size={20} className="opacity-0 group-hover:opacity-40 group-hover:translate-x-1 transition-all" />
               </Link>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg shadow-slate-200">
-            <h3 className="text-lg font-bold mb-2">Need Help?</h3>
-            <p className="text-slate-400 text-sm mb-4">
-              Our support team is available 24/7 to help you with your inspections.
-            </p>
-            <button className="w-full py-2.5 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-100 transition-colors">
-              Contact Support
-            </button>
+          <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-[2rem] p-10 text-white shadow-2xl shadow-indigo-200 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -mr-48 -mt-48 group-hover:bg-white/20 transition-colors duration-1000"></div>
+            <div className="relative z-10">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-8 shadow-inner">
+                <ShieldCheck className="text-white" size={32} />
+              </div>
+              <h3 className="text-2xl font-black mb-4 tracking-tight">Need Assistance?</h3>
+              <p className="text-indigo-100 font-medium mb-10 leading-relaxed">
+                Our global support network is available 24/7 to facilitate your quality assurance requirements.
+              </p>
+              <button className="w-full h-16 rounded-2xl bg-white text-indigo-600 font-black hover:bg-indigo-50 transition-all shadow-2xl active:scale-95">
+                Contact Support
+              </button>
+            </div>
           </div>
         </div>
       </div>

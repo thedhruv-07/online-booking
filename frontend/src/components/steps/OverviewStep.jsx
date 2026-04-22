@@ -1,159 +1,145 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useMemo } from 'react';
+import { useBooking } from '../../hooks/useBooking';
+import Button from '../ui/Button';
 import { 
-  ShieldCheck, 
+  ClipboardCheck, 
   MapPin, 
   Package, 
-  FileText, 
   Factory, 
   User, 
-  Settings2,
-  ArrowRight,
-  ArrowLeft,
-  CreditCard,
-  Info
+  Calendar, 
+  Hash,
+  Shield,
+  ArrowRight
 } from 'lucide-react';
-import { useBooking } from '../../hooks/useBooking';
-import { cn } from '../../utils/cn';
 
 const OverviewStep = () => {
-  const { bookingData, prevStep, nextStep, setOverview } = useBooking();
+  const { bookingData, prevStep, nextStep } = useBooking();
 
-  const calculateTotal = () => {
-    const servicePrice = bookingData.service?.price || 0;
-    let total = servicePrice;
-    if (bookingData.files?.length > 0) {
-      total += 50; // Processing fee
-    }
-    return total;
-  };
-
-  const handleConfirm = () => {
-    const summary = {
-      totalAmount: calculateTotal(),
-      itemCount: 1,
-      estimatedCompletion: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  // Generate real-looking system IDs once per component mount or when bookingData changes
+  const systemIds = useMemo(() => {
+    const seed = bookingData.product?.name || 'default';
+    const hash = (str) => {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+      return Math.abs(h).toString(16);
     };
-    setOverview(summary);
-    nextStep();
-  };
+    
+    return {
+      avId: `AV-${hash(seed + 'av').padEnd(12, '0').slice(0, 12)}`,
+      productId: `AV-P-${hash(seed + 'prod').padEnd(12, '0').slice(0, 12)}`,
+      factoryId: `AV-F-${hash((bookingData.factory?.name || 'fact') + 'f').padEnd(12, '0').slice(0, 12)}`,
+      factoryContactId: `AV-C-${hash((bookingData.contact?.name || 'cont') + 'c').padEnd(12, '0').slice(0, 12)}`,
+    };
+  }, [bookingData.product?.name, bookingData.factory?.name, bookingData.contact?.name]);
 
-  const SummaryCard = ({ title, icon: Icon, children, stepNumber }) => (
-    <div className="bg-slate-50/50 rounded-2xl border border-slate-100 p-5 group hover:bg-white hover:border-indigo-100 transition-all">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-all">
+  const SummaryCard = ({ title, icon: Icon, color, children }) => (
+    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-full">
+      <div className={`px-6 py-4 border-b border-slate-50 flex items-center gap-3 ${color.bg}`}>
+        <div className={`p-2 rounded-xl bg-white shadow-sm ${color.text}`}>
           <Icon size={20} />
         </div>
-        <div className="flex-1">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none block mb-0.5">Step {stepNumber}</span>
-          <h4 className="font-bold text-slate-800 leading-none">{title}</h4>
-        </div>
+        <h3 className="font-bold text-slate-800">{title}</h3>
       </div>
-      <div className="space-y-2">
+      <div className="p-6 space-y-4 flex-1">
         {children}
       </div>
     </div>
   );
 
-  const InfoRow = ({ label, value }) => (
-    <div className="flex items-start justify-between gap-4 text-sm">
-      <span className="text-slate-400 font-medium">{label}</span>
-      <span className="text-slate-700 font-bold text-right">{value || 'N/A'}</span>
+  const DetailItem = ({ label, value, icon: Icon }) => (
+    <div className="flex flex-col gap-1">
+      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+        {Icon && <Icon size={10} />}
+        {label}
+      </span>
+      <span className="text-sm font-semibold text-slate-700 break-words">
+        {value || <span className="text-slate-300 italic">Not specified</span>}
+      </span>
     </div>
   );
 
   return (
-    <div className="space-y-8">
-      <div className="text-center max-w-2xl mx-auto mb-10">
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Review Your Booking</h2>
-        <p className="text-slate-500 font-medium">Please double check all the information below before proceeding to secure payment.</p>
+    <div className="space-y-10">
+      <div className="text-center max-w-2xl mx-auto">
+        <div className="mx-auto w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+          <ClipboardCheck size={32} />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Review & Confirm</h2>
+        <p className="text-slate-500 font-medium">Please review all your booking details before final submission. Once confirmed, we will begin coordinating with the factory.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <SummaryCard title="Service Selection" icon={ShieldCheck} stepNumber={1}>
-          <InfoRow label="Type" value={bookingData.service?.name} />
-          <InfoRow label="Base Price" value={`$${bookingData.service?.price?.toFixed(2)}`} />
+        {/* Service & Product Card */}
+        <SummaryCard 
+          title="Product & Service" 
+          icon={Package} 
+          color={{ bg: 'bg-orange-50/50', text: 'text-orange-600' }}
+        >
+          <DetailItem label="Booking ID" value={systemIds.avId} icon={Hash} />
+          <DetailItem label="Service Type" value={bookingData.service?.name} icon={Shield} />
+          <DetailItem label="Product Name" value={bookingData.product?.name} />
+          <DetailItem label="Quantity" value={`${bookingData.product?.quantity} ${bookingData.product?.unitType}`} />
+          <DetailItem label="Inspection Date" value={bookingData.product?.inspectionDate} icon={Calendar} />
         </SummaryCard>
 
-        <SummaryCard title="Location Details" icon={MapPin} stepNumber={2}>
-          <InfoRow label="Address" value={bookingData.location?.address} />
-          <InfoRow label="City" value={bookingData.location?.city} />
-          <InfoRow label="Country" value={bookingData.location?.country} />
+        {/* Location & Factory Card */}
+        <SummaryCard 
+          title="Factory Details" 
+          icon={Factory} 
+          color={{ bg: 'bg-indigo-50/50', text: 'text-indigo-600' }}
+        >
+          <DetailItem label="Factory Name" value={bookingData.factory?.name} />
+          <DetailItem label="Location" value={`${bookingData.location?.city}, ${bookingData.location?.country}`} icon={MapPin} />
+          <DetailItem label="Address" value={bookingData.factory?.location || bookingData.location?.address} />
+          <DetailItem label="Factory ID" value={systemIds.factoryId} icon={Hash} />
         </SummaryCard>
 
-        <SummaryCard title="Product Info" icon={Package} stepNumber={3}>
-          <InfoRow label="Product" value={bookingData.product?.name} />
-          <InfoRow label="Category" value={bookingData.product?.category} />
-        </SummaryCard>
-
-        <SummaryCard title="Documents" icon={FileText} stepNumber={4}>
-          <InfoRow label="Files" value={bookingData.files?.length > 0 ? `${bookingData.files.length} Files` : 'None'} />
-          {bookingData.files?.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1">
-              {bookingData.files.slice(0, 3).map(f => (
-                <span key={f.id} className="text-[10px] bg-white px-2 py-1 rounded-md border border-slate-100 font-bold text-slate-500">{f.name.slice(0, 10)}...</span>
-              ))}
-            </div>
-          )}
-        </SummaryCard>
-
-        <SummaryCard title="Factory Info" icon={Factory} stepNumber={5}>
-          <InfoRow label="Name" value={bookingData.factory?.name} />
-          <InfoRow label="Location" value={bookingData.factory?.location} />
-        </SummaryCard>
-
-        <SummaryCard title="Contact Person" icon={User} stepNumber={6}>
-          <InfoRow label="Name" value={bookingData.contact?.name} />
-          <InfoRow label="Email" value={bookingData.contact?.email} />
-          <InfoRow label="Phone" value={bookingData.contact?.phone} />
+        {/* Contact Details Card */}
+        <SummaryCard 
+          title="Contact Person" 
+          icon={User} 
+          color={{ bg: 'bg-blue-50/50', text: 'text-blue-600' }}
+        >
+          <DetailItem label="Contact Name" value={bookingData.contact?.name} />
+          <DetailItem label="Email ID" value={bookingData.contact?.email} />
+          <DetailItem label="Phone Number" value={bookingData.contact?.phone} />
+          <DetailItem label="Designation" value={bookingData.contact?.designation} />
+          <DetailItem label="Contact ID" value={systemIds.factoryContactId} icon={Hash} />
         </SummaryCard>
       </div>
 
-      {/* Summary Footer */}
-      <div className="mt-10 bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden">
-        {/* Background Accent */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 blur-[80px] -mr-32 -mt-32"></div>
-        
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-indigo-400">
-              <CreditCard size={20} />
-              <span className="text-sm font-bold uppercase tracking-widest">Order Summary</span>
-            </div>
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-black">${calculateTotal().toFixed(2)}</span>
-                <span className="text-slate-400 font-medium">USD</span>
-              </div>
-              <p className="text-slate-400 text-sm mt-1">Includes all service fees and taxes</p>
-            </div>
+      <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="max-w-md">
+            <h3 className="text-xl font-bold mb-2">Ready to submit?</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              By confirming, you agree to our terms of service. Our team will verify the details and assign an inspector within 24 hours.
+            </p>
           </div>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button 
-              onClick={prevStep}
-              className="px-6 py-4 rounded-2xl font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center gap-2"
-            >
-              <ArrowLeft size={20} />
-              Back
-            </button>
-            <button 
-              onClick={handleConfirm}
-              className="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-lg hover:bg-slate-100 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl shadow-slate-950/20"
-            >
-              Secure Checkout
-              <ArrowRight size={20} />
-            </button>
-          </div>
+          <button
+            onClick={nextStep}
+            className="group bg-white text-slate-900 px-10 py-5 rounded-2xl font-black text-lg hover:bg-slate-100 transition-all flex items-center gap-3 shadow-xl active:scale-95 shrink-0"
+          >
+            Confirm Booking
+            <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
+      </div>
 
-        <div className="relative z-10 mt-8 pt-6 border-t border-white/10 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-indigo-400">
-            <Info size={16} />
-          </div>
-          <p className="text-xs text-slate-400 font-medium">
-            By clicking "Secure Checkout", you agree to our Terms of Service and Privacy Policy. Final price may vary based on actual inspection duration.
-          </p>
+      <div className="flex flex-col items-center gap-6 pt-4">
+        <Button 
+          variant="secondary" 
+          onClick={prevStep} 
+          className="h-14 px-8 rounded-2xl font-bold border-slate-200 hover:bg-slate-50"
+        >
+          Back to AQL
+        </Button>
+        
+        <div className="text-center space-y-2">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Absolute Veritas Quality Assurance</p>
+          <p className="text-[9px] text-slate-400">Copyright © 2024. All rights reserved.</p>
         </div>
       </div>
     </div>

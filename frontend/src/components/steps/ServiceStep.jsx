@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  ShieldCheck, 
-  Settings, 
-  Search, 
-  FileText, 
+import {
+  ShieldCheck,
+  Settings,
+  Search,
+  FileText,
   ArrowRight,
   CheckCircle2
 } from 'lucide-react';
@@ -26,10 +26,10 @@ const ServiceStep = () => {
 
   const handleSelect = (service) => {
     setSelectedServiceId(service.id);
-    updateStepData('service', { 
-      id: service.id, 
-      name: service.name, 
-      price: service.price 
+    updateStepData('service', {
+      id: service.id,
+      name: service.name,
+      price: service.price
     });
   };
 
@@ -53,8 +53,8 @@ const ServiceStep = () => {
               onClick={() => handleSelect(service)}
               className={cn(
                 "relative p-6 rounded-3xl border-2 cursor-pointer transition-all duration-300 flex flex-col h-full",
-                isSelected 
-                  ? "border-indigo-600 bg-indigo-50/30 ring-4 ring-indigo-50" 
+                isSelected
+                  ? "border-indigo-600 bg-indigo-50/30 ring-4 ring-indigo-50"
                   : "border-slate-100 bg-white hover:border-slate-200 hover:shadow-lg hover:shadow-slate-100"
               )}
             >
@@ -101,13 +101,13 @@ const ServiceStep = () => {
       </div>
 
       <div className="pt-10 flex justify-end">
-        <button 
+        <button
           onClick={nextStep}
           disabled={!selectedServiceId}
           className={cn(
             "group flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg transition-all",
-            selectedServiceId 
-              ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 active:scale-95" 
+            selectedServiceId
+              ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 active:scale-95"
               : "bg-slate-100 text-slate-400 cursor-not-allowed"
           )}
         >
