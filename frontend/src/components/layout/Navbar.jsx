@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAuth } from '../../store/authStore';
-import useUIStore from '../../store/uiStore';
+import { useAuth } from '../../store/authStore.jsx';
+import useUIStore from '../../store/uiStore.js';
 import { Bell, Search, User as UserIcon, Menu, X } from 'lucide-react';
 
 const Navbar = () => {

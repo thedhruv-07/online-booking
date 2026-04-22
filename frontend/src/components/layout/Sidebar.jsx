@@ -15,8 +15,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/cn';
-import { useAuth } from '../../store/authStore';
-import useUIStore from '../../store/uiStore';
+import { useAuth } from '../../store/authStore.jsx';
+import useUIStore from '../../store/uiStore.js';
 
 const SidebarItem = ({ icon: Icon, label, to, isCollapsed }) => {
   return (

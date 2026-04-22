@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import { motion } from 'framer-motion';
 import { cn } from '../../utils/cn';
-import useUIStore from '../../store/uiStore';
+import useUIStore from '../../store/uiStore.js';
 
 const MainLayout = () => {
   const { isSidebarCollapsed } = useUIStore();

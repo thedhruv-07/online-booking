@@ -62,14 +62,14 @@ const OverviewStep = () => {
   return (
     <div className="space-y-10">
       <div className="text-center max-w-2xl mx-auto">
-        <div className="mx-auto w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-          <ClipboardCheck size={32} />
+        <div className="mx-auto w-20 h-20 bg-slate-900 text-white rounded-[2rem] flex items-center justify-center mb-8 shadow-2xl shadow-slate-200">
+          <ClipboardCheck size={40} />
         </div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Review & Confirm</h2>
-        <p className="text-slate-500 font-medium">Please review all your booking details before final submission. Once confirmed, we will begin coordinating with the factory.</p>
+        <h2 className="text-4xl font-black text-slate-900 mb-3 tracking-tight uppercase">Review & Confirm</h2>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Verify your booking parameters</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {/* Service & Product Card */}
         <SummaryCard 
           title="Product & Service" 
@@ -109,37 +109,41 @@ const OverviewStep = () => {
         </SummaryCard>
       </div>
 
-      <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="max-w-md">
-            <h3 className="text-xl font-bold mb-2">Ready to submit?</h3>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              By confirming, you agree to our terms of service. Our team will verify the details and assign an inspector within 24 hours.
+      <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -mr-64 -mt-64 group-hover:bg-indigo-500/20 transition-all duration-1000"></div>
+        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+          <div className="max-w-xl text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 mb-6">
+              <Shield size={12} />
+              Verified Protocol
+            </div>
+            <h3 className="text-3xl font-black mb-4 tracking-tight">Ready to initiate inspection?</h3>
+            <p className="text-slate-400 font-medium leading-relaxed">
+              By confirming, you authorize Absolute Veritas to begin coordinating with the factory. Our team will assign a certified inspector within the next 24 business hours.
             </p>
           </div>
           <button
             onClick={nextStep}
-            className="group bg-white text-slate-900 px-10 py-5 rounded-2xl font-black text-lg hover:bg-slate-100 transition-all flex items-center gap-3 shadow-xl active:scale-95 shrink-0"
+            className="group bg-indigo-600 text-white px-12 py-6 rounded-2xl font-black text-xl hover:bg-indigo-700 transition-all flex items-center gap-4 shadow-2xl shadow-indigo-500/20 active:scale-95 shrink-0"
           >
-            Confirm Booking
-            <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+            Confirm & Proceed
+            <ArrowRight className="group-hover:translate-x-2 transition-transform" size={24} strokeWidth={3} />
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-6 pt-4">
-        <Button 
-          variant="secondary" 
+      <div className="flex flex-col items-center gap-8 pt-6">
+        <button 
           onClick={prevStep} 
-          className="h-14 px-8 rounded-2xl font-bold border-slate-200 hover:bg-slate-50"
+          className="h-16 px-10 rounded-2xl font-black text-xs uppercase tracking-[0.2em] border-2 border-slate-100 text-slate-400 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-200 transition-all flex items-center gap-3"
         >
-          Back to AQL
-        </Button>
+          <ArrowRight className="rotate-180" size={16} />
+          Back to parameters
+        </button>
         
-        <div className="text-center space-y-2">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Absolute Veritas Quality Assurance</p>
-          <p className="text-[9px] text-slate-400">Copyright © 2024. All rights reserved.</p>
+        <div className="text-center space-y-3">
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Absolute Veritas Global Quality Control</p>
+          <p className="text-[9px] text-slate-300 font-bold">Copyright © 2024. Standard Inspection Terms Apply.</p>
         </div>
       </div>
     </div>
