@@ -1,19 +1,15 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ShieldCheck, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../../store/authStore';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
-import Alert from '../../components/ui/Alert';
+import { cn } from '../../utils/cn';
 
-/**
- * Login Page
- */
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, resendVerification, loading, error, clearError } = useAuth();
-  const [resending, setResending] = useState(false);
-
+  
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -31,8 +27,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Basic validation
     if (!formData.email || !formData.password) {
       setValidationError('Please fill in all fields');
       return;
@@ -45,102 +39,119 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
-            <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      {/* Background Decor */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-100 rounded-full blur-[120px] opacity-60"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-100 rounded-full blur-[120px] opacity-60"></div>
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-md w-full bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10"
+      >
+        <div className="text-center mb-10">
+          <div className="mx-auto w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-200">
+            <ShieldCheck className="w-10 h-10 text-white" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Or{' '}
-            <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
-              create a new account
-            </Link>
-          </p>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome Back</h1>
+          <p className="text-slate-500 mt-2 font-medium">Enter your credentials to access your account</p>
         </div>
 
-        {/* Error Alert */}
         {(error || validationError) && (
-          <div className="space-y-2">
-            <Alert type="error">
-              {error || validationError}
-            </Alert>
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-sm font-medium"
+          >
+            {error || validationError}
             {error && error.includes('verify your email') && (
               <button
                 type="button"
                 onClick={() => resendVerification(formData.email)}
-                className="text-sm text-blue-600 hover:text-blue-500 font-medium block w-full text-center"
+                className="mt-2 text-indigo-600 hover:underline block font-bold"
               >
                 Resend activation link
               </button>
             )}
-          </div>
+          </motion.div>
         )}
 
-        {/* Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <Input
-              label="Email address"
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
-              className="rounded-t-md"
-            />
-
-            <Input
-              label="Password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-              className="rounded-b-md"
-            />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="name@company.com"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium"
+                required
+              />
+            </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-                Forgot your password?
+          <div className="space-y-2">
+            <div className="flex items-center justify-between ml-1">
+              <label className="text-sm font-bold text-slate-700">Password</label>
+              <Link to="/forgot-password" size="sm" className="text-xs font-bold text-indigo-600 hover:text-indigo-700">
+                Forgot password?
               </Link>
             </div>
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium"
+                required
+              />
+            </div>
           </div>
 
-          <Button type="submit" loading={loading} className="w-full">
-            Sign in
-          </Button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-indigo-100"
+          >
+            {loading ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              <>
+                Sign In
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
+          </button>
         </form>
 
-        {/* Demo credentials hint */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <p className="text-sm text-blue-800">
-            <strong>Demo:</strong> Use any email/password combination. This is a demo application.
-          </p>
+        <p className="text-center mt-8 text-slate-500 font-medium">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-indigo-600 font-bold hover:text-indigo-700">
+            Create Account
+          </Link>
+        </p>
+
+        {/* Demo Credentials */}
+        <div className="mt-8 pt-6 border-t border-slate-100">
+          <div className="bg-slate-50 rounded-2xl p-4 flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-800 uppercase tracking-tight">Demo Credentials</p>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">Use any valid email and password for this preview.</p>
+            </div>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

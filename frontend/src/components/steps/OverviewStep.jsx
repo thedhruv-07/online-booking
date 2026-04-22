@@ -1,13 +1,32 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { 
+  ShieldCheck, 
+  MapPin, 
+  Package, 
+  FileText, 
+  Factory, 
+  User, 
+  Settings2,
+  ArrowRight,
+  ArrowLeft,
+  CreditCard,
+  Info
+} from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
-import Button from '../ui/Button';
-import { formatCurrency } from '../../utils/helpers';
+import { cn } from '../../utils/cn';
 
-/**
- * Step 8: Booking Overview
- */
 const OverviewStep = () => {
   const { bookingData, prevStep, nextStep, setOverview } = useBooking();
 
+  const calculateTotal = () => {
+    const servicePrice = bookingData.service?.price || 0;
+    let total = servicePrice;
+    if (bookingData.files?.length > 0) {
+      total += 50; // Processing fee
+    }
+    return total;
+  };
 
   const handleConfirm = () => {
     const summary = {
@@ -19,169 +38,123 @@ const OverviewStep = () => {
     nextStep();
   };
 
+  const SummaryCard = ({ title, icon: Icon, children, stepNumber }) => (
+    <div className="bg-slate-50/50 rounded-2xl border border-slate-100 p-5 group hover:bg-white hover:border-indigo-100 transition-all">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-all">
+          <Icon size={20} />
+        </div>
+        <div className="flex-1">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none block mb-0.5">Step {stepNumber}</span>
+          <h4 className="font-bold text-slate-800 leading-none">{title}</h4>
+        </div>
+      </div>
+      <div className="space-y-2">
+        {children}
+      </div>
+    </div>
+  );
 
-  const calculateTotal = () => {
-    // Base service price
-    const servicePrice = bookingData.service?.price || 0;
-
-    // Additional costs based on selections
-    let total = servicePrice;
-
-    // Add file upload handling fee if files present
-    if (bookingData.files && bookingData.files.length > 0) {
-      total += 50; // File processing fee
-    }
-
-    return total;
-  };
-
-  const renderDetailRow = (label, value) => (
-    <div className="flex justify-between py-2 border-b border-gray-100">
-      <span className="text-gray-600">{label}</span>
-      <span className="font-medium text-gray-900">{value}</span>
+  const InfoRow = ({ label, value }) => (
+    <div className="flex items-start justify-between gap-4 text-sm">
+      <span className="text-slate-400 font-medium">{label}</span>
+      <span className="text-slate-700 font-bold text-right">{value || 'N/A'}</span>
     </div>
   );
 
   return (
-    <div className="card">
-      <h2 className="text-2xl font-bold mb-6">Booking Overview</h2>
-      <p className="text-gray-600 mb-6">
-        Review your booking details before proceeding to payment.
-      </p>
+    <div className="space-y-8">
+      <div className="text-center max-w-2xl mx-auto mb-10">
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Review Your Booking</h2>
+        <p className="text-slate-500 font-medium">Please double check all the information below before proceeding to secure payment.</p>
+      </div>
 
-      <div className="space-y-6">
-        {/* Service */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              1
-            </span>
-            Service
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Service Type', bookingData.service?.name || 'N/A')}
-            {renderDetailRow('Base Price', formatCurrency(bookingData.service?.price || 0))}
-          </div>
-        </section>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <SummaryCard title="Service Selection" icon={ShieldCheck} stepNumber={1}>
+          <InfoRow label="Type" value={bookingData.service?.name} />
+          <InfoRow label="Base Price" value={`$${bookingData.service?.price?.toFixed(2)}`} />
+        </SummaryCard>
 
-        {/* Location */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              2
-            </span>
-            Location
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Address', `${bookingData.location?.address || 'N/A'}, ${bookingData.location?.city || ''}`)}
-            {renderDetailRow('Country', bookingData.location?.country || 'N/A')}
-            {renderDetailRow('Postal Code', bookingData.location?.postalCode || 'N/A')}
-          </div>
-        </section>
+        <SummaryCard title="Location Details" icon={MapPin} stepNumber={2}>
+          <InfoRow label="Address" value={bookingData.location?.address} />
+          <InfoRow label="City" value={bookingData.location?.city} />
+          <InfoRow label="Country" value={bookingData.location?.country} />
+        </SummaryCard>
 
-        {/* Product */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              3
-            </span>
-            Product
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Product Type', bookingData.product?.name || 'N/A')}
-            {bookingData.product?.category && renderDetailRow('Category', bookingData.product.category)}
-          </div>
-        </section>
+        <SummaryCard title="Product Info" icon={Package} stepNumber={3}>
+          <InfoRow label="Product" value={bookingData.product?.name} />
+          <InfoRow label="Category" value={bookingData.product?.category} />
+        </SummaryCard>
 
-        {/* Uploads */}
-        {bookingData.files?.length > 0 && (
-          <section>
-            <h3 className="text-lg font-semibold mb-3 flex items-center">
-              <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-                4
-              </span>
-              Documents
-            </h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              {bookingData.files.map((file) => (
-                <div key={file.id} className="flex items-center py-2">
-                  <svg className="w-5 h-5 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                </div>
+        <SummaryCard title="Documents" icon={FileText} stepNumber={4}>
+          <InfoRow label="Files" value={bookingData.files?.length > 0 ? `${bookingData.files.length} Files` : 'None'} />
+          {bookingData.files?.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {bookingData.files.slice(0, 3).map(f => (
+                <span key={f.id} className="text-[10px] bg-white px-2 py-1 rounded-md border border-slate-100 font-bold text-slate-500">{f.name.slice(0, 10)}...</span>
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </SummaryCard>
 
-        {/* Factory */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              5
-            </span>
-            Factory
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Factory', bookingData.factory?.name || 'N/A')}
-            {bookingData.factory?.location && renderDetailRow('Location', bookingData.factory.location)}
-          </div>
-        </section>
+        <SummaryCard title="Factory Info" icon={Factory} stepNumber={5}>
+          <InfoRow label="Name" value={bookingData.factory?.name} />
+          <InfoRow label="Location" value={bookingData.factory?.location} />
+        </SummaryCard>
 
-        {/* Contact */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              6
-            </span>
-            Contact
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Contact Person', bookingData.contact?.name || 'N/A')}
-            {renderDetailRow('Email', bookingData.contact?.email || 'N/A')}
-            {renderDetailRow('Phone', bookingData.contact?.phone || 'N/A')}
-            {bookingData.contact?.company && renderDetailRow('Company', bookingData.contact.company)}
-          </div>
-        </section>
-
-        {/* AQL */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              7
-            </span>
-            AQL Configuration
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Inspection Level', bookingData.aql?.inspectionLevel === 'general' ? 'General' : 'Special')}
-            {renderDetailRow('Sample Size', bookingData.aql?.sampleSize === 'level-1' ? 'Level I' : bookingData.aql?.sampleSize === 'level-2' ? 'Level II' : 'Level III')}
-            {renderDetailRow('Accept Limit', bookingData.aql?.acceptLimit || 'N/A')}
-            {renderDetailRow('Reject Limit', bookingData.aql?.rejectLimit || 'N/A')}
-          </div>
-        </section>
+        <SummaryCard title="Contact Person" icon={User} stepNumber={6}>
+          <InfoRow label="Name" value={bookingData.contact?.name} />
+          <InfoRow label="Email" value={bookingData.contact?.email} />
+          <InfoRow label="Phone" value={bookingData.contact?.phone} />
+        </SummaryCard>
       </div>
 
-      {/* Total */}
-      <div className="mt-6 p-6 bg-blue-50 rounded-lg">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-gray-600">Estimated Total</p>
-            <p className="text-3xl font-bold text-blue-600">{formatCurrency(calculateTotal())}</p>
+      {/* Summary Footer */}
+      <div className="mt-10 bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden">
+        {/* Background Accent */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 blur-[80px] -mr-32 -mt-32"></div>
+        
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-indigo-400">
+              <CreditCard size={20} />
+              <span className="text-sm font-bold uppercase tracking-widest">Order Summary</span>
+            </div>
+            <div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-black">${calculateTotal().toFixed(2)}</span>
+                <span className="text-slate-400 font-medium">USD</span>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Includes all service fees and taxes</p>
+            </div>
           </div>
-          <p className="text-sm text-gray-500">
-            Final price may vary based on actual inspection time
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button 
+              onClick={prevStep}
+              className="px-6 py-4 rounded-2xl font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+            >
+              <ArrowLeft size={20} />
+              Back
+            </button>
+            <button 
+              onClick={handleConfirm}
+              className="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-lg hover:bg-slate-100 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl shadow-slate-950/20"
+            >
+              Secure Checkout
+              <ArrowRight size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="relative z-10 mt-8 pt-6 border-t border-white/10 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-indigo-400">
+            <Info size={16} />
+          </div>
+          <p className="text-xs text-slate-400 font-medium">
+            By clicking "Secure Checkout", you agree to our Terms of Service and Privacy Policy. Final price may vary based on actual inspection duration.
           </p>
         </div>
-      </div>
-
-      <div className="mt-8 flex justify-between">
-        <Button type="button" variant="secondary" onClick={prevStep}>
-          Back
-        </Button>
-        <Button type="button" onClick={handleConfirm}>
-          Proceed to Payment
-        </Button>
       </div>
     </div>
   );

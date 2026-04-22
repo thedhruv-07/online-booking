@@ -1,69 +1,120 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  ShieldCheck, 
+  Settings, 
+  Search, 
+  FileText, 
+  ArrowRight,
+  CheckCircle2
+} from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
-import Button from '../ui/Button';
 import { services as mockServices } from '../../utils/constants';
+import { cn } from '../../utils/cn';
 
-/**
- * Step 1: Service Selection
- */
+// Mapping icons to service IDs (mock data)
+const serviceIcons = {
+  'pre-shipment': ShieldCheck,
+  'during-production': Settings,
+  'factory-audit': Search,
+  'container-loading': FileText,
+};
+
 const ServiceStep = () => {
   const { updateStepData, bookingData, nextStep } = useBooking();
+  const [selectedServiceId, setSelectedServiceId] = useState(bookingData.service?.id || '');
 
-  const [selectedService, setSelectedService] = useState(bookingData.service?.id || '');
-
-  const handleChange = (e) => {
-    const serviceId = e.target.value;
-    setSelectedService(serviceId);
-
-    const service = mockServices.find((s) => s.id === serviceId);
-    updateStepData('service', service ? { id: service.id, name: service.name, price: service.price } : null);
+  const handleSelect = (service) => {
+    setSelectedServiceId(service.id);
+    updateStepData('service', { 
+      id: service.id, 
+      name: service.name, 
+      price: service.price 
+    });
   };
 
   return (
-    <div className="card">
-      <h2 className="text-2xl font-bold mb-6">Select Service Type</h2>
-      <p className="text-gray-600 mb-6">
-        Choose the type of inspection service you need for your products.
-      </p>
+    <div className="space-y-8">
+      <div className="text-center max-w-2xl mx-auto mb-10">
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">What service do you need?</h2>
+        <p className="text-slate-500 font-medium">Select the type of inspection that best fits your requirements. You can add more details in the next steps.</p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {mockServices.map((service) => (
-          <div
-            key={service.id}
-            onClick={() => setSelectedService(service.id)}
-            className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-              selectedService === service.id
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <div className="flex items-start space-x-3">
-              <input
-                type="radio"
-                name="service"
-                value={service.id}
-                checked={selectedService === service.id}
-                onChange={handleChange}
-                className="mt-1"
-              />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {mockServices.map((service) => {
+          const Icon = serviceIcons[service.id] || ShieldCheck;
+          const isSelected = selectedServiceId === service.id;
+
+          return (
+            <motion.div
+              key={service.id}
+              whileHover={{ y: -4 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleSelect(service)}
+              className={cn(
+                "relative p-6 rounded-3xl border-2 cursor-pointer transition-all duration-300 flex flex-col h-full",
+                isSelected 
+                  ? "border-indigo-600 bg-indigo-50/30 ring-4 ring-indigo-50" 
+                  : "border-slate-100 bg-white hover:border-slate-200 hover:shadow-lg hover:shadow-slate-100"
+              )}
+            >
+              {isSelected && (
+                <div className="absolute top-4 right-4 text-indigo-600">
+                  <CheckCircle2 size={24} fill="currentColor" className="text-white" />
+                </div>
+              )}
+
+              <div className={cn(
+                "w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-colors",
+                isSelected ? "bg-indigo-600 text-white" : "bg-slate-50 text-slate-400 group-hover:text-slate-600"
+              )}>
+                <Icon size={28} />
+              </div>
+
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">{service.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">{service.description}</p>
-                <p className="text-lg font-bold text-blue-600 mt-2">
-                  ${service.price.toFixed(2)}
+                <h3 className={cn(
+                  "text-xl font-bold mb-2 transition-colors",
+                  isSelected ? "text-slate-900" : "text-slate-700"
+                )}>
+                  {service.name}
+                </h3>
+                <p className="text-slate-500 text-sm font-medium leading-relaxed mb-4">
+                  {service.description}
                 </p>
               </div>
-            </div>
-          </div>
-        ))}
+
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                <div>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Starting at</span>
+                  <span className="text-2xl font-black text-slate-900">${service.price.toFixed(2)}</span>
+                </div>
+                <div className={cn(
+                  "px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all",
+                  isSelected ? "bg-indigo-600 text-white" : "bg-slate-50 text-slate-400"
+                )}>
+                  {isSelected ? "Selected" : "Select"}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
-      <div className="mt-8 flex justify-end">
-        <Button type="button" onClick={nextStep}>
+      <div className="pt-10 flex justify-end">
+        <button 
+          onClick={nextStep}
+          disabled={!selectedServiceId}
+          className={cn(
+            "group flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg transition-all",
+            selectedServiceId 
+              ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 active:scale-95" 
+              : "bg-slate-100 text-slate-400 cursor-not-allowed"
+          )}
+        >
           Continue to Location
-        </Button>
+          <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+        </button>
       </div>
-
     </div>
   );
 };

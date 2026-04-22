@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ShieldCheck, 
+  Mail, 
+  Lock, 
+  User, 
+  Phone, 
+  ArrowRight, 
+  Loader2,
+  CheckCircle2
+} from 'lucide-react';
 import { useAuth } from '../../store/authStore';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
-import Alert from '../../components/ui/Alert';
+import { cn } from '../../utils/cn';
 
-/**
- * Signup Page
- */
 const Signup = () => {
   const navigate = useNavigate();
   const { signup, loading, error, clearError } = useAuth();
@@ -36,7 +42,6 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!formData.name || !formData.email || !formData.password) {
       setValidationError('Please fill in all required fields');
       return;
@@ -71,136 +76,183 @@ const Signup = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4">
-        <div className="max-w-md w-full text-center space-y-8">
-          <div className="mx-auto h-16 w-16 bg-green-100 rounded-full flex items-center justify-center">
-            <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-100 p-10 text-center"
+        >
+          <div className="mx-auto w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
+            <CheckCircle2 className="w-12 h-12 text-emerald-600" />
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900">Check your email</h2>
-          <p className="text-gray-600">
-            We've sent a verification link to <span className="font-medium text-gray-900">{formData.email}</span>. 
+          <h2 className="text-3xl font-bold text-slate-900 mb-4">Check your email</h2>
+          <p className="text-slate-500 font-medium mb-8">
+            We've sent a verification link to <span className="text-indigo-600 font-bold">{formData.email}</span>. 
             Please verify your account to continue.
           </p>
-          <div className="pt-4">
-            <Link to="/login" className="text-blue-600 hover:text-blue-500 font-medium">
-              Return to Login
-            </Link>
-          </div>
-        </div>
+          <Link 
+            to="/login" 
+            className="inline-flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-700 text-lg transition-colors"
+          >
+            Return to Login <ArrowRight size={20} />
+          </Link>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
-            <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-12 sm:px-6 lg:px-8">
+      {/* Background Decor */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-100 rounded-full blur-[120px] opacity-60"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100 rounded-full blur-[120px] opacity-60"></div>
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-md w-full bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10"
+      >
+        <div className="text-center mb-10">
+          <div className="mx-auto w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-200">
+            <ShieldCheck className="w-10 h-10 text-white" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Create your account</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              Sign in
-            </Link>
-          </p>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Create Account</h1>
+          <p className="text-slate-500 mt-2 font-medium">Join us and start managing your inspections</p>
         </div>
 
-        {/* Error Alert */}
-        {(error || validationError) && (
-          <Alert type="error">
-            {error || validationError}
-          </Alert>
-        )}
+        <AnimatePresence>
+          {(error || validationError) && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-sm font-medium"
+            >
+              {error || validationError}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <Input
-              label="Full Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="John Doe"
-              required
-            />
-
-            <Input
-              label="Email address"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
-            />
-
-            <Input
-              label="Phone Number"
-              name="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="+1 (555) 123-4567"
-            />
-
-            <Input
-              label="Password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
-
-            <Input
-              label="Confirm Password"
-              name="confirmPassword"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="John Doe"
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium"
+                required
+              />
+            </div>
           </div>
 
-          <div className="flex items-center">
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="name@company.com"
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
+            <div className="relative group">
+              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+1 (555) 000-0000"
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700 ml-1">Password</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium text-sm"
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700 ml-1">Confirm</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all font-medium text-sm"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 py-2 px-1">
             <input
               id="accept-terms"
               name="acceptTerms"
               type="checkbox"
               checked={formData.acceptTerms}
               onChange={handleChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="w-5 h-5 text-indigo-600 border-slate-300 rounded-lg focus:ring-indigo-600 transition-all cursor-pointer"
             />
-            <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-900">
-              I agree to the{' '}
-              <Link to="/terms" className="text-blue-600 hover:text-blue-500">
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link to="/privacy" className="text-blue-600 hover:text-blue-500">
-                Privacy Policy
-              </Link>
+            <label htmlFor="accept-terms" className="text-xs font-medium text-slate-500 leading-tight">
+              I agree to the <Link to="/terms" className="text-indigo-600 font-bold hover:underline">Terms</Link> and <Link to="/privacy" className="text-indigo-600 font-bold hover:underline">Privacy Policy</Link>
             </label>
           </div>
 
-          <Button type="submit" loading={loading} className="w-full">
-            Create Account
-          </Button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-indigo-100"
+          >
+            {loading ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              <>
+                Create Account
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
+          </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-gray-600">
-          After signup, you'll receive an email verification link.
+        <p className="text-center mt-8 text-slate-500 font-medium">
+          Already have an account?{' '}
+          <Link to="/login" className="text-indigo-600 font-bold hover:text-indigo-700">
+            Sign In
+          </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };

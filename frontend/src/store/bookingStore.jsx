@@ -24,6 +24,11 @@ const initialState = {
     payment: null,
   },
   bookings: [],
+  pagination: {
+    total: 0,
+    page: 1,
+    pages: 1
+  },
   isSubmitting: false,
   isLoading: false,
   error: null,
@@ -143,7 +148,12 @@ function bookingReducer(state, action) {
       };
 
     case BOOKING_ACTIONS.SET_BOOKINGS:
-      return { ...state, bookings: action.payload, isLoading: false };
+      return { 
+        ...state, 
+        bookings: action.payload.data || [], 
+        pagination: action.payload.pagination || state.pagination,
+        isLoading: false 
+      };
 
     case BOOKING_ACTIONS.SET_LOADING:
       return { ...state, isLoading: action.payload };
@@ -286,17 +296,20 @@ export function BookingProvider({ children }) {
    * Set payment data
    */
   const setPayment = (data) => {
-    dispatch({ type: BOOKING_ACTIONS.SET_PAYMENT, payload: data });
+    dispatch({
+      type: BOOKING_ACTIONS.SET_PAYMENT,
+      payload: data,
+    });
   };
 
   /**
    * Fetch all bookings
    */
-  const fetchBookings = async () => {
+  const fetchBookings = async (filters = {}) => {
     dispatch({ type: BOOKING_ACTIONS.SET_LOADING, payload: true });
     try {
-      const data = await bookingService.getBookings();
-      dispatch({ type: BOOKING_ACTIONS.SET_BOOKINGS, payload: data });
+      const response = await bookingService.getBookings(filters);
+      dispatch({ type: BOOKING_ACTIONS.SET_BOOKINGS, payload: response });
     } catch (error) {
       dispatch({ type: BOOKING_ACTIONS.SET_ERROR, payload: error.message });
       dispatch({ type: BOOKING_ACTIONS.SET_LOADING, payload: false });

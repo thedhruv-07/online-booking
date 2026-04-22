@@ -1,13 +1,20 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  CreditCard, 
+  Wallet, 
+  Building2, 
+  ShieldCheck, 
+  Lock, 
+  ArrowLeft, 
+  Loader2,
+  CheckCircle2,
+  AlertCircle
+} from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
 import { PAYMENT_METHOD } from '../../utils/constants';
-import Button from '../ui/Button';
-import Alert from '../ui/Alert';
-import { formatCurrency } from '../../utils/helpers';
+import { cn } from '../../utils/cn';
 
-/**
- * Step 9: Payment
- */
 const PaymentStep = () => {
   const { bookingData, setPayment, prevStep, submitBooking } = useBooking();
   const [selectedMethod, setSelectedMethod] = useState(bookingData.payment?.method || '');
@@ -15,15 +22,29 @@ const PaymentStep = () => {
   const [error, setError] = useState(null);
 
   const paymentMethods = [
-    { id: PAYMENT_METHOD.PAYPAL, name: 'PayPal', icon: PayPalIcon, description: 'Pay securely with PayPal' },
-    { id: PAYMENT_METHOD.BANK_TRANSFER, name: 'Bank Transfer', icon: BankIcon, description: 'Direct bank transfer' },
+    { 
+      id: PAYMENT_METHOD.PAYPAL, 
+      name: 'PayPal', 
+      icon: Wallet, 
+      description: 'Pay via PayPal or Credit Card securely.',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50'
+    },
+    { 
+      id: PAYMENT_METHOD.BANK_TRANSFER, 
+      name: 'Bank Transfer', 
+      icon: Building2, 
+      description: 'Direct wire transfer to our corporate account.',
+      color: 'text-slate-600',
+      bg: 'bg-slate-50'
+    },
   ];
 
   const calculateTotal = () => {
     const servicePrice = bookingData.service?.price || 0;
     let total = servicePrice;
-    if (bookingData.files && bookingData.files.length > 0) {
-      total += 50; // File processing fee
+    if (bookingData.files?.length > 0) {
+      total += 50;
     }
     return total;
   };
@@ -33,24 +54,18 @@ const PaymentStep = () => {
     setIsProcessing(true);
 
     try {
-      // Save payment method
       setPayment({ method: selectedMethod });
-
-      // Submit booking
       const result = await submitBooking();
 
       if (result.success) {
-        // Redirect based on payment method
         if (selectedMethod === PAYMENT_METHOD.PAYPAL) {
           window.location.href = `/payment/paypal/${result.booking.id}`;
         } else {
-          // For bank transfer, redirect to dashboard after short delay
           setTimeout(() => {
             window.location.href = '/dashboard';
           }, 2000);
         }
       } else {
-        // Display error from submission
         setError(result.error || 'Failed to submit booking. Please try again.');
       }
     } catch (err) {
@@ -60,112 +75,144 @@ const PaymentStep = () => {
     }
   };
 
-  const canProceed = selectedMethod && !isProcessing;
-
   return (
-    <div className="card">
-      <h2 className="text-2xl font-bold mb-6">Payment</h2>
-      <p className="text-gray-600 mb-6">
-        Choose your preferred payment method to complete your booking.
-      </p>
+    <div className="space-y-8">
+      <div className="text-center max-w-2xl mx-auto mb-10">
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Finalize & Pay</h2>
+        <p className="text-slate-500 font-medium">Choose your payment method to complete the booking. All transactions are encrypted and secure.</p>
+      </div>
 
-      {/* Total Summary */}
-      <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600">Total Amount</span>
-          <span className="text-2xl font-bold text-blue-600">
-            {formatCurrency(calculateTotal())}
-          </span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Payment Options */}
+        <div className="lg:col-span-2 space-y-4">
+          <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Payment Method</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {paymentMethods.map((method) => {
+              const Icon = method.icon;
+              const isSelected = selectedMethod === method.id;
+
+              return (
+                <motion.div
+                  key={method.id}
+                  whileHover={{ x: 4 }}
+                  onClick={() => setSelectedMethod(method.id)}
+                  className={cn(
+                    "p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 flex items-center gap-4",
+                    isSelected 
+                      ? "border-indigo-600 bg-indigo-50/30 ring-4 ring-indigo-50" 
+                      : "border-slate-100 bg-white hover:border-slate-200"
+                  )}
+                >
+                  <div className={cn(
+                    "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
+                    isSelected ? "bg-indigo-600 text-white" : cn(method.bg, method.color)
+                  )}>
+                    <Icon size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-slate-800">{method.name}</h4>
+                    <p className="text-xs text-slate-500 font-medium">{method.description}</p>
+                  </div>
+                  <div className={cn(
+                    "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                    isSelected ? "border-indigo-600 bg-indigo-600" : "border-slate-200"
+                  )}>
+                    {isSelected && <CheckCircle2 size={14} className="text-white" strokeWidth={3} />}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          <AnimatePresence>
+            {selectedMethod && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-start gap-3 mt-6"
+              >
+                <Lock className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                  {selectedMethod === PAYMENT_METHOD.PAYPAL 
+                    ? "You will be redirected to PayPal's secure portal to complete the transaction. We don't store your credit card details." 
+                    : "For Bank Transfers, your booking will be confirmed once we verify the receipt of funds. Instructions will be sent to your email."}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Order Summary Sidebar */}
+        <div className="space-y-6">
+          <div className="bg-slate-900 rounded-3xl p-6 text-white shadow-xl shadow-slate-200">
+            <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+              <CreditCard size={20} className="text-indigo-400" />
+              Summary
+            </h3>
+            
+            <div className="space-y-4 mb-8">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400 font-medium">Service Fee</span>
+                <span className="font-bold">${bookingData.service?.price?.toFixed(2) || '0.00'}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400 font-medium">Processing</span>
+                <span className="font-bold">${bookingData.files?.length > 0 ? '50.00' : '0.00'}</span>
+              </div>
+              <div className="pt-4 border-t border-white/10 flex justify-between items-baseline">
+                <span className="text-indigo-400 font-bold uppercase tracking-widest text-xs">Total</span>
+                <span className="text-3xl font-black">${calculateTotal().toFixed(2)}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handlePayment}
+              disabled={!selectedMethod || isProcessing}
+              className={cn(
+                "w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2",
+                selectedMethod && !isProcessing
+                  ? "bg-white text-slate-900 hover:bg-slate-100"
+                  : "bg-white/10 text-white/30 cursor-not-allowed"
+              )}
+            >
+              {isProcessing ? (
+                <Loader2 className="w-6 h-6 animate-spin" />
+              ) : (
+                `Pay Now`
+              )}
+            </button>
+
+            <div className="mt-6 flex items-center justify-center gap-2 text-slate-500">
+              <ShieldCheck size={14} />
+              <span className="text-[10px] font-bold uppercase tracking-widest">SSL Secure Payment</span>
+            </div>
+          </div>
+
+          <button
+            onClick={prevStep}
+            disabled={isProcessing}
+            className="w-full py-4 rounded-2xl border-2 border-slate-100 text-slate-500 font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+          >
+            <ArrowLeft size={20} />
+            Back to Review
+          </button>
         </div>
       </div>
 
-      {error && (
-        <Alert type="error" className="mb-4">
-          {error}
-        </Alert>
-      )}
-
-      {/* Payment Methods */}
-      <div className="space-y-4 mb-8">
-        {paymentMethods.map((method) => {
-          const Icon = method.icon;
-          return (
-            <div
-              key={method.id}
-              onClick={() => setSelectedMethod(method.id)}
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                selectedMethod === method.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  name="payment"
-                  value={method.id}
-                  checked={selectedMethod === method.id}
-                  onChange={() => setSelectedMethod(method.id)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                />
-                <div className="ml-4 flex items-center flex-1">
-                  <Icon className="w-8 h-8 text-gray-600 mr-3" />
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{method.name}</h3>
-                    <p className="text-sm text-gray-500">{method.description}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {selectedMethod === PAYMENT_METHOD.PAYPAL && (
-        <Alert type="info" className="mb-6">
-          You will be redirected to PayPal to complete your payment securely.
-        </Alert>
-      )}
-
-      {selectedMethod === PAYMENT_METHOD.BANK_TRANSFER && (
-        <Alert type="info" className="mb-6">
-          After confirming, you will receive bank account details via email to complete the transfer.
-        </Alert>
-      )}
-
-      <div className="mt-8 flex justify-between">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={prevStep}
-          disabled={isProcessing}
-        >
-          Back
-        </Button>
-        <Button
-          type="button"
-          onClick={handlePayment}
-          loading={isProcessing}
-          disabled={!canProceed}
-        >
-          {isProcessing ? 'Processing...' : `Pay ${formatCurrency(calculateTotal())}`}
-        </Button>
-      </div>
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 flex items-start gap-3"
+          >
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <p className="text-sm font-medium">{error}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
-
-// Payment method icons
-const PayPalIcon = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 4.72a.771.771 0 0 1 .757-.64h7.547c1.833 0 3.367.623 4.592 1.867 1.225 1.244 1.867 2.759 1.867 4.592 0 1.833-.642 3.348-1.867 4.592-1.225 1.243-2.759 1.867-4.592 1.867h-1.99l-1.49 1.761a.641.641 0 0 1-.633.558H8.27a.771.771 0 0 1-.757-.64L1.39 8.378a.771.771 0 0 1 .566-1.152l6.164-7.247a.641.641 0 0 1 .633-.078zM20.693 11.32c-.743-.105-1.498-.142-2.27-.125a.641.641 0 0 0-.633.678l2.45 3.822-2.45 3.822a.641.641 0 0 0 .633.742c.743.105 1.498.143 2.27.125a.641.641 0 0 0 .632-.679l-2.45-3.822 2.45-3.822a.641.641 0 0 0-.632-.677z"/>
-  </svg>
-);
-
-const BankIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-  </svg>
-);
 
 export default PaymentStep;
