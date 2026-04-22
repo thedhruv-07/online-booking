@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { bookingService } from '../../services/booking.service';
-import { mockUsers } from '../../utils/constants';
 import { formatCurrency } from '../../utils/helpers';
-
 
 /**
  * Admin Dashboard - Overview of system metrics
@@ -17,23 +15,25 @@ const AdminDashboard = () => {
       try {
         const data = await bookingService.getAdminStats();
         
-        // Transform data into the format needed for the UI
+        // Transform real data into the format needed for the UI
         const statsArray = [
-          { label: 'Total Users', value: data.totalUsers.toLocaleString(), change: `+${data.growth.users}%`, color: 'bg-blue-500' },
-          { label: 'Total Bookings', value: data.totalBookings.toLocaleString(), change: `+${data.growth.bookings}%`, color: 'bg-green-500' },
-          { label: 'Pending Approvals', value: data.pendingApprovals.toLocaleString(), change: '+5', color: 'bg-yellow-500' },
-          { label: 'Revenue (MTD)', value: formatCurrency(data.revenue), change: `+${data.growth.revenue}%`, color: 'bg-purple-500' },
+          { label: 'Total Users', value: (data.totalUsers || 0).toLocaleString(), change: '', color: 'bg-blue-500' },
+          { label: 'Total Bookings', value: (data.totalBookings || 0).toLocaleString(), change: '', color: 'bg-green-500' },
+          { label: 'Total Payments', value: (data.totalPayments || 0).toLocaleString(), change: '', color: 'bg-yellow-500' },
+          { label: 'Revenue', value: formatCurrency(data.revenue || 0), change: '', color: 'bg-purple-500' },
         ];
         
         setStats(statsArray);
         
-        // Mocking some activities since we don't have a dedicated endpoint yet
-        setRecentActivities([
-          { id: 1, action: 'New booking created by john@example.com', time: '5 mins ago' },
-          { id: 2, action: 'Payment received for BK-002', time: '12 mins ago' },
-          { id: 3, action: 'User registration: jane@example.com', time: '1 hour ago' },
-          { id: 4, action: 'Booking BK-003 cancelled', time: '2 hours ago' },
-        ]);
+        // Use real recent bookings for activities if available
+        if (data.recentBookings) {
+          const activities = data.recentBookings.map(b => ({
+            id: b._id,
+            action: `New booking by ${b.userId?.name || b.userId?.email || 'User'}`,
+            time: new Date(b.createdAt).toLocaleDateString()
+          }));
+          setRecentActivities(activities);
+        }
       } catch (error) {
         console.error('Failed to fetch admin stats:', error);
       } finally {

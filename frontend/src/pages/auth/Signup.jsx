@@ -20,6 +20,7 @@ const Signup = () => {
     phone: '',
     acceptTerms: false,
   });
+  const [submitted, setSubmitted] = useState(false);
   const [validationError, setValidationError] = useState('');
 
   const handleChange = (e) => {
@@ -64,9 +65,33 @@ const Signup = () => {
     });
 
     if (result.success) {
-      navigate('/dashboard');
+      setSubmitted(true);
     }
   };
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4">
+        <div className="max-w-md w-full text-center space-y-8">
+          <div className="mx-auto h-16 w-16 bg-green-100 rounded-full flex items-center justify-center">
+            <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-extrabold text-gray-900">Check your email</h2>
+          <p className="text-gray-600">
+            We've sent a verification link to <span className="font-medium text-gray-900">{formData.email}</span>. 
+            Please verify your account to continue.
+          </p>
+          <div className="pt-4">
+            <Link to="/login" className="text-blue-600 hover:text-blue-500 font-medium">
+              Return to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">

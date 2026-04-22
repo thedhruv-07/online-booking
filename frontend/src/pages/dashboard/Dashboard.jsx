@@ -44,9 +44,11 @@ const Dashboard = () => {
   ];
 
   // Get 5 most recent bookings
-  const recentBookings = [...bookings]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 5);
+  const recentBookings = Array.isArray(bookings)
+    ? [...bookings]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5)
+    : [];
 
 
   return (

@@ -2,10 +2,7 @@
  * API configuration and interceptors
  */
 
-import { handleMockRequest } from './mockData';
-
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 
 
 /**
@@ -34,9 +31,6 @@ class ApiClient {
    * @returns {Promise<any>} Response data
    */
   async request(endpoint, options = {}) {
-    if (USE_MOCKS) {
-      return handleMockRequest(options.method || 'GET', endpoint, options.body ? JSON.parse(options.body) : null);
-    }
 
     const url = `${this.baseURL}${endpoint}`;
 
@@ -127,9 +121,6 @@ class ApiClient {
    * @returns {Promise<any>} Response data
    */
   async uploadFile(endpoint, formData) {
-    if (USE_MOCKS) {
-      return handleMockRequest('POST', endpoint, { fileName: 'mock_file.jpg' });
-    }
     const url = `${this.baseURL}${endpoint}`;
 
     try {

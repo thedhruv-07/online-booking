@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../store/authStore';
 import Button from '../../components/ui/Button';
@@ -16,6 +16,12 @@ const VerifyEmail = () => {
   const email = searchParams.get('email') || '';
 
   const [status, setStatus] = useState(token ? 'verifying' : 'missing_token');
+
+  useEffect(() => {
+    if (token) {
+      handleVerify();
+    }
+  }, [token]);
 
   const handleVerify = async () => {
     if (!token) {

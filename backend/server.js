@@ -9,13 +9,22 @@ const { errorHandler } = require('./middleware/errorHandler');
 
 dotenv.config();
 
+// Catch unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// Catch uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
 const app = express();
 
 /**
  * ✅ Connect DB
  */
-connectDB();
-
 /**
  * ✅ Ensure uploads folder exists
  */
@@ -28,9 +37,19 @@ if (!fs.existsSync(uploadDir)) {
  * ✅ Middlewares
  */
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: ['http://localhost:5173','http://localhost:5174', 'http://127.0.0.1:5173'],
   credentials: true,
 }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
+  });
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -80,6 +99,18 @@ app.use(errorHandler);
  */
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    console.log('Connecting to MongoDB...');
+    await connectDB();
+    console.log('MongoDB connected successfully.');
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();

@@ -11,7 +11,8 @@ import Alert from '../../components/ui/Alert';
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, loading, error, clearError } = useAuth();
+  const { login, resendVerification, loading, error, clearError } = useAuth();
+  const [resending, setResending] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -64,9 +65,20 @@ const Login = () => {
 
         {/* Error Alert */}
         {(error || validationError) && (
-          <Alert type="error">
-            {error || validationError}
-          </Alert>
+          <div className="space-y-2">
+            <Alert type="error">
+              {error || validationError}
+            </Alert>
+            {error && error.includes('verify your email') && (
+              <button
+                type="button"
+                onClick={() => resendVerification(formData.email)}
+                className="text-sm text-blue-600 hover:text-blue-500 font-medium block w-full text-center"
+              >
+                Resend activation link
+              </button>
+            )}
+          </div>
         )}
 
         {/* Form */}

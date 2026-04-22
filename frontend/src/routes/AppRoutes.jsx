@@ -3,7 +3,7 @@ import { useAuth } from '../store/authStore';
 import { Layout } from '../components/layout';
 
 // Auth pages
-import { Login, Signup, VerifyEmail } from '../pages/auth';
+import { Login, Signup, VerifyEmail, ForgotPassword, ResetPassword } from '../pages/auth';
 
 // Dashboard pages
 import { Dashboard, MyBookings } from '../pages/dashboard';
@@ -32,6 +32,8 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Protected User Routes */}
       <Route

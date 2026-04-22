@@ -93,5 +93,15 @@ export const authService = {
     const response = await api.get('/admin/users');
     return response;
   },
+
+  /**
+   * Resend verification email
+   * @param {string} email
+   * @returns {Promise<{success: boolean}>}
+   */
+  resendVerification: async (email) => {
+    const response = await api.post('/auth/resend-verification', { email });
+    return response;
+  },
 };
 

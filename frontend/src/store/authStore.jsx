@@ -29,6 +29,12 @@ const AUTH_ACTIONS = {
   SET_LOADING: 'SET_LOADING',
   CLEAR_ERROR: 'CLEAR_ERROR',
   UPDATE_USER: 'UPDATE_USER',
+  FORGOT_PASSWORD_START: 'FORGOT_PASSWORD_START',
+  FORGOT_PASSWORD_SUCCESS: 'FORGOT_PASSWORD_SUCCESS',
+  FORGOT_PASSWORD_FAILURE: 'FORGOT_PASSWORD_FAILURE',
+  RESET_PASSWORD_START: 'RESET_PASSWORD_START',
+  RESET_PASSWORD_SUCCESS: 'RESET_PASSWORD_SUCCESS',
+  RESET_PASSWORD_FAILURE: 'RESET_PASSWORD_FAILURE',
 };
 
 // Reducer
@@ -37,11 +43,11 @@ function authReducer(state, action) {
     case AUTH_ACTIONS.LOGIN_START:
     case AUTH_ACTIONS.REGISTER_START:
     case AUTH_ACTIONS.VERIFY_EMAIL_START:
+    case AUTH_ACTIONS.FORGOT_PASSWORD_START:
+    case AUTH_ACTIONS.RESET_PASSWORD_START:
       return { ...state, loading: true, error: null };
 
     case AUTH_ACTIONS.LOGIN_SUCCESS:
-    case AUTH_ACTIONS.REGISTER_SUCCESS:
-    case AUTH_ACTIONS.VERIFY_EMAIL_SUCCESS:
       return {
         ...state,
         user: action.payload.user,
@@ -50,15 +56,33 @@ function authReducer(state, action) {
         error: null,
       };
 
+    case AUTH_ACTIONS.REGISTER_SUCCESS:
+    case AUTH_ACTIONS.VERIFY_EMAIL_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+
     case AUTH_ACTIONS.LOGIN_FAILURE:
     case AUTH_ACTIONS.REGISTER_FAILURE:
     case AUTH_ACTIONS.VERIFY_EMAIL_FAILURE:
+    case AUTH_ACTIONS.FORGOT_PASSWORD_FAILURE:
+    case AUTH_ACTIONS.RESET_PASSWORD_FAILURE:
       return {
         ...state,
         user: null,
         isAuthenticated: false,
         loading: false,
         error: action.payload.error,
+      };
+
+    case AUTH_ACTIONS.FORGOT_PASSWORD_SUCCESS:
+    case AUTH_ACTIONS.RESET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
       };
 
     case AUTH_ACTIONS.LOGOUT:
@@ -157,21 +181,12 @@ export function AuthProvider({ children }) {
     try {
       const response = await authService.signup(userData);
 
-      const user = response.user || response.data?.user;
-      const token = response.token || response.data?.token;
-
-      if (!token) {
-        throw new Error("Token not received from server");
-      }
-
-      localStorage.setItem('token', token);
-
       dispatch({
         type: AUTH_ACTIONS.REGISTER_SUCCESS,
-        payload: { user },
+        payload: { user: response.user || null },
       });
 
-      showNotification('Account created successfully!', 'success');
+      showNotification('Account created! Please check your email to verify.', 'success');
 
       return { success: true };
     } catch (error) {
@@ -210,6 +225,72 @@ export function AuthProvider({ children }) {
   };
 
   /**
+   * Request password reset
+   */
+  const forgotPassword = async (email) => {
+    dispatch({ type: AUTH_ACTIONS.FORGOT_PASSWORD_START });
+
+    try {
+      const response = await authService.requestPasswordReset(email);
+
+      dispatch({
+        type: AUTH_ACTIONS.FORGOT_PASSWORD_SUCCESS,
+        payload: response,
+      });
+
+      showNotification('Password reset link sent to your email!', 'success');
+
+      return { success: true };
+    } catch (error) {
+      dispatch({
+        type: AUTH_ACTIONS.FORGOT_PASSWORD_FAILURE,
+        payload: { error: error.message },
+      });
+      return { success: false, error: error.message };
+    }
+  };
+
+  /**
+   * Reset password
+   */
+  const resetPassword = async (token, password) => {
+    dispatch({ type: AUTH_ACTIONS.RESET_PASSWORD_START });
+
+    try {
+      const response = await authService.resetPassword(token, password);
+
+      dispatch({
+        type: AUTH_ACTIONS.RESET_PASSWORD_SUCCESS,
+        payload: response,
+      });
+
+      showNotification('Password reset successfully! You can now login.', 'success');
+
+      return { success: true };
+    } catch (error) {
+      dispatch({
+        type: AUTH_ACTIONS.RESET_PASSWORD_FAILURE,
+        payload: { error: error.message },
+      });
+      return { success: false, error: error.message };
+    }
+  };
+
+  /**
+   * Resend verification email
+   */
+  const resendVerification = async (email) => {
+    try {
+      await authService.resendVerification(email);
+      showNotification('Verification email resent! Please check your inbox.', 'success');
+      return { success: true };
+    } catch (error) {
+      showNotification(error.message, 'error');
+      return { success: false, error: error.message };
+    }
+  };
+
+  /**
    * Logout
    */
   const logout = async () => {
@@ -240,6 +321,9 @@ export function AuthProvider({ children }) {
     login,
     signup,
     verifyEmail,
+    forgotPassword,
+    resetPassword,
+    resendVerification,
     logout,
     clearError,
     updateUser,

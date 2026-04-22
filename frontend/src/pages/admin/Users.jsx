@@ -12,8 +12,8 @@ const Users = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const data = await authService.getAllUsers();
-        setUsers(data);
+        const response = await authService.getAllUsers();
+        setUsers(response.users || []);
       } catch (error) {
         console.error('Failed to fetch users:', error);
       } finally {

@@ -105,7 +105,7 @@ export const STEPPER_CONFIG = {
   },
 };
 
-// Mock data for demo purposes (replace with API calls in production)
+// Definitions for services, products, and factories
 export const services = [
   {
     id: 'pre-production',
@@ -204,33 +204,5 @@ export const factories = [
     capacity: '500,000 units/month',
     certifications: ['ISO 9001', 'FSC'],
     specialties: ['Toys', 'Hardware', 'Plastics'],
-  },
-];
-
-// Mock users for admin pages
-export const mockUsers = [
-  {
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'user',
-    status: 'active',
-    joined: '2025-01-15',
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    role: 'user',
-    status: 'active',
-    joined: '2025-02-20',
-  },
-  {
-    id: 3,
-    name: 'Bob Wilson',
-    email: 'bob@factory.com',
-    role: 'admin',
-    status: 'active',
-    joined: '2024-11-10',
   },
 ];
