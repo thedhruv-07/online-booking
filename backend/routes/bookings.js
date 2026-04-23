@@ -5,6 +5,7 @@ const {
   getBooking,
   updateBooking,
   cancelBooking,
+  deleteBooking,
   getQuote
 } = require('../controllers/bookingController');
 const { auth } = require('../middleware/auth');
@@ -21,7 +22,8 @@ router.post('/quote', getQuote);
 
 router.route('/:id')
   .get(getBooking)
-  .put(updateBooking);
+  .put(updateBooking)
+  .delete(deleteBooking);
 
 router.post('/:id/cancel', cancelBooking);
 

@@ -397,6 +397,22 @@ export function BookingProvider({ children }) {
     }
   };
 
+  const deleteBooking = async (bookingId) => {
+    dispatch({ type: BOOKING_ACTIONS.SET_LOADING, payload: true });
+    try {
+      await bookingService.deleteBooking(bookingId);
+      showNotification('Booking deleted successfully!', 'success');
+      // Refresh the list
+      await fetchBookings();
+      return { success: true };
+    } catch (error) {
+      showNotification(error.message || 'Failed to delete booking', 'error');
+      return { success: false, error: error.message };
+    } finally {
+      dispatch({ type: BOOKING_ACTIONS.SET_LOADING, payload: false });
+    }
+  };
+
   const value = {
     ...state,
     goToStep,
@@ -409,6 +425,7 @@ export function BookingProvider({ children }) {
     setPayment,
     submitBooking,
     fetchBookings,
+    deleteBooking,
     loadDraft,
     clearDraft,
   };
