@@ -17,9 +17,11 @@ import {
 import { useBooking } from '../../hooks/useBooking';
 import { PAYMENT_METHOD } from '../../utils/constants';
 import { cn } from '../../utils/cn';
+import { paymentService } from '../../services/payment.service';
+import { toast } from 'react-hot-toast';
 
 const PaymentStep = () => {
-  const { bookingData, setPayment, prevStep, submitBooking } = useBooking();
+  const { bookingData, setPayment, prevStep, submitBooking, clearDraft } = useBooking();
   const [selectedMethod, setSelectedMethod] = useState(bookingData.payment?.method || PAYMENT_METHOD.CARD || 'card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [receipt, setReceipt] = useState(null);
@@ -57,15 +59,16 @@ const PaymentStep = () => {
     setIsProcessing(true);
 
     try {
-      setPayment({ 
-        method: selectedMethod,
-        receiptUploaded: !!receipt 
+      const result = await submitBooking({
+        payment: { 
+          method: selectedMethod,
+          receiptUploaded: !!receipt 
+        }
       });
-      
-      const result = await submitBooking();
 
       if (result.success) {
         setTimeout(() => {
+          clearDraft();
           window.location.href = '/dashboard';
         }, 2000);
       } else {
@@ -73,6 +76,51 @@ const PaymentStep = () => {
       }
     } catch (err) {
       setError(err.message || 'An unexpected error occurred');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDemoPayment = async () => {
+    setError(null);
+    setIsProcessing(true);
+
+    try {
+      // 1. Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // 2. Submit booking first to get bookingId
+      setPayment({ 
+        method: 'demo',
+        receiptUploaded: false 
+      });
+      
+      const result = await submitBooking({
+        payment: { 
+          method: 'demo',
+          receiptUploaded: false 
+        }
+      });
+
+      if (result.success && result.booking?._id) {
+        // 3. Trigger demo success on backend
+        await paymentService.demoSuccess(result.booking._id);
+        
+        toast.success('Demo payment successful! Redirecting...', {
+          icon: '💰',
+          duration: 3000
+        });
+
+        setTimeout(() => {
+          clearDraft();
+          window.location.href = '/dashboard';
+        }, 2000);
+      } else {
+        setError(result.error || 'Failed to process demo booking.');
+      }
+    } catch (err) {
+      console.error('Demo payment error:', err);
+      setError(err.message || 'Demo payment failed');
     } finally {
       setIsProcessing(false);
     }
@@ -338,6 +386,27 @@ const PaymentStep = () => {
                 <>
                   Confirm Payment
                   <ArrowRight size={22} strokeWidth={3} />
+                </>
+              )}
+            </button>
+
+            {/* Demo Payment Button */}
+            <button
+              onClick={handleDemoPayment}
+              disabled={isProcessing}
+              className={cn(
+                "w-full mt-4 h-14 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-3 border-2 border-dashed active:scale-95",
+                isProcessing 
+                  ? "border-slate-800 text-slate-700 cursor-not-allowed opacity-50" 
+                  : "border-indigo-500/30 text-indigo-400 hover:border-indigo-500 hover:text-indigo-300"
+              )}
+            >
+              {isProcessing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  Pay Now (Demo)
+                  <ShieldCheck size={16} />
                 </>
               )}
             </button>

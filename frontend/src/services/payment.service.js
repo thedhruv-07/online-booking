@@ -80,5 +80,15 @@ export const paymentService = {
     const response = await api.get('/admin/payments');
     return response;
   },
+
+  /**
+   * Demo successful payment
+   * @param {string} bookingId
+   * @returns {Promise<{success: boolean, message: string}>}
+   */
+  demoSuccess: async (bookingId) => {
+    const response = await api.post('/payments/demo-success', { bookingId });
+    return response;
+  },
 };
 

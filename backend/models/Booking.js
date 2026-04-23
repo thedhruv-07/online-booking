@@ -6,56 +6,16 @@ const bookingSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  service: {
-    id: String,
-    name: String,
-    description: String,
-    basePrice: Number,
+  service: mongoose.Schema.Types.Mixed,
+  location: mongoose.Schema.Types.Mixed,
+  product: mongoose.Schema.Types.Mixed,
+  bookingFiles: {
+    type: Array,
+    default: []
   },
-  location: {
-    id: String,
-    country: String,
-    city: String,
-    address: String,
-    postalCode: String,
-  },
-  product: {
-    id: String,
-    name: String,
-    category: String,
-    material: String,
-    price: Number,
-  },
-  files: [{
-    id: String,
-    name: String,
-    url: String,
-    size: Number,
-    type: String,
-  }],
-  factory: {
-    id: String,
-    name: String,
-    location: String,
-    capacity: String,
-    certifications: [String],
-  },
-  contact: {
-    name: String,
-    email: String,
-    phone: String,
-    company: String,
-    notes: String,
-  },
-  aql: {
-    inspectionLevel: String,
-    sampleSize: String,
-    limits: {
-      critical: { accept: Number, reject: Number },
-      major: { accept: Number, reject: Number },
-      minor: { accept: Number, reject: Number },
-    },
-  },
+  factory: mongoose.Schema.Types.Mixed,
+  contact: mongoose.Schema.Types.Mixed,
+  aql: mongoose.Schema.Types.Mixed,
   status: {
     type: String,
     enum: ['draft', 'pending', 'confirmed', 'in_progress', 'completed', 'cancelled'],
@@ -70,15 +30,10 @@ const bookingSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  quoteBreakdown: {
-    baseService: Number,
-    productCost: Number,
-    aqlCost: Number,
-    factoryFee: Number,
-    total: Number,
-  },
+  quoteBreakdown: mongoose.Schema.Types.Mixed,
 }, {
   timestamps: true,
+  strict: false // Allow extra fields just in case
 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+module.exports = mongoose.model('Booking', bookingSchema, 'bookingfinalv1');

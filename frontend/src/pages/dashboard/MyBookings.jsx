@@ -167,7 +167,7 @@ const MyBookings = () => {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link 
-                            to={`/bookings/${booking._id}`}
+                            to={`/dashboard/bookings/${booking._id}`}
                             className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                           >
                             <Eye size={18} />

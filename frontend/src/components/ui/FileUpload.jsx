@@ -16,6 +16,7 @@ const FileUpload = ({
   className = '',
 }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
   const [errors, setErrors] = useState([]);
 
@@ -52,8 +53,33 @@ const FileUpload = ({
     return { validFiles, errors };
   };
 
+  const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      // Import api dynamically or use a prop if preferred, 
+      // but here we'll assume it's available or we can use fetch
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/upload/file`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+      
+      const data = await response.json();
+      return data; // { id, name, url, size }
+    } catch (error) {
+      console.error('File upload error:', error);
+      throw error;
+    }
+  };
+
   const handleDrop = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
       setIsDragging(false);
 
@@ -66,22 +92,31 @@ const FileUpload = ({
       }
 
       if (validFiles.length > 0) {
-        const filesWithId = validFiles.map((file) => ({
-          file,
-          id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          progress: 0,
-        }));
-        onFilesSelected(filesWithId, multiple);
+        setIsUploading(true);
+        const uploadedFiles = [];
+        for (const file of validFiles) {
+          try {
+            const result = await uploadFile(file);
+            uploadedFiles.push({
+              ...result,
+              file // Keep original file object if needed
+            });
+          } catch (err) {
+            setErrors(prev => [...prev, `Failed to upload ${file.name}`]);
+          }
+        }
+        
+        setIsUploading(false);
+        if (uploadedFiles.length > 0) {
+          onFilesSelected(uploadedFiles, multiple);
+        }
       }
     },
     [onFilesSelected, multiple, maxSize, accept]
   );
 
   const handleInputChange = useCallback(
-    (e) => {
+    async (e) => {
       const files = e.target.files;
       if (!files.length) return;
 
@@ -93,15 +128,24 @@ const FileUpload = ({
       }
 
       if (validFiles.length > 0) {
-        const filesWithId = validFiles.map((file) => ({
-          file,
-          id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          progress: 0,
-        }));
-        onFilesSelected(filesWithId, multiple);
+        setIsUploading(true);
+        const uploadedFiles = [];
+        for (const file of validFiles) {
+          try {
+            const result = await uploadFile(file);
+            uploadedFiles.push({
+              ...result,
+              file
+            });
+          } catch (err) {
+            setErrors(prev => [...prev, `Failed to upload ${file.name}`]);
+          }
+        }
+
+        setIsUploading(false);
+        if (uploadedFiles.length > 0) {
+          onFilesSelected(uploadedFiles, multiple);
+        }
       }
 
       // Reset input
@@ -119,11 +163,12 @@ const FileUpload = ({
   return (
     <div className={className}>
       <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => document.getElementById(`file-input-${className}`).click()}
+        onDragOver={isUploading ? null : handleDragOver}
+        onDragLeave={isUploading ? null : handleDragLeave}
+        onDrop={isUploading ? null : handleDrop}
+        onClick={() => !isUploading && document.getElementById(`file-input-${className}`).click()}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+          isUploading ? 'bg-gray-50 border-gray-200 cursor-not-allowed' :
           isDragging
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-300 hover:border-gray-400'
@@ -136,29 +181,40 @@ const FileUpload = ({
           accept={accept}
           onChange={handleInputChange}
           className="hidden"
+          disabled={isUploading}
         />
-        <svg
-          className="mx-auto h-12 w-12 text-gray-400"
-          stroke="currentColor"
-          fill="none"
-          viewBox="0 0 48 48"
-        >
-          <path
-            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        <p className="mt-2 text-sm text-gray-600">
-          <span className="font-semibold text-blue-600 hover:text-blue-500">
-            Click to upload
-          </span>{' '}
-          or drag and drop
-        </p>
-        <p className="text-xs text-gray-500 mt-1">
-          PDF, DOC, DOCX, JPG, PNG up to {maxSize / 1024 / 1024}MB
-        </p>
+        
+        {isUploading ? (
+          <div className="py-4">
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-sm font-bold text-slate-600 animate-pulse">Uploading Documents...</p>
+          </div>
+        ) : (
+          <>
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 48 48"
+            >
+              <path
+                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <p className="mt-2 text-sm text-gray-600">
+              <span className="font-semibold text-blue-600 hover:text-blue-500">
+                Click to upload
+              </span>{' '}
+              or drag and drop
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              PDF, DOC, DOCX, JPG, PNG up to {maxSize / 1024 / 1024}MB
+            </p>
+          </>
+        )}
       </div>
 
       {/* Errors */}

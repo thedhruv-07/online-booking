@@ -9,7 +9,7 @@ import LandingPage from '../pages/LandingPage';
 import { Login, Signup, VerifyEmail, ForgotPassword, ResetPassword } from '../pages/auth';
 
 // Dashboard pages
-import { Dashboard, MyBookings } from '../pages/dashboard';
+import { Dashboard, MyBookings, BookingDetails } from '../pages/dashboard';
 
 // Booking pages
 import CreateBooking from '../pages/booking/CreateBooking';
@@ -49,6 +49,7 @@ const AppRoutes = () => {
       >
         <Route index element={<Dashboard />} />
         <Route path="bookings" element={<MyBookings />} />
+        <Route path="bookings/:id" element={<BookingDetails />} />
       </Route>
 
       {/* Booking Routes */}

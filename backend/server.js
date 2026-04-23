@@ -57,7 +57,14 @@ app.use(express.urlencoded({ extended: true }));
 /**
  * ✅ Static files
  */
-app.use('/uploads', express.static(uploadDir));
+app.get('/uploads/:filename', (req, res) => {
+  const filePath = path.join(uploadDir, req.params.filename);
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ message: 'File not found on server' });
+  }
+});
 
 /**
  * ✅ Routes

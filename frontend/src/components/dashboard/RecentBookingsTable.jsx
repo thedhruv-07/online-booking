@@ -61,6 +61,7 @@ const RecentBookingsTable = ({ bookings, isLoading }) => {
               <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Timestamp</th>
               <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Status</th>
               <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Financials</th>
+              <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Documents</th>
               <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] text-right">View</th>
             </tr>
           </thead>
@@ -103,9 +104,35 @@ const RecentBookingsTable = ({ bookings, isLoading }) => {
                       <div className="text-xl font-black text-slate-900">${booking.payment?.amount?.toFixed(2) || '0.00'}</div>
                       <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">USD - Gross</div>
                     </td>
+                    <td className="px-8 py-7">
+                      <div className="flex flex-wrap gap-2">
+                        {(booking.bookingFiles || booking.files || []).map((file, i) => {
+                          const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').split('/api')[0];
+                          const fileUrl = file.url?.startsWith('/') ? file.url : `/${file.url}`;
+                          const fullUrl = `${baseUrl}${fileUrl}`;
+                          
+                          return (
+                            <a
+                              key={file.id || i}
+                              href={fullUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50/50 border border-indigo-100 rounded-lg text-[9px] font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all shadow-sm"
+                              title={file.name}
+                            >
+                              <Eye size={10} />
+                              {file.name.length > 12 ? file.name.substring(0, 10) + '...' : file.name}
+                            </a>
+                          );
+                        })}
+                        {!(booking.bookingFiles?.length || booking.files?.length) && (
+                          <span className="text-[10px] text-slate-300 italic font-medium">No docs available</span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-8 py-7 text-right">
                       <Link 
-                        to={`/bookings/${booking._id}`}
+                        to={`/dashboard/bookings/${booking._id}`}
                         className="w-12 h-12 bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-white border-2 border-transparent hover:border-slate-100 rounded-2xl transition-all inline-flex items-center justify-center shadow-sm active:scale-95"
                       >
                         <Eye size={20} />

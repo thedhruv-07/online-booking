@@ -6,6 +6,7 @@ const Payment = require('../models/Payment');
 const Booking = require('../models/Booking');
 const { auth } = require('../middleware/auth');
 const { AppError } = require('../middleware/errorHandler');
+const { sendBookingEmail } = require('../utils/sendEmail');
 
 const router = express.Router();
 
@@ -114,10 +115,22 @@ router.post('/verify/paypal', auth, async (req, res, next) => {
     payment.transactionId = `PP-${paymentId}`;
     await payment.save();
 
-    await Booking.findByIdAndUpdate(payment.bookingId, {
+    const updatedBooking = await Booking.findByIdAndUpdate(payment.bookingId, {
       paymentStatus: 'paid',
       status: 'confirmed',
-    });
+    }, { new: true });
+
+    // Send notification email to admin and user
+    try {
+      await sendBookingEmail({ 
+        user: req.user, 
+        booking: updatedBooking, 
+        payment 
+      });
+    } catch (emailError) {
+      console.error('Failed to send booking email:', emailError);
+      // We don't throw here to avoid breaking the response if email fails
+    }
 
     res.json({ success: true, payment });
   } catch (error) {
@@ -144,16 +157,82 @@ router.post('/:id/bank-transfer', auth, upload.single('receipt'), handleMulterEr
     payment.transactionId = `BT-${payment._id}`;
     await payment.save();
 
-    await Booking.findByIdAndUpdate(payment.bookingId, {
+    const updatedBooking = await Booking.findByIdAndUpdate(payment.bookingId, {
       paymentStatus: 'paid',
       status: 'confirmed',
-    });
+    }, { new: true });
+
+    // Send notification email to admin and user
+    try {
+      await sendBookingEmail({ 
+        user: req.user, 
+        booking: updatedBooking, 
+        payment 
+      });
+    } catch (emailError) {
+      console.error('Failed to send booking email:', emailError);
+    }
 
     res.json({ success: true });
   } catch (error) {
     next(error);
   }
 });
+
+/**
+ * ✅ Demo Success Payment
+ * POST /api/payments/demo-success
+ */
+router.post('/demo-success', auth, async (req, res, next) => {
+  try {
+    const { bookingId } = req.body;
+
+    const booking = await Booking.findOne({
+      _id: bookingId,
+      userId: req.user._id,
+    });
+
+    if (!booking) {
+      throw new AppError('Booking not found', 404);
+    }
+
+    // Create demo payment record
+    const payment = await Payment.create({
+      userId: req.user._id,
+      bookingId,
+      method: 'demo',
+      amount: booking.totalAmount,
+      status: 'completed',
+      transactionId: `DEMO-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+    });
+
+    // Update booking status
+    const updatedBooking = await Booking.findByIdAndUpdate(bookingId, {
+      paymentStatus: 'paid',
+      status: 'confirmed',
+    }, { new: true });
+
+    // Trigger Email Notification
+    try {
+      await sendBookingEmail({ 
+        user: req.user, 
+        booking: updatedBooking, 
+        payment 
+      });
+    } catch (emailError) {
+      console.error('Failed to send booking email:', emailError);
+    }
+
+    res.json({
+      success: true,
+      message: 'Demo payment successful',
+      payment
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 router.get('/', auth, async (req, res, next) => {
   try {
