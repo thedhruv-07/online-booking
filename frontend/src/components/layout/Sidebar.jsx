@@ -2,65 +2,60 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  Calendar, 
-  PlusCircle, 
+  ClipboardList, 
+  Plus, 
+  CreditCard,
   User, 
   Settings, 
   LogOut, 
   ChevronLeft, 
-  ChevronRight,
-  ClipboardList,
-  CreditCard,
-  ShieldCheck
+  ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../store/authStore.jsx';
 import useUIStore from '../../store/uiStore.js';
 
-const SidebarItem = ({ icon: Icon, label, to, isCollapsed }) => {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        cn(
-          'flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative overflow-hidden',
-          'text-slate-500 hover:bg-slate-50 hover:text-slate-900',
-          isActive && 'bg-slate-900 text-white hover:bg-slate-800'
-        )
-      }
-    >
-      <Icon className="w-5 h-5 shrink-0" />
-      <AnimatePresence mode="wait">
-        {!isCollapsed && (
-          <motion.span
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            className="font-bold text-xs uppercase tracking-widest whitespace-nowrap"
-          >
-            {label}
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </NavLink>
-  );
-};
+const navItems = [
+  { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
+  { icon: ClipboardList, label: 'My Bookings', to: '/dashboard/bookings' },
+  { icon: Plus, label: 'Create Booking', to: '/booking/create', highlight: true },
+  { icon: CreditCard, label: 'Payments', to: '/dashboard/payments' },
+];
 
-const SidebarGroup = ({ label, isCollapsed, children }) => {
-  return (
-    <div className="mb-10">
+const bottomItems = [
+  { icon: User, label: 'Profile', to: '/profile' },
+  { icon: Settings, label: 'Settings', to: '/settings' },
+];
+
+const SidebarLink = ({ icon: Icon, label, to, isCollapsed, highlight }) => (
+  <NavLink
+    to={to}
+    end={to === '/dashboard'}
+    className={({ isActive }) =>
+      cn(
+        'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group text-[13px] font-medium',
+        highlight && !isActive && 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100',
+        !highlight && !isActive && 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+        isActive && 'bg-indigo-600 text-white shadow-sm shadow-indigo-200'
+      )
+    }
+  >
+    <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={isCollapsed ? 2 : 1.8} />
+    <AnimatePresence mode="wait">
       {!isCollapsed && (
-        <p className="px-6 mb-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">
+        <motion.span
+          initial={{ opacity: 0, width: 0 }}
+          animate={{ opacity: 1, width: 'auto' }}
+          exit={{ opacity: 0, width: 0 }}
+          className="whitespace-nowrap overflow-hidden"
+        >
           {label}
-        </p>
+        </motion.span>
       )}
-      <div className="space-y-2 px-3">
-        {children}
-      </div>
-    </div>
-  );
-};
+    </AnimatePresence>
+  </NavLink>
+);
 
 const Sidebar = () => {
   const { isSidebarCollapsed, toggleSidebar } = useUIStore();
@@ -68,68 +63,71 @@ const Sidebar = () => {
 
   return (
     <motion.aside
-      animate={{ width: isSidebarCollapsed ? '90px' : '280px' }}
-      className="fixed left-0 top-0 h-screen bg-white border-r border-slate-100 z-50 flex flex-col shadow-2xl shadow-slate-200/50"
+      animate={{ width: isSidebarCollapsed ? '72px' : '240px' }}
+      transition={{ duration: 0.2, ease: 'easeInOut' }}
+      className="fixed left-0 top-0 h-screen bg-white border-r border-gray-200 z-50 flex flex-col"
     >
-      {/* Logo Section */}
-      <div className="p-6 flex items-center justify-between h-24">
-        <div className="flex items-center gap-4 overflow-hidden">
-          <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-slate-200">
-            <ShieldCheck className="text-white w-6 h-6" />
+      {/* Logo */}
+      <div className="h-16 px-4 flex items-center justify-between border-b border-gray-100">
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shrink-0">
+            <span className="text-white font-bold text-sm">A</span>
           </div>
-          {!isSidebarCollapsed && (
-            <motion.span 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-xl font-black text-slate-900 tracking-tighter"
-            >
-              Booking<span className="text-indigo-600">SaaS</span>
-            </motion.span>
-          )}
+          <AnimatePresence mode="wait">
+            {!isSidebarCollapsed && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-[15px] font-semibold text-gray-900 whitespace-nowrap"
+              >
+                Absolute Veritas
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
         <button
           onClick={toggleSidebar}
-          className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all border border-slate-100"
+          className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
         >
-          {isSidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
       </div>
 
-      {/* Navigation */}
-      <div className="flex-1 overflow-y-auto py-6 custom-scrollbar px-1">
-        <SidebarGroup label="Intelligence" isCollapsed={isSidebarCollapsed}>
-          <SidebarItem icon={LayoutDashboard} label="Dashboard" to="/dashboard" isCollapsed={isSidebarCollapsed} />
-          <SidebarItem icon={ClipboardList} label="Inventory" to="/dashboard/bookings" isCollapsed={isSidebarCollapsed} />
-          <SidebarItem icon={Calendar} label="Scheduler" to="/calendar" isCollapsed={isSidebarCollapsed} />
-        </SidebarGroup>
-
-        <SidebarGroup label="Operations" isCollapsed={isSidebarCollapsed}>
-          <SidebarItem icon={PlusCircle} label="New Directive" to="/booking/create" isCollapsed={isSidebarCollapsed} />
-          <SidebarItem icon={CreditCard} label="Settlements" to="/payments" isCollapsed={isSidebarCollapsed} />
-        </SidebarGroup>
-
-        <SidebarGroup label="Configuration" isCollapsed={isSidebarCollapsed}>
-          <SidebarItem icon={User} label="Identity" to="/profile" isCollapsed={isSidebarCollapsed} />
-          <SidebarItem icon={Settings} label="Control" to="/settings" isCollapsed={isSidebarCollapsed} />
-        </SidebarGroup>
-
-        {user?.role === 'admin' && (
-          <SidebarGroup label="Authority" isCollapsed={isSidebarCollapsed}>
-            <SidebarItem icon={ShieldCheck} label="Command Center" to="/admin" isCollapsed={isSidebarCollapsed} />
-          </SidebarGroup>
-        )}
+      {/* Main Nav */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar py-4 px-3">
+        <div className="space-y-1">
+          {navItems.map((item) => (
+            <SidebarLink key={item.to} {...item} isCollapsed={isSidebarCollapsed} />
+          ))}
+        </div>
       </div>
 
-      {/* User / Logout Section */}
-      <div className="p-6 border-t border-slate-50">
+      {/* Bottom Nav */}
+      <div className="border-t border-gray-100 py-3 px-3 space-y-1">
+        {bottomItems.map((item) => (
+          <SidebarLink key={item.to} {...item} isCollapsed={isSidebarCollapsed} />
+        ))}
         <button
           onClick={logout}
           className={cn(
-            'flex items-center gap-3 w-full px-4 py-4 rounded-2xl text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all duration-300 font-bold text-xs uppercase tracking-widest'
+            'flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium',
+            'text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200'
           )}
         >
-          <LogOut className="w-5 h-5 shrink-0" />
-          {!isSidebarCollapsed && <span>Termination</span>}
+          <LogOut className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} />
+          <AnimatePresence mode="wait">
+            {!isSidebarCollapsed && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="whitespace-nowrap"
+              >
+                Log out
+              </motion.span>
+            )}
+          </AnimatePresence>
         </button>
       </div>
     </motion.aside>

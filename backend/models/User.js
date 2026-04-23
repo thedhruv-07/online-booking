@@ -36,6 +36,19 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
+  company: {
+    type: String,
+    trim: true,
+  },
+  preferences: {
+    language: { type: String, default: 'en-US' },
+    timezone: { type: String, default: 'UTC' },
+  },
+  notifications: {
+    bookingUpdates: { type: Boolean, default: true },
+    paymentReminders: { type: Boolean, default: true },
+    marketing: { type: Boolean, default: false },
+  },
   verificationToken: String,
   verificationTokenExpiry: Date,
   resetPasswordToken: String,

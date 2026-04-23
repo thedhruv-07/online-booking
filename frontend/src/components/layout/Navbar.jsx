@@ -1,50 +1,85 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../store/authStore.jsx';
-import useUIStore from '../../store/uiStore.js';
-import { Bell, Search, User as UserIcon, Menu, X } from 'lucide-react';
+import { Bell, Search, ChevronDown, LogOut, User, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
-  const { user } = useAuth();
-  const { isSidebarCollapsed, toggleSidebar } = useUIStore();
+  const { user, logout } = useAuth();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const initials = user?.name
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'U';
 
   return (
-    <header className="h-24 bg-white border-b border-slate-100 flex items-center justify-between px-10 transition-all duration-300 sticky top-0 z-40">
-      <div className="flex items-center gap-6 flex-1">
-        <button 
-          onClick={toggleSidebar}
-          className="p-2.5 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all"
-        >
-          {isSidebarCollapsed ? <Menu size={22} /> : <X size={22} />}
-        </button>
-
-        <div className="relative max-w-md w-full hidden md:block group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Search bookings, invoices..."
-            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all uppercase tracking-widest"
-          />
-        </div>
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-40">
+      {/* Search */}
+      <div className="relative max-w-sm w-full hidden md:block">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <input
+          type="text"
+          placeholder="Search by booking ID or email..."
+          className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
+        />
       </div>
 
-      <div className="flex items-center gap-6">
-        <button className="relative w-12 h-12 flex items-center justify-center bg-slate-50 text-slate-400 hover:text-indigo-600 rounded-2xl transition-all border border-slate-100">
-          <Bell size={20} />
-          <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>
-        </button>
+      {/* Right section */}
+      <div className="flex items-center gap-3">
+        {/* User dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="flex items-center gap-2.5 pl-3 pr-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+              {initials}
+            </div>
+            <div className="text-left hidden sm:block">
+              <p className="text-sm font-medium text-gray-900 leading-tight">{user?.name || 'User'}</p>
+              <p className="text-[11px] text-gray-500 leading-tight">{user?.email || ''}</p>
+            </div>
+            <ChevronDown size={14} className="text-gray-400 hidden sm:block" />
+          </button>
 
-        <div className="flex items-center gap-4 pl-8 border-l border-slate-100">
-          <div className="text-right hidden sm:block">
-            <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{user?.name}</p>
-            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-0.5">{user?.role || 'Operator'}</p>
-          </div>
-          <div className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center font-black shadow-lg shadow-slate-200 overflow-hidden hover:scale-105 transition-transform cursor-pointer border-2 border-transparent hover:border-indigo-500">
-            {user?.avatar ? (
-              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-            ) : (
-              <UserIcon size={22} />
-            )}
-          </div>
+          {showDropdown && (
+            <div className="absolute right-0 mt-1.5 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+              <Link
+                to="/profile"
+                onClick={() => setShowDropdown(false)}
+                className="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <User size={15} />
+                Profile
+              </Link>
+              <Link
+                to="/settings"
+                onClick={() => setShowDropdown(false)}
+                className="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Settings size={15} />
+                Settings
+              </Link>
+              <div className="border-t border-gray-100 my-1" />
+              <button
+                onClick={() => { logout(); setShowDropdown(false); }}
+                className="flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+              >
+                <LogOut size={15} />
+                Log out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -1,55 +1,112 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { ClipboardList, Clock, CheckCircle2, Wallet } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-const StatsCard = ({ title, value, icon: Icon, trend, trendValue, color }) => {
-  return (
-    <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      className="bg-white p-7 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40 transition-all group relative overflow-hidden"
-    >
-      <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full blur-3xl -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      
-      <div className="flex flex-col gap-6 relative z-10">
-        <div className="flex items-center justify-between">
-          <div className={cn(
-            "w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner transition-all duration-500 group-hover:rotate-6",
-            color || "bg-indigo-50 text-indigo-600"
-          )}>
-            <Icon size={32} strokeWidth={2.5} />
-          </div>
-          
-          {trend && (
-            <div className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm border",
-              trend === 'up' 
-                ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
-                : "bg-rose-50 text-rose-600 border-rose-100"
-            )}>
-              {trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-              {trendValue}
-            </div>
-          )}
-        </div>
+/**
+ * Maps country codes to currency symbols.
+ */
+const CURRENCY_MAP = {
+  'China': '¥',
+  'India': '₹',
+  'United States': '$',
+  'USA': '$',
+  'UK': '£',
+  'United Kingdom': '£',
+  'Japan': '¥',
+  'South Korea': '₩',
+  'Thailand': '฿',
+  'Vietnam': '₫',
+  'Indonesia': 'Rp',
+  'Hong Kong': 'HK$',
+};
 
-        <div>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-2">
-            {title}
-          </p>
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-4xl font-black text-slate-900 tracking-tighter">
-              {value}
-            </h3>
-          </div>
-          <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-3 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
-            Performance Metrics
-          </div>
-        </div>
+const getCurrencySymbol = (country) => {
+  if (!country) return '$';
+  return CURRENCY_MAP[country] || '$';
+};
+
+const StatCard = ({ label, value, icon: Icon, iconBg, iconColor }) => (
+  <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
+    <div className="flex items-center justify-between mb-3">
+      <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", iconBg)}>
+        <Icon size={18} className={iconColor} />
       </div>
-    </motion.div>
+    </div>
+    <p className="text-2xl font-semibold text-gray-900 tracking-tight">{value}</p>
+    <p className="text-xs text-gray-500 mt-1">{label}</p>
+  </div>
+);
+
+const StatsCards = ({ bookings = [] }) => {
+  const totalBookings = bookings.length;
+  const activeBookings = bookings.filter(b => 
+    ['pending', 'confirmed', 'in_progress'].includes(b.status?.toLowerCase())
+  ).length;
+  const completedBookings = bookings.filter(b => 
+    b.status?.toLowerCase() === 'completed'
+  ).length;
+
+  // Group revenue by country currency
+  const revenueByCountry = {};
+  bookings.forEach(b => {
+    const country = b.location?.country || 'Global';
+    const symbol = getCurrencySymbol(country);
+    const amount = b.payment?.amount || b.totalAmount || 0;
+    if (!revenueByCountry[symbol]) revenueByCountry[symbol] = 0;
+    revenueByCountry[symbol] += amount;
+  });
+
+  // Format the revenue display — show the dominant currency
+  let revenueDisplay = '$0';
+  const entries = Object.entries(revenueByCountry).filter(([, v]) => v > 0);
+  if (entries.length === 1) {
+    const [symbol, amount] = entries[0];
+    revenueDisplay = `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  } else if (entries.length > 1) {
+    // Show the largest one
+    const sorted = entries.sort((a, b) => b[1] - a[1]);
+    const [symbol, amount] = sorted[0];
+    revenueDisplay = `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  }
+
+  const stats = [
+    {
+      label: 'Total Bookings',
+      value: totalBookings,
+      icon: ClipboardList,
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-600',
+    },
+    {
+      label: 'Active Bookings',
+      value: activeBookings,
+      icon: Clock,
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-600',
+    },
+    {
+      label: 'Completed',
+      value: completedBookings,
+      icon: CheckCircle2,
+      iconBg: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
+    },
+    {
+      label: 'Revenue',
+      value: revenueDisplay,
+      icon: Wallet,
+      iconBg: 'bg-violet-50',
+      iconColor: 'text-violet-600',
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {stats.map((stat) => (
+        <StatCard key={stat.label} {...stat} />
+      ))}
+    </div>
   );
 };
 
-export default StatsCard;
+export default StatsCards;

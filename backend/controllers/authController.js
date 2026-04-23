@@ -215,6 +215,66 @@ exports.getProfile = async (req, res, next) => {
   }
 };
 
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { name, phone, company, preferences, notifications } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (company !== undefined) user.company = company;
+    
+    if (preferences) {
+      user.preferences = { ...user.preferences, ...preferences };
+    }
+    
+    if (notifications) {
+      user.notifications = { ...user.notifications, ...notifications };
+    }
+
+    await user.save();
+
+    res.json({
+      success: true,
+      user,
+      message: 'Profile updated successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update password
+// @route   PUT /api/auth/update-password
+exports.updatePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    
+    if (!user || !(await user.comparePassword(currentPassword))) {
+      return res.status(401).json({ success: false, message: 'Invalid current password' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password updated successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Logout user
 // @route   POST /api/auth/logout
 exports.logout = async (req, res, next) => {

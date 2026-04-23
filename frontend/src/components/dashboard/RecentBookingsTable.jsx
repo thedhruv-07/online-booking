@@ -1,141 +1,164 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Clock, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import { Eye, ArrowRight, Search, Filter, Clock, CheckCircle, XCircle, AlertCircle, ClipboardList } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 const statusConfig = {
-  pending: {
-    label: 'Pending',
-    icon: Clock,
-    className: 'bg-amber-50 text-amber-600 border-amber-100',
-  },
-  confirmed: {
-    label: 'Confirmed',
-    icon: CheckCircle,
-    className: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-  },
-  in_progress: {
-    label: 'In Progress',
-    icon: Clock,
-    className: 'bg-blue-50 text-blue-600 border-blue-100',
-  },
-  cancelled: {
-    label: 'Cancelled',
-    icon: XCircle,
-    className: 'bg-rose-50 text-rose-600 border-rose-100',
-  },
+  pending: { label: 'Pending', className: 'bg-amber-50 text-amber-700 border-amber-200', icon: Clock },
+  confirmed: { label: 'Confirmed', className: 'bg-blue-50 text-blue-700 border-blue-200', icon: CheckCircle },
+  in_progress: { label: 'In Progress', className: 'bg-indigo-50 text-indigo-700 border-indigo-200', icon: AlertCircle },
+  completed: { label: 'Completed', className: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: CheckCircle },
+  cancelled: { label: 'Cancelled', className: 'bg-red-50 text-red-700 border-red-200', icon: XCircle },
 };
 
-const RecentBookingsTable = ({ bookings, isLoading }) => {
+const paymentConfig = {
+  paid: { label: 'Paid', className: 'bg-emerald-50 text-emerald-700' },
+  pending: { label: 'Unpaid', className: 'bg-orange-50 text-orange-700' },
+  failed: { label: 'Failed', className: 'bg-red-50 text-red-700' },
+};
+
+const BookingsTable = ({ bookings = [], isLoading }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
+
+  // Filter bookings
+  const filtered = bookings.filter(b => {
+    const matchesSearch = !searchQuery || 
+      b._id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.service?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.contact?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.contact?.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || b.status?.toLowerCase() === statusFilter;
+    const matchesPayment = paymentFilter === 'all' || b.paymentStatus?.toLowerCase() === paymentFilter;
+    
+    return matchesSearch && matchesStatus && matchesPayment;
+  });
+
+  const displayBookings = filtered.slice(0, 8);
+
   if (isLoading) {
     return (
-      <div className="bg-white rounded-[2rem] border border-slate-100 p-12 flex flex-col items-center justify-center min-h-[400px] shadow-sm">
-        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-6"></div>
-        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Synchronizing Records...</p>
+      <div className="bg-white rounded-xl border border-gray-200 p-12">
+        <div className="flex flex-col items-center justify-center min-h-[300px]">
+          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-sm text-gray-500">Loading bookings...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-[2rem] border border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden transition-all">
-      <div className="px-8 py-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Recent Activity</h2>
-          <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1">Live Transaction Monitor</p>
+          <h2 className="text-base font-semibold text-gray-900">Recent Bookings</h2>
+          <p className="text-xs text-gray-500 mt-0.5">{bookings.length} total bookings</p>
         </div>
         <Link 
-          to="/bookings" 
-          className="h-12 px-6 bg-white border-2 border-slate-50 rounded-xl text-slate-900 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 hover:border-slate-200 transition-all flex items-center gap-2 shadow-sm"
+          to="/dashboard/bookings" 
+          className="text-sm font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors"
         >
-          Explore All
-          <ArrowRight size={14} strokeWidth={3} />
+          View all
+          <ArrowRight size={14} />
         </Link>
       </div>
 
+      {/* Filters */}
+      <div className="px-5 py-3 border-b border-gray-50 flex flex-wrap items-center gap-3 bg-gray-50/50">
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5" />
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-300"
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="text-sm bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        >
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select
+          value={paymentFilter}
+          onChange={(e) => setPaymentFilter(e.target.value)}
+          className="text-sm bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        >
+          <option value="all">All Payments</option>
+          <option value="paid">Paid</option>
+          <option value="pending">Unpaid</option>
+        </select>
+      </div>
+
+      {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left">
           <thead>
-            <tr className="bg-slate-50/50">
-              <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Service Details</th>
-              <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Logistics</th>
-              <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Timestamp</th>
-              <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Status</th>
-              <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Financials</th>
-              <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Documents</th>
-              <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] text-right">View</th>
+            <tr className="border-b border-gray-100">
+              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
+              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
-            {bookings.length > 0 ? (
-              bookings.slice(0, 5).map((booking) => {
+          <tbody className="divide-y divide-gray-50">
+            {displayBookings.length > 0 ? (
+              displayBookings.map((booking) => {
                 const status = statusConfig[booking.status?.toLowerCase()] || statusConfig.pending;
-                const StatusIcon = status.icon;
+                const payment = paymentConfig[booking.paymentStatus?.toLowerCase()] || paymentConfig.pending;
 
                 return (
-                  <tr key={booking._id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="px-8 py-7">
-                      <div className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{booking.service?.name || 'Inspection Service'}</div>
-                      <div className="text-[10px] text-slate-400 font-mono mt-1.5 tracking-tighter">ID: {booking._id.slice(-12).toUpperCase()}</div>
+                  <tr key={booking._id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <span className="text-xs font-mono text-gray-500">
+                        #{booking._id?.slice(-8).toUpperCase()}
+                      </span>
                     </td>
-                    <td className="px-8 py-7">
-                      <div className="text-sm font-bold text-slate-700">{booking.location?.city || 'N/A'}</div>
-                      <div className="text-[10px] text-slate-400 font-black uppercase tracking-wider mt-0.5">{booking.location?.country || 'N/A'}</div>
+                    <td className="px-5 py-3.5">
+                      <div className="text-sm font-medium text-gray-900">{booking.service?.name || 'Inspection'}</div>
+                      <div className="text-xs text-gray-500">{booking.factory?.name || booking.location?.city || '—'}</div>
                     </td>
-                    <td className="px-8 py-7">
-                      <div className="text-sm font-bold text-slate-700">
-                        {new Date(booking.date || booking.createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Scheduled</div>
+                    <td className="px-5 py-3.5 text-sm text-gray-600">
+                      {new Date(booking.date || booking.createdAt).toLocaleDateString('en-US', {
+                        month: 'short', day: 'numeric', year: 'numeric'
+                      })}
                     </td>
-                    <td className="px-8 py-7">
+                    <td className="px-5 py-3.5">
                       <span className={cn(
-                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border shadow-sm",
+                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border",
                         status.className
                       )}>
-                        <StatusIcon size={12} strokeWidth={2.5} />
                         {status.label}
                       </span>
                     </td>
-                    <td className="px-8 py-7">
-                      <div className="text-xl font-black text-slate-900">${booking.payment?.amount?.toFixed(2) || '0.00'}</div>
-                      <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">USD - Gross</div>
+                    <td className="px-5 py-3.5">
+                      <span className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+                        payment.className
+                      )}>
+                        {payment.label}
+                      </span>
                     </td>
-                    <td className="px-8 py-7">
-                      <div className="flex flex-wrap gap-2">
-                        {(booking.bookingFiles || booking.files || []).map((file, i) => {
-                          const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').split('/api')[0];
-                          const fileUrl = file.url?.startsWith('/') ? file.url : `/${file.url}`;
-                          const fullUrl = `${baseUrl}${fileUrl}`;
-                          
-                          return (
-                            <a
-                              key={file.id || i}
-                              href={fullUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50/50 border border-indigo-100 rounded-lg text-[9px] font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all shadow-sm"
-                              title={file.name}
-                            >
-                              <Eye size={10} />
-                              {file.name.length > 12 ? file.name.substring(0, 10) + '...' : file.name}
-                            </a>
-                          );
-                        })}
-                        {!(booking.bookingFiles?.length || booking.files?.length) && (
-                          <span className="text-[10px] text-slate-300 italic font-medium">No docs available</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-8 py-7 text-right">
+                    <td className="px-5 py-3.5 text-right">
                       <Link 
                         to={`/dashboard/bookings/${booking._id}`}
-                        className="w-12 h-12 bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-white border-2 border-transparent hover:border-slate-100 rounded-2xl transition-all inline-flex items-center justify-center shadow-sm active:scale-95"
+                        className="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        title="View details"
                       >
-                        <Eye size={20} />
+                        <Eye size={16} />
                       </Link>
                     </td>
                   </tr>
@@ -143,12 +166,13 @@ const RecentBookingsTable = ({ bookings, isLoading }) => {
               })
             ) : (
               <tr>
-                <td colSpan="6" className="px-8 py-24 text-center">
+                <td colSpan="6" className="px-5 py-16 text-center">
                   <div className="flex flex-col items-center">
-                    <div className="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 mb-6 shadow-inner">
-                      <Clock size={40} />
+                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-300 mb-3">
+                      <ClipboardList size={24} />
                     </div>
-                    <p className="text-slate-400 font-black uppercase tracking-[0.25em] text-[10px]">No active dossiers found in your recent history</p>
+                    <p className="text-sm text-gray-500 font-medium">No bookings found</p>
+                    <p className="text-xs text-gray-400 mt-1">Create your first booking to get started</p>
                   </div>
                 </td>
               </tr>
@@ -160,4 +184,6 @@ const RecentBookingsTable = ({ bookings, isLoading }) => {
   );
 };
 
-export default RecentBookingsTable;
+
+
+export default BookingsTable;
