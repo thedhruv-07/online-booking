@@ -5,12 +5,12 @@ import {
   Settings,
   Search,
   FileText,
-  ArrowRight,
   CheckCircle2
 } from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
 import { services as mockServices } from '../../utils/constants';
 import { cn } from '../../utils/cn';
+import { StepNavigation } from '../booking';
 
 // Mapping icons to service IDs (mock data)
 const serviceIcons = {
@@ -99,19 +99,12 @@ const ServiceStep = () => {
         })}
       </div>
 
-      <div className="pt-10 flex justify-end">
-        <button
-          onClick={nextStep}
-          disabled={!selectedServiceId}
-          className={cn(
-            "btn-primary flex items-center gap-2",
-            !selectedServiceId && "opacity-50 cursor-not-allowed"
-          )}
-        >
-          Continue to Location
-          <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
-        </button>
-      </div>
+      <StepNavigation 
+        onNext={nextStep}
+        isValid={!!selectedServiceId}
+        isFirstStep={true}
+        nextLabel="Continue to Location"
+      />
     </div>
   );
 };

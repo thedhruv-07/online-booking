@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useBooking } from '../../hooks/useBooking';
-import Input from '../ui/Input';
-import Select from '../ui/Select';
-import Button from '../ui/Button';
+import { Input, Select } from '../ui';
 import { getCountries, getStatesByCountry } from '../../utils/geoData';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Globe, Navigation, Mail, ArrowLeft, ArrowRight } from 'lucide-react';
-import { cn } from '../../utils/cn';
+import { MapPin, Globe, Navigation, Mail } from 'lucide-react';
+import { StepNavigation } from '../booking';
 
 /**
  * Step 2: Location Information (Upgraded with Dependent Selects)
@@ -27,10 +25,6 @@ const LocationStep = () => {
     if (formData.country) {
       const states = getStatesByCountry(formData.country);
       setAvailableStates(states);
-      // Reset city/state if it's not in the new country's list
-      if (states.length > 0 && !states.find(s => s.id === formData.city)) {
-        // We don't reset if it was already set from bookingData and is valid
-      }
     } else {
       setAvailableStates([]);
     }
@@ -46,13 +40,14 @@ const LocationStep = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleContinue = () => {
     updateStepData('location', formData);
     nextStep();
   };
 
   const countries = getCountries();
+
+  const isFormValid = formData.country && formData.city && formData.address && formData.postalCode;
 
   return (
     <div className="space-y-8">
@@ -64,7 +59,7 @@ const LocationStep = () => {
         <p className="text-slate-500 font-medium">Specify where the inspection will take place. This helps us assign the nearest certified inspector.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Country Selection */}
           <div className="space-y-2">
@@ -140,25 +135,13 @@ const LocationStep = () => {
           </div>
         </div>
 
-        <div className="pt-8 flex flex-col sm:flex-row justify-between gap-4">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={prevStep}
-            className="btn-secondary px-8 order-2 sm:order-1 flex items-center justify-center gap-2"
-          >
-            <ArrowLeft size={16} />
-            Back
-          </Button>
-          <Button
-            type="submit"
-            className="btn-primary px-10 order-1 sm:order-2 flex items-center justify-center gap-2"
-          >
-            Continue to Product
-            <ArrowRight size={18} />
-          </Button>
-        </div>
-      </form>
+        <StepNavigation 
+          onBack={prevStep}
+          onNext={handleContinue}
+          isValid={isFormValid}
+          nextLabel="Continue to Product"
+        />
+      </div>
     </div>
   );
 };

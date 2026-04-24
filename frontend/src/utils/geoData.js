@@ -43,3 +43,14 @@ export const getCountryName = (isoCode) => {
 export const getStateName = (countryIsoCode, stateIsoCode) => {
   return State.getStateByCodeAndCountry(stateIsoCode, countryIsoCode)?.name || stateIsoCode;
 };
+/**
+ * Get all country phone codes formatted for Select component
+ * @returns {Array<{id: string, name: string}>}
+ */
+export const getPhoneCodes = () => {
+  return Country.getAllCountries().map(country => ({
+    id: country.isoCode,
+    value: `+${country.phonecode.replace('+', '')}`,
+    name: `${country.flag} ${country.isoCode} +${country.phonecode.replace('+', '')}`
+  }));
+};

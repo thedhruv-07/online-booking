@@ -3,14 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CreditCard, 
   Building2, 
-  ShieldCheck, 
   Lock, 
   ArrowLeft, 
   Loader2,
   CheckCircle2,
   AlertCircle,
   Wallet,
-  Globe,
   Plus,
   ArrowRight
 } from 'lucide-react';

@@ -34,7 +34,7 @@ const Select = forwardRef(
           <option value="">{placeholder}</option>
           {options.map((option) => (
             <option
-              key={option.value || option.id}
+              key={option.id || option.value}
               value={option.value || option.id}
               disabled={option.disabled}
             >

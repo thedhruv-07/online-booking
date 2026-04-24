@@ -10,11 +10,15 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Download,
+  Trash2
 } from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
+import { api } from '../../services/api';
 import { Link } from 'react-router-dom';
 import { cn } from '../../utils/cn';
+import { Modal } from '../../components/ui';
 
 const statusFilters = [
   { label: 'All Bookings', value: '' },
@@ -38,6 +42,9 @@ const MyBookings = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchBookings({ 
@@ -46,6 +53,13 @@ const MyBookings = () => {
       page: currentPage 
     });
   }, [activeFilter, currentPage]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setActiveDropdown(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -59,6 +73,31 @@ const MyBookings = () => {
     }
   };
 
+  const toggleDropdown = (e, id) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === id ? null : id);
+  };
+
+  const handleDeleteClick = (e, booking) => {
+    e.stopPropagation();
+    setActiveDropdown(null);
+    setDeleteTarget(booking);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/bookings/${deleteTarget._id}`);
+      setDeleteTarget(null);
+      fetchBookings({ search: searchTerm, status: activeFilter, page: currentPage });
+    } catch (err) {
+      window.alert(err.response?.data?.message || 'Failed to delete booking.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -68,7 +107,7 @@ const MyBookings = () => {
           <p className="text-slate-500 text-sm font-medium">Manage and track your inspection requests</p>
         </div>
         <Link 
-          to="/create-booking" 
+          to="/booking/create" 
           className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 w-fit"
         >
           <Plus size={20} />
@@ -111,7 +150,7 @@ const MyBookings = () => {
       </div>
 
       {/* Bookings Table */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden min-h-[400px]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -164,17 +203,56 @@ const MyBookings = () => {
                           {status.replace('_', ' ')}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="px-6 py-4 text-right overflow-visible">
+                        <div className="flex items-center justify-end gap-2 relative">
                           <Link 
                             to={`/dashboard/bookings/${booking._id}`}
                             className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                            title="View Details"
                           >
                             <Eye size={18} />
                           </Link>
-                          <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
-                            <MoreVertical size={18} />
-                          </button>
+                          
+                          <div className="relative">
+                            <button 
+                              onClick={(e) => toggleDropdown(e, booking._id)}
+                              className={cn(
+                                "p-2 rounded-lg transition-all",
+                                activeDropdown === booking._id 
+                                  ? "bg-slate-100 text-slate-900 shadow-inner" 
+                                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                              )}
+                            >
+                              <MoreVertical size={18} />
+                            </button>
+
+                            {activeDropdown === booking._id && (
+                              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[100] animate-in fade-in zoom-in duration-200 origin-top-right">
+                                <button 
+                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                                  onClick={(e) => handleDeleteClick(e, booking)}
+                                >
+                                  <Trash2 size={16} />
+                                  Delete Booking
+                                </button>
+                                <button 
+                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                                  onClick={() => window.alert('Invoice download coming soon!')}
+                                >
+                                  <Download size={16} />
+                                  Download Invoice
+                                </button>
+                                <div className="h-px bg-slate-50 my-1 mx-2"></div>
+                                <button 
+                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                                  onClick={() => window.alert('Please contact support to cancel this booking.')}
+                                >
+                                  <XCircle size={16} />
+                                  Cancel Booking
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -244,6 +322,51 @@ const MyBookings = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        size="sm"
+      >
+        <div className="text-center py-4">
+          <div className="mx-auto w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-6">
+            <Trash2 className="w-8 h-8 text-rose-500" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Delete Booking</h3>
+          <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-xs mx-auto">
+            Are you sure you want to delete{' '}
+            <span className="text-slate-800 font-bold">{deleteTarget?.service?.name || 'this booking'}</span>?
+            This action cannot be undone.
+          </p>
+
+          <div className="flex items-center gap-3 mt-8">
+            <button
+              onClick={() => setDeleteTarget(null)}
+              className="flex-1 px-5 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="flex-1 px-5 py-3 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition-all shadow-lg shadow-rose-100 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isDeleting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 size={16} />
+                  Delete
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -205,25 +205,66 @@ const BookingDetails = () => {
             </div>
           </div>
 
-          {/* Product & Scope Details (Relocated and Slimmed) */}
+          {/* Quality & Inspection Standards */}
+          <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-10">
+            <h2 className="text-lg font-black text-slate-900 tracking-tight mb-8 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white">
+                <CheckCircle2 size={16} />
+              </div>
+              Quality & Inspection Standards
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Lot Size</label>
+                <div className="text-base font-bold text-slate-800">{booking.aql?.lotSize?.toLocaleString() || 'N/A'} Units</div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Strictness</label>
+                <div className="text-base font-bold text-slate-800 capitalize">{booking.aql?.strictnessMode || 'Standard'}</div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Quality Level</label>
+                <div className="text-base font-bold text-slate-800 capitalize">{booking.aql?.qualityMode || 'Standard'} Quality</div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Sample Size</label>
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-lg text-emerald-700 font-black text-sm">
+                  {booking.aql?.sampleSize || 0} Units
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-10 p-6 bg-slate-50 border border-slate-100 rounded-[24px]">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm shrink-0">
+                  <Clock size={20} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 mb-1">AQL Inspection Protocol</h4>
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                    Our inspectors will randomly select <span className="text-indigo-600 font-bold">{booking.aql?.sampleSize || 0} units</span> from the total lot of <span className="text-slate-900 font-bold">{booking.aql?.lotSize?.toLocaleString() || 0}</span> for physical inspection based on the ISO 2859-1 (ANSI/ASQC Z1.4) sampling standard.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Production Scope Details */}
           <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-10">
             <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-8">Production Scope</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               <div className="p-4 bg-slate-50/50 rounded-2xl">
-                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Product</div>
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Product Name</div>
                 <div className="text-xs font-bold text-slate-900 truncate">{booking.product?.name}</div>
               </div>
               <div className="p-4 bg-slate-50/50 rounded-2xl">
-                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Volume</div>
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Order Volume</div>
                 <div className="text-xs font-bold text-slate-900">{booking.product?.quantity} {booking.product?.unitType}</div>
               </div>
               <div className="p-4 bg-slate-50/50 rounded-2xl">
-                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">PO #</div>
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">PO Number</div>
                 <div className="text-xs font-bold text-slate-900">{booking.product?.poNumber || 'N/A'}</div>
-              </div>
-              <div className="p-4 bg-slate-50/50 rounded-2xl">
-                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">AQL Level</div>
-                <div className="text-xs font-bold text-slate-900">{booking.aql?.inspectionLevel || 'G2'}</div>
               </div>
             </div>
           </div>

@@ -1,27 +1,14 @@
 import { useState } from 'react';
 import { useBooking } from '../../hooks/useBooking';
-import Button from '../ui/Button';
-import Select from '../ui/Select';
-import { Factory, MapPin, Search, Plus, ArrowLeft, ArrowRight } from 'lucide-react';
-import { factories as mockFactories } from '../../utils/constants';
+import { Select, Input } from '../ui';
+import { Factory, Plus } from 'lucide-react';
+import { StepNavigation } from '../booking';
+import { getPhoneCodes } from '../../utils/geoData';
 import { cn } from '../../utils/cn';
 
 /**
  * Step 5: Factory Information
  */
-const COUNTRY_CODES = [
-  { code: '+86', label: '🇨🇳 +86' },
-  { code: '+91', label: '🇮🇳 +91' },
-  { code: '+1', label: '🇺🇸 +1' },
-  { code: '+44', label: '🇬🇧 +44' },
-  { code: '+852', label: '🇭🇰 +852' },
-  { code: '+84', label: '🇻🇳 +84' },
-  { code: '+66', label: '🇹🇭 +66' },
-  { code: '+62', label: '🇮🇩 +62' },
-  { code: '+81', label: '🇯🇵 +81' },
-  { code: '+82', label: '🇰🇷 +82' },
-];
-
 const FactoryStep = () => {
   const { updateStepData, bookingData, prevStep, nextStep } = useBooking();
   
@@ -101,24 +88,23 @@ const FactoryStep = () => {
           
           <div className="space-y-3">
             <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Contact Number <span className="text-rose-500">*</span></label>
-            <div className="flex gap-2">
-              <select
+            <div className="flex gap-2 items-start">
+              <Select
                 name="phonePrefix"
                 value={formData.phonePrefix}
                 onChange={handleChange}
-                className="w-32 px-4 bg-slate-50 border border-slate-100 rounded-md focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-sm font-bold text-slate-800 transition-all"
-              >
-                {COUNTRY_CODES.map(c => (
-                  <option key={c.code} value={c.code}>{c.label}</option>
-                ))}
-              </select>
-              <input
-                type="text"
+                options={getPhoneCodes()}
+                className="w-32"
+                wrapperClassName="mb-0"
+                placeholder="+Prefix"
+              />
+              <Input
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="XXX XXXX XXXX"
-                className="flex-1 px-6 bg-slate-50 border border-slate-100 rounded-md focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-base font-bold text-slate-800 placeholder:text-slate-300 transition-all"
+                className="flex-1"
+                wrapperClassName="mb-0 flex-1"
               />
             </div>
           </div>
@@ -137,25 +123,12 @@ const FactoryStep = () => {
         </div>
       </div>
 
-      <div className="pt-8 flex flex-col sm:flex-row justify-between gap-4 max-w-4xl mx-auto w-full">
-        <Button 
-          type="button" 
-          variant="secondary" 
-          onClick={prevStep}
-          className="btn-secondary px-10 flex items-center justify-center gap-2"
-        >
-          <ArrowLeft size={16} />
-          Back
-        </Button>
-        <Button 
-          type="button"
-          onClick={handleContinue}
-          className="btn-primary px-12 flex items-center justify-center gap-2"
-        >
-          Continue to Contact
-          <ArrowRight size={18} />
-        </Button>
-      </div>
+      <StepNavigation 
+        onBack={prevStep}
+        onNext={handleContinue}
+        isValid={!!(formData.name && formData.address && formData.phone)}
+        nextLabel="Continue to Contact"
+      />
     </div>
   );
 };

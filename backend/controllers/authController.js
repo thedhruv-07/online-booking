@@ -62,7 +62,6 @@ exports.login = async (req, res, next) => {
     }
 
     const user = await User.findOne({ email });
-    console.log('LOGIN ATTEMPT:', { email, found: !!user, status: user?.status });
 
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });

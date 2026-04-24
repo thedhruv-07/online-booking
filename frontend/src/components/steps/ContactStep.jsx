@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useBooking } from '../../hooks/useBooking';
 import { useAuth } from '../../store/authStore';
-import Button from '../ui/Button';
-import Input from '../ui/Input';
-import { User, Mail, Phone, Briefcase, Users, Check, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Input, Select } from '../ui';
+import { User, Mail, Phone, Briefcase, Users, Check } from 'lucide-react';
+import { StepNavigation } from '../booking';
+import { getPhoneCodes } from '../../utils/geoData';
 import { cn } from '../../utils/cn';
 
 /**
@@ -16,7 +17,8 @@ const ContactStep = () => {
   const [formData, setFormData] = useState({
     name: bookingData.contact?.name || '',
     email: bookingData.contact?.email || '',
-    phone: bookingData.contact?.phone || '',
+    phone: bookingData.contact?.phone?.replace(/^\+\d+\s/, '') || '',
+    phonePrefix: bookingData.contact?.phone?.match(/^\+\d+/)?.[0] || '+86',
     designation: bookingData.contact?.designation || '',
   });
 
@@ -51,7 +53,10 @@ const ContactStep = () => {
       return;
     }
 
-    updateStepData('contact', formData);
+    updateStepData('contact', {
+      ...formData,
+      phone: `${formData.phonePrefix} ${formData.phone}`
+    });
     nextStep();
   };
 
@@ -139,14 +144,26 @@ const ContactStep = () => {
             <Phone size={14} className="text-blue-500" />
             Contact Phone Number <span className="text-rose-500">*</span>
           </label>
-          <Input
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="Enter Phone Number ..."
-            required
-            className="rounded-md border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
-          />
+          <div className="flex gap-2 items-start">
+            <Select
+              name="phonePrefix"
+              value={formData.phonePrefix}
+              onChange={handleChange}
+              options={getPhoneCodes()}
+              className="w-32"
+              wrapperClassName="mb-0"
+              placeholder="+Prefix"
+            />
+            <Input
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Enter Phone Number ..."
+              required
+              className="flex-1"
+              wrapperClassName="mb-0 flex-1"
+            />
+          </div>
         </div>
 
         {/* Contact Designation */}
@@ -166,25 +183,12 @@ const ContactStep = () => {
         </div>
       </div>
 
-      <div className="pt-8 flex flex-col sm:flex-row justify-between gap-4">
-        <Button 
-          type="button" 
-          variant="secondary" 
-          onClick={prevStep}
-          className="btn-secondary px-8 flex items-center justify-center gap-2"
-        >
-          <ArrowLeft size={16} />
-          Back
-        </Button>
-        <Button 
-          type="button"
-          onClick={handleContinue}
-          className="btn-primary px-10 flex items-center justify-center gap-2"
-        >
-          Continue to AQL
-          <ArrowRight size={18} />
-        </Button>
-      </div>
+      <StepNavigation 
+        onBack={prevStep}
+        onNext={handleContinue}
+        isValid={!!(formData.name && formData.email && formData.phone && formData.designation)}
+        nextLabel="Continue to AQL"
+      />
     </div>
   );
 };

@@ -4,8 +4,6 @@ const Booking = require('../models/Booking');
 // @route   POST /api/bookings
 exports.createBooking = async (req, res, next) => {
   try {
-    console.log('--- CREATE BOOKING RAW BODY ---');
-    console.log(JSON.stringify(req.body, null, 2));
 
     // Forcefully clean the files data
     let cleanFiles = [];
@@ -57,7 +55,6 @@ exports.createBooking = async (req, res, next) => {
       data: booking
     });
   } catch (error) {
-    console.error('CREATE BOOKING ERROR:', error);
     res.status(400).json({
       success: false,
       message: error.message,

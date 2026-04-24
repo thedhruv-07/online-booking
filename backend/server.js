@@ -1,37 +1,15 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const path = require('path');
-const fs = require('fs');
-
-const connectDB = require('./config/db');
+const dotenv = require('dotenv');
+const apiRoutes = require('./routes');
 const { errorHandler } = require('./middleware/errorHandler');
 
+// Load env vars
 dotenv.config();
 
-// Catch unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
-// Catch uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
-});
-
 const app = express();
-
-/**
- * ✅ Connect DB
- */
-/**
- * ✅ Ensure uploads folder exists
- */
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
 
 /**
  * ✅ Middlewares
@@ -48,77 +26,41 @@ app.use(cors({
   credentials: true,
 }));
 
-// Request logging middleware
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
-  });
-  next();
-});
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/**
- * ✅ Static files
- */
-app.get('/uploads/:filename', (req, res) => {
-  const filePath = path.join(uploadDir, req.params.filename);
-  if (fs.existsSync(filePath)) {
-    res.sendFile(filePath);
-  } else {
-    res.status(404).json({ message: 'File not found on server' });
-  }
-});
+// Static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 /**
- * ✅ Routes
+ * ✅ API Routes
  */
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/bookings', require('./routes/bookings'));
-app.use('/api/payments', require('./routes/payments'));
-app.use('/api/upload', require('./routes/upload'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/invoice', require('./routes/invoiceRoutes'));
+app.use('/api', apiRoutes);
 
 /**
- * ✅ Health check
- */
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-  });
-});
-
-/**
- * ❌ 404 API handler
- */
-app.use((req, res) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({
-      message: 'API endpoint not found',
-    });
-  }
-});
-
-/**
- * 🔥 ERROR HANDLER (MUST BE LAST)
+ * ✅ Error Handling
  */
 app.use(errorHandler);
 
 /**
- * ✅ Start server
+ * ✅ Database Connection & Server Start
  */
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log('MongoDB connected successfully.');
+  } catch (error) {
+    console.error('MongoDB connection error:', error.message);
+    process.exit(1);
+  }
+};
 
 const startServer = async () => {
   try {
-    console.log('Connecting to MongoDB...');
     await connectDB();
-    console.log('MongoDB connected successfully.');
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`📡 Network access via http://127.0.0.1:${PORT}`);
@@ -130,3 +72,10 @@ const startServer = async () => {
 };
 
 startServer();
+
+// Global unhandled rejection handler
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED REJECTION! 💥 Shutting down...');
+  console.error(err.name, err.message);
+  process.exit(1);
+});

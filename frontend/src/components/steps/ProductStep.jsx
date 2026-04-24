@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useBooking } from '../../hooks/useBooking';
-import Button from '../ui/Button';
-import Input from '../ui/Input';
-import Select from '../ui/Select';
-import { Package, FileText, Hash, Calendar, Layers, ShoppingBag, ArrowLeft, ArrowRight } from 'lucide-react';
-import { cn } from '../../utils/cn';
+import { Input, Select } from '../ui';
+import { Package, FileText, Hash, Calendar, Layers, ShoppingBag } from 'lucide-react';
+import { StepNavigation } from '../booking';
 
 /**
  * Step 3: Product Information
@@ -181,25 +179,12 @@ const ProductStep = () => {
         </div>
       </div>
 
-      <div className="pt-8 flex flex-col sm:flex-row justify-between gap-4">
-        <Button 
-          type="button" 
-          variant="secondary" 
-          onClick={prevStep}
-          className="btn-secondary px-8 flex items-center justify-center gap-2"
-        >
-          <ArrowLeft size={16} />
-          Back
-        </Button>
-        <Button 
-          type="button"
-          onClick={handleContinue}
-          className="btn-primary px-10 flex items-center justify-center gap-2"
-        >
-          Continue to Upload
-          <ArrowRight size={18} />
-        </Button>
-      </div>
+      <StepNavigation 
+        onBack={prevStep}
+        onNext={handleContinue}
+        isValid={!!(formData.description && formData.unitType && formData.quantity && formData.inspectionDate)}
+        nextLabel="Continue to Upload"
+      />
     </div>
   );
 };

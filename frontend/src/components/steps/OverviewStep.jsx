@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { useBooking } from '../../hooks/useBooking';
-import Button from '../ui/Button';
 import { 
   ClipboardCheck, 
   MapPin, 
@@ -10,10 +9,9 @@ import {
   Calendar, 
   Hash,
   Shield,
-  ArrowRight,
-  ArrowLeft,
   CheckSquare
 } from 'lucide-react';
+import { StepNavigation } from '../booking';
 
 const OverviewStep = () => {
   const { bookingData, prevStep, nextStep } = useBooking();
@@ -150,29 +148,17 @@ const OverviewStep = () => {
               By confirming, you authorize Absolute Veritas to begin coordinating with the factory.
             </p>
           </div>
-          <button
-            onClick={nextStep}
-            className="btn-primary flex items-center gap-2"
-          >
-            Confirm & Proceed
-            <ArrowRight size={16} />
-          </button>
+      <StepNavigation 
+        onBack={prevStep}
+        onNext={nextStep}
+        nextLabel="Confirm & Proceed"
+      />
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-6 pt-4">
-        <button 
-          onClick={prevStep} 
-          className="btn-secondary flex items-center gap-2"
-        >
-          <ArrowLeft size={16} />
-          Back to parameters
-        </button>
-        
-        <div className="text-center space-y-2">
-          <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Absolute Veritas Global Quality Control</p>
-          <p className="text-[9px] text-slate-300 font-bold">Copyright © 2024. Standard Inspection Terms Apply.</p>
-        </div>
+      <div className="text-center space-y-2">
+        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Absolute Veritas Global Quality Control</p>
+        <p className="text-[9px] text-slate-300 font-bold">Copyright © 2024. Standard Inspection Terms Apply.</p>
       </div>
     </div>
   );

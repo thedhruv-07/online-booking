@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useBooking } from '../../hooks/useBooking';
-import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { Input } from '../ui';
 import { 
   PackageSearch,
   ShieldCheck,
@@ -12,11 +11,9 @@ import {
   Star,
   Activity,
   Layers,
-  ArrowRight,
-  ArrowLeft,
-  Loader2,
   Info
 } from 'lucide-react';
+import { StepNavigation } from '../booking';
 import { calculateAQL } from '../../utils/aqlCalculator';
 import { cn } from '../../utils/cn';
 
@@ -323,36 +320,12 @@ const AQLStep = () => {
       </div>
 
       {/* Footer Actions */}
-      <div className="pt-10 flex flex-col sm:flex-row justify-between gap-4">
-        <Button 
-          type="button" 
-          variant="secondary" 
-          onClick={prevStep}
-          className="btn-secondary px-8 flex items-center justify-center gap-2"
-          disabled={isSaving}
-        >
-          <ArrowLeft size={16} />
-          Back
-        </Button>
-        <Button 
-          type="button"
-          onClick={handleContinue}
-          disabled={isSaving}
-          className="btn-primary px-10 flex items-center justify-center gap-2"
-        >
-          {isSaving ? (
-            <>
-              <Loader2 className="animate-spin" size={20} />
-              Saving...
-            </>
-          ) : (
-            <>
-              Save & Continue
-              <ArrowRight size={20} />
-            </>
-          )}
-        </Button>
-      </div>
+      <StepNavigation 
+        onBack={prevStep}
+        onNext={handleContinue}
+        isValid={!isSaving && !!formData.lotSize && formData.lotSize > 0}
+        nextLabel={isSaving ? "Saving..." : "Save & Continue"}
+      />
     </div>
   );
 };
