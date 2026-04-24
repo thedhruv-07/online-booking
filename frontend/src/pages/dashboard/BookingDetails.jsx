@@ -214,28 +214,80 @@ const BookingDetails = () => {
               Quality & Inspection Standards
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Lot Size</label>
-                <div className="text-base font-bold text-slate-800">{booking.aql?.lotSize?.toLocaleString() || 'N/A'} Units</div>
+            {/* Row 1: Core AQL Parameters */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+              <div className="p-4 bg-slate-50/50 rounded-2xl">
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Lot Size</div>
+                <div className="text-lg font-black text-slate-900">{booking.aql?.lotSize?.toLocaleString() || 'N/A'}</div>
+                <div className="text-[10px] font-bold text-slate-400">Units</div>
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Strictness</label>
-                <div className="text-base font-bold text-slate-800 capitalize">{booking.aql?.strictnessMode || 'Standard'}</div>
+              <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                <div className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">Sample Size</div>
+                <div className="text-lg font-black text-emerald-700">{booking.aql?.sampleSize || 0}</div>
+                <div className="text-[10px] font-bold text-emerald-400">Units to Inspect</div>
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Quality Level</label>
-                <div className="text-base font-bold text-slate-800 capitalize">{booking.aql?.qualityMode || 'Standard'} Quality</div>
+              <div className="p-4 bg-slate-50/50 rounded-2xl">
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Inspection Level</div>
+                <div className="text-lg font-black text-slate-900 uppercase">{booking.aql?.inspectionLevel || 'II'}</div>
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Sample Size</label>
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-lg text-emerald-700 font-black text-sm">
-                  {booking.aql?.sampleSize || 0} Units
+              <div className="p-4 bg-slate-50/50 rounded-2xl">
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Code Letter</div>
+                <div className="text-lg font-black text-slate-900">{booking.aql?.codeLetter || '—'}</div>
+              </div>
+            </div>
+
+            {/* Row 2: Mode & AQL Values */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+              <div className="p-4 bg-slate-50/50 rounded-2xl">
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Strictness Mode</div>
+                <div className="text-sm font-bold text-slate-800 capitalize">{booking.aql?.strictnessMode || 'Standard'}</div>
+              </div>
+              <div className="p-4 bg-slate-50/50 rounded-2xl">
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Quality Mode</div>
+                <div className="text-sm font-bold text-slate-800 capitalize">{booking.aql?.qualityMode || 'Standard'}</div>
+              </div>
+              <div className="p-4 bg-slate-50/50 rounded-2xl">
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">AQL Major</div>
+                <div className="text-sm font-bold text-slate-800">{booking.aql?.aqlMajor || '—'}</div>
+              </div>
+              <div className="p-4 bg-slate-50/50 rounded-2xl">
+                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">AQL Minor</div>
+                <div className="text-sm font-bold text-slate-800">{booking.aql?.aqlMinor || '—'}</div>
+              </div>
+            </div>
+
+            {/* Row 3: Accept/Reject Limits */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Major Defect Limits</div>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 text-center p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                    <div className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">Accept</div>
+                    <div className="text-2xl font-black text-emerald-700">{booking.aql?.majorLimits?.ac ?? '—'}</div>
+                  </div>
+                  <div className="flex-1 text-center p-3 bg-rose-50 rounded-xl border border-rose-100">
+                    <div className="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">Reject</div>
+                    <div className="text-2xl font-black text-rose-600">{booking.aql?.majorLimits?.re ?? '—'}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Minor Defect Limits</div>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 text-center p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                    <div className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">Accept</div>
+                    <div className="text-2xl font-black text-emerald-700">{booking.aql?.minorLimits?.ac ?? '—'}</div>
+                  </div>
+                  <div className="flex-1 text-center p-3 bg-rose-50 rounded-xl border border-rose-100">
+                    <div className="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">Reject</div>
+                    <div className="text-2xl font-black text-rose-600">{booking.aql?.minorLimits?.re ?? '—'}</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 p-6 bg-slate-50 border border-slate-100 rounded-[24px]">
+            {/* Protocol Note */}
+            <div className="p-6 bg-slate-50 border border-slate-100 rounded-[24px]">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm shrink-0">
                   <Clock size={20} />
@@ -243,7 +295,7 @@ const BookingDetails = () => {
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 mb-1">AQL Inspection Protocol</h4>
                   <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                    Our inspectors will randomly select <span className="text-indigo-600 font-bold">{booking.aql?.sampleSize || 0} units</span> from the total lot of <span className="text-slate-900 font-bold">{booking.aql?.lotSize?.toLocaleString() || 0}</span> for physical inspection based on the ISO 2859-1 (ANSI/ASQC Z1.4) sampling standard.
+                    Based on ISO 2859-1 standard, inspection level <span className="text-slate-900 font-bold uppercase">{booking.aql?.inspectionLevel || 'II'}</span> with code letter <span className="text-slate-900 font-bold">{booking.aql?.codeLetter || '—'}</span>. Our inspector will randomly select <span className="text-indigo-600 font-bold">{booking.aql?.sampleSize || 0} units</span> from the total lot of <span className="text-slate-900 font-bold">{booking.aql?.lotSize?.toLocaleString() || 0}</span> for physical inspection.
                   </p>
                 </div>
               </div>

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useBooking } from '../../hooks/useBooking';
 import { useAuth } from '../../store/authStore';
-import { Input, Select } from '../ui';
+import { Input, Select, SearchableSelect } from '../ui';
 import { User, Mail, Phone, Briefcase, Users, Check } from 'lucide-react';
 import { StepNavigation } from '../booking';
 import { getPhoneCodes } from '../../utils/geoData';
@@ -24,6 +24,8 @@ const ContactStep = () => {
 
   const [useProfile, setUseProfile] = useState(false);
   const [validationError, setValidationError] = useState('');
+
+  const phoneCodes = useMemo(() => getPhoneCodes(), []);
 
   // Handle profile toggle
   useEffect(() => {
@@ -145,14 +147,15 @@ const ContactStep = () => {
             Contact Phone Number <span className="text-rose-500">*</span>
           </label>
           <div className="flex gap-2 items-start">
-            <Select
+            <SearchableSelect
               name="phonePrefix"
               value={formData.phonePrefix}
               onChange={handleChange}
-              options={getPhoneCodes()}
+              options={phoneCodes}
               className="w-32"
-              wrapperClassName="mb-0"
+              wrapperClassName="mb-0 w-32"
               placeholder="+Prefix"
+              searchPlaceholder="Code..."
             />
             <Input
               name="phone"

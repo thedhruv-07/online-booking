@@ -51,6 +51,6 @@ export const getPhoneCodes = () => {
   return Country.getAllCountries().map(country => ({
     id: country.isoCode,
     value: `+${country.phonecode.replace('+', '')}`,
-    name: `${country.flag} ${country.isoCode} +${country.phonecode.replace('+', '')}`
+    name: `${country.flag} ${country.name} (${country.isoCode}) +${country.phonecode.replace('+', '')}`
   }));
 };

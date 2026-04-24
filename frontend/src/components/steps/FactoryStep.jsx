@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useBooking } from '../../hooks/useBooking';
-import { Select, Input } from '../ui';
+import { Select, Input, SearchableSelect } from '../ui';
 import { Factory, Plus } from 'lucide-react';
 import { StepNavigation } from '../booking';
 import { getPhoneCodes } from '../../utils/geoData';
@@ -20,6 +20,8 @@ const FactoryStep = () => {
   });
   
   const [validationError, setValidationError] = useState('');
+
+  const phoneCodes = useMemo(() => getPhoneCodes(), []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,14 +91,15 @@ const FactoryStep = () => {
           <div className="space-y-3">
             <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Contact Number <span className="text-rose-500">*</span></label>
             <div className="flex gap-2 items-start">
-              <Select
+              <SearchableSelect
                 name="phonePrefix"
                 value={formData.phonePrefix}
                 onChange={handleChange}
-                options={getPhoneCodes()}
+                options={phoneCodes}
                 className="w-32"
-                wrapperClassName="mb-0"
+                wrapperClassName="mb-0 w-32"
                 placeholder="+Prefix"
+                searchPlaceholder="Code..."
               />
               <Input
                 name="phone"
