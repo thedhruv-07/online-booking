@@ -2,6 +2,8 @@ import { useBooking } from '../../hooks/useBooking';
 import FileUpload from '../ui/FileUpload';
 import Button from '../ui/Button';
 import Alert from '../ui/Alert';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 /**
  * Step 4: File Upload
@@ -52,11 +54,22 @@ const UploadStep = () => {
       />
 
       <div className="mt-8 flex justify-between">
-        <Button type="button" variant="secondary" onClick={prevStep}>
+        <Button 
+          type="button" 
+          variant="secondary" 
+          onClick={prevStep}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft size={16} />
           Back
         </Button>
-        <Button type="button" onClick={handleContinue}>
+        <Button 
+          type="button" 
+          onClick={handleContinue}
+          className="flex items-center gap-2"
+        >
           Continue to Factory
+          <ArrowRight size={18} />
         </Button>
       </div>
     </div>

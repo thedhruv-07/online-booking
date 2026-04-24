@@ -3,7 +3,7 @@ import { useBooking } from '../../hooks/useBooking';
 import { useAuth } from '../../store/authStore';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import { User, Mail, Phone, Briefcase, Users, Check } from 'lucide-react';
+import { User, Mail, Phone, Briefcase, Users, Check, ArrowLeft, ArrowRight } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 /**
@@ -112,7 +112,7 @@ const ContactStep = () => {
             onChange={handleChange}
             placeholder="Enter Contact Name ..."
             required
-            className="h-14 rounded-2xl border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+            className="rounded-md border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
           />
         </div>
 
@@ -129,7 +129,7 @@ const ContactStep = () => {
             onChange={handleChange}
             placeholder="Enter Email Address ..."
             required
-            className="h-14 rounded-2xl border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+            className="rounded-md border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
           />
         </div>
 
@@ -145,7 +145,7 @@ const ContactStep = () => {
             onChange={handleChange}
             placeholder="Enter Phone Number ..."
             required
-            className="h-14 rounded-2xl border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+            className="rounded-md border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
           />
         </div>
 
@@ -161,7 +161,7 @@ const ContactStep = () => {
             onChange={handleChange}
             placeholder="e.g. Factory Manager"
             required
-            className="h-14 rounded-2xl border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+            className="rounded-md border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
           />
         </div>
       </div>
@@ -171,16 +171,18 @@ const ContactStep = () => {
           type="button" 
           variant="secondary" 
           onClick={prevStep}
-          className="h-14 px-8 rounded-2xl font-bold border-slate-200 hover:bg-slate-50"
+          className="btn-secondary px-8 flex items-center justify-center gap-2"
         >
+          <ArrowLeft size={16} />
           Back
         </Button>
         <Button 
           type="button"
           onClick={handleContinue}
-          className="h-14 px-10 rounded-2xl font-black bg-slate-900 hover:bg-slate-800 shadow-lg"
+          className="btn-primary px-10 flex items-center justify-center gap-2"
         >
           Continue to AQL
+          <ArrowRight size={18} />
         </Button>
       </div>
     </div>

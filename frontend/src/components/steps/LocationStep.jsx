@@ -5,7 +5,8 @@ import Select from '../ui/Select';
 import Button from '../ui/Button';
 import { getCountries, getStatesByCountry } from '../../utils/geoData';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Globe, Navigation, Mail } from 'lucide-react';
+import { MapPin, Globe, Navigation, Mail, ArrowLeft, ArrowRight } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 /**
  * Step 2: Location Information (Upgraded with Dependent Selects)
@@ -78,7 +79,7 @@ const LocationStep = () => {
               options={countries}
               placeholder="Select Country"
               required
-              className="h-14 rounded-2xl border-slate-200 focus:border-indigo-600 focus:ring-indigo-600/20"
+              className="rounded-md border-slate-200 focus:border-indigo-600 focus:ring-indigo-600/20"
             />
           </div>
 
@@ -119,7 +120,7 @@ const LocationStep = () => {
               onChange={handleChange}
               placeholder="Street name, building number, suite, etc."
               required
-              className="h-14 rounded-2xl border-slate-200 focus:border-indigo-600 focus:ring-indigo-600/20"
+              className="rounded-md border-slate-200 focus:border-indigo-600 focus:ring-indigo-600/20"
             />
           </div>
 
@@ -134,7 +135,7 @@ const LocationStep = () => {
               onChange={handleChange}
               placeholder="e.g. 10001"
               required
-              className="h-14 rounded-2xl border-slate-200 focus:border-indigo-600 focus:ring-indigo-600/20"
+              className="rounded-md border-slate-200 focus:border-indigo-600 focus:ring-indigo-600/20"
             />
           </div>
         </div>
@@ -144,15 +145,17 @@ const LocationStep = () => {
             type="button"
             variant="secondary"
             onClick={prevStep}
-            className="h-14 px-8 rounded-2xl font-bold border-slate-200 hover:bg-slate-50 order-2 sm:order-1"
+            className="btn-secondary px-8 order-2 sm:order-1 flex items-center justify-center gap-2"
           >
+            <ArrowLeft size={16} />
             Back
           </Button>
           <Button
             type="submit"
-            className="h-14 px-10 rounded-2xl font-black bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100 order-1 sm:order-2"
+            className="btn-primary px-10 order-1 sm:order-2 flex items-center justify-center gap-2"
           >
             Continue to Product
+            <ArrowRight size={18} />
           </Button>
         </div>
       </form>

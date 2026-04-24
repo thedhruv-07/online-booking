@@ -37,7 +37,14 @@ if (!fs.existsSync(uploadDir)) {
  * ✅ Middlewares
  */
 app.use(cors({
-  origin: ['http://localhost:5173','http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://127.0.0.1:5173'],
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:5174', 
+    'http://localhost:5175', 
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    'http://127.0.0.1:5175'
+  ],
   credentials: true,
 }));
 
@@ -74,6 +81,7 @@ app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/invoice', require('./routes/invoiceRoutes'));
 
 /**
  * ✅ Health check
@@ -111,8 +119,9 @@ const startServer = async () => {
     console.log('Connecting to MongoDB...');
     await connectDB();
     console.log('MongoDB connected successfully.');
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`📡 Network access via http://127.0.0.1:${PORT}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

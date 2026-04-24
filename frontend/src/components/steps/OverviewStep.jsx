@@ -10,7 +10,9 @@ import {
   Calendar, 
   Hash,
   Shield,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft,
+  CheckSquare
 } from 'lucide-react';
 
 const OverviewStep = () => {
@@ -62,10 +64,10 @@ const OverviewStep = () => {
   return (
     <div className="space-y-10">
       <div className="text-center max-w-2xl mx-auto">
-        <div className="mx-auto w-20 h-20 bg-slate-900 text-white rounded-[2rem] flex items-center justify-center mb-8 shadow-2xl shadow-slate-200">
-          <ClipboardCheck size={40} />
+        <div className="mx-auto w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center mb-8 shadow-xl">
+          <ClipboardCheck size={32} />
         </div>
-        <h2 className="text-4xl font-black text-slate-900 mb-3 tracking-tight uppercase">Review & Confirm</h2>
+        <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight uppercase">Review & Confirm</h2>
         <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Verify your booking parameters</p>
       </div>
 
@@ -107,42 +109,68 @@ const OverviewStep = () => {
           <DetailItem label="Designation" value={bookingData.contact?.designation} />
           <DetailItem label="Contact ID" value={systemIds.factoryContactId} icon={Hash} />
         </SummaryCard>
+
+        {/* AQL Configuration Card */}
+        <SummaryCard 
+          title="Quality Standards" 
+          icon={Shield} 
+          color={{ bg: 'bg-indigo-50/50', text: 'text-indigo-600' }}
+        >
+          <DetailItem label="Total Lot Size" value={`${bookingData.aql?.lotSize?.toLocaleString() || 0} Units`} />
+          <DetailItem label="Strictness" value={<span className="capitalize">{bookingData.aql?.strictnessMode || 'Standard'}</span>} />
+          <DetailItem label="Quality Level" value={<span className="capitalize">{bookingData.aql?.qualityMode || 'Standard'} Quality</span>} />
+          
+          <div className="bg-white border border-indigo-100 rounded-lg p-4 mt-4 shadow-sm">
+            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block mb-2">Total Sample Size</span>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-md flex items-center justify-center shrink-0">
+                <CheckSquare size={16} />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-indigo-600">{bookingData.aql?.sampleSize || 0}</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Units</span>
+              </div>
+            </div>
+            <p className="text-xs font-medium text-slate-500 mt-3 pt-3 border-t border-slate-100">
+              The inspector will thoroughly check this sample from your lot.
+            </p>
+          </div>
+        </SummaryCard>
       </div>
 
-      <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -mr-64 -mt-64 group-hover:bg-indigo-500/20 transition-all duration-1000"></div>
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+      <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm relative overflow-hidden">
+        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
           <div className="max-w-xl text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-4">
               <Shield size={12} />
               Verified Protocol
             </div>
-            <h3 className="text-3xl font-black mb-4 tracking-tight">Ready to initiate inspection?</h3>
-            <p className="text-slate-400 font-medium leading-relaxed">
-              By confirming, you authorize Absolute Veritas to begin coordinating with the factory. Our team will assign a certified inspector within the next 24 business hours.
+            <h3 className="text-xl font-bold mb-2 text-slate-900">Ready to initiate inspection?</h3>
+            <p className="text-slate-500 text-sm font-medium leading-relaxed">
+              By confirming, you authorize Absolute Veritas to begin coordinating with the factory.
             </p>
           </div>
           <button
             onClick={nextStep}
-            className="group bg-indigo-600 text-white px-12 py-6 rounded-2xl font-black text-xl hover:bg-indigo-700 transition-all flex items-center gap-4 shadow-2xl shadow-indigo-500/20 active:scale-95 shrink-0"
+            className="btn-primary flex items-center gap-2"
           >
             Confirm & Proceed
-            <ArrowRight className="group-hover:translate-x-2 transition-transform" size={24} strokeWidth={3} />
+            <ArrowRight size={16} />
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-8 pt-6">
+      <div className="flex flex-col items-center gap-6 pt-4">
         <button 
           onClick={prevStep} 
-          className="h-16 px-10 rounded-2xl font-black text-xs uppercase tracking-[0.2em] border-2 border-slate-100 text-slate-400 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-200 transition-all flex items-center gap-3"
+          className="btn-secondary flex items-center gap-2"
         >
-          <ArrowRight className="rotate-180" size={16} />
+          <ArrowLeft size={16} />
           Back to parameters
         </button>
         
-        <div className="text-center space-y-3">
-          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Absolute Veritas Global Quality Control</p>
+        <div className="text-center space-y-2">
+          <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Absolute Veritas Global Quality Control</p>
           <p className="text-[9px] text-slate-300 font-bold">Copyright © 2024. Standard Inspection Terms Apply.</p>
         </div>
       </div>

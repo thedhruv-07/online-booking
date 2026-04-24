@@ -90,5 +90,30 @@ export const paymentService = {
     const response = await api.post('/payments/demo-success', { bookingId });
     return response;
   },
+
+  /**
+   * Download Invoice PDF
+   * @param {string} bookingId
+   */
+  downloadInvoice: async (bookingId) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/invoice/${bookingId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) throw new Error('Failed to download invoice');
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoice-${bookingId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
 };
 

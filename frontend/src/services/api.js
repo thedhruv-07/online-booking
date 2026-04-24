@@ -26,7 +26,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    const message = error.response?.data?.message || error.response?.data?.error || 'Something went wrong';
+    let message = error.response?.data?.message || error.response?.data?.error || 'Something went wrong';
+    
+    // Handle Network Error (like ERR_CONNECTION_REFUSED)
+    if (!error.response && error.request) {
+      message = 'Backend server is unreachable. Please ensure the backend is running on port 3001.';
+      console.error('Network Error:', error);
+    }
     
     // Auto logout on 401
     if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {

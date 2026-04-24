@@ -3,7 +3,8 @@ import { useBooking } from '../../hooks/useBooking';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
-import { Package, FileText, Hash, Calendar, Layers, ShoppingBag } from 'lucide-react';
+import { Package, FileText, Hash, Calendar, Layers, ShoppingBag, ArrowLeft, ArrowRight } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 /**
  * Step 3: Product Information
@@ -78,7 +79,7 @@ const ProductStep = () => {
             value={formData.name}
             onChange={handleChange}
             placeholder="Enter Product Name ..."
-            className="h-14 rounded-2xl border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+            className="rounded-md border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
           />
         </div>
 
@@ -94,7 +95,7 @@ const ProductStep = () => {
             onChange={handleChange}
             placeholder="Enter Product Description ..."
             required
-            className="h-14 rounded-2xl border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+            className="rounded-md border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
           />
         </div>
 
@@ -111,7 +112,7 @@ const ProductStep = () => {
             options={unitTypes}
             placeholder="Select Unit Type"
             required
-            className="h-14 rounded-2xl border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+            className="rounded-md border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
           />
         </div>
 
@@ -128,7 +129,7 @@ const ProductStep = () => {
             onChange={handleChange}
             placeholder="Enter Quantity ..."
             required
-            className="h-14 rounded-2xl border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+            className="rounded-md border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
           />
         </div>
 
@@ -144,7 +145,7 @@ const ProductStep = () => {
             value={formData.piecesInSet}
             onChange={handleChange}
             placeholder="Enter Pieces In Set ..."
-            className="h-14 rounded-2xl border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+            className="rounded-md border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
           />
         </div>
 
@@ -159,7 +160,7 @@ const ProductStep = () => {
             value={formData.poNumber}
             onChange={handleChange}
             placeholder="Enter PO Number ..."
-            className="h-14 rounded-2xl border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+            className="rounded-md border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
           />
         </div>
 
@@ -175,7 +176,7 @@ const ProductStep = () => {
             value={formData.inspectionDate}
             onChange={handleChange}
             required
-            className="h-14 rounded-2xl border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+            className="rounded-md border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
           />
         </div>
       </div>
@@ -185,16 +186,18 @@ const ProductStep = () => {
           type="button" 
           variant="secondary" 
           onClick={prevStep}
-          className="h-14 px-8 rounded-2xl font-bold border-slate-200 hover:bg-slate-50"
+          className="btn-secondary px-8 flex items-center justify-center gap-2"
         >
+          <ArrowLeft size={16} />
           Back
         </Button>
         <Button 
           type="button"
           onClick={handleContinue}
-          className="h-14 px-10 rounded-2xl font-black bg-slate-900 hover:bg-slate-800 shadow-lg"
+          className="btn-primary px-10 flex items-center justify-center gap-2"
         >
           Continue to Upload
+          <ArrowRight size={18} />
         </Button>
       </div>
     </div>

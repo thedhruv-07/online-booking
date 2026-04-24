@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useBooking } from '../../hooks/useBooking';
 import Button from '../ui/Button';
 import Select from '../ui/Select';
-import { Factory, MapPin, Search, Plus } from 'lucide-react';
+import { Factory, MapPin, Search, Plus, ArrowLeft, ArrowRight } from 'lucide-react';
 import { factories as mockFactories } from '../../utils/constants';
 import { cn } from '../../utils/cn';
 
@@ -95,7 +95,7 @@ const FactoryStep = () => {
               value={formData.name}
               onChange={handleChange}
               placeholder="e.g. Guangzhou Manufacturing Hub"
-              className="w-full h-16 px-6 bg-slate-50 border border-slate-100 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-base font-bold text-slate-800 placeholder:text-slate-300 transition-all"
+              className="w-full px-6 bg-slate-50 border border-slate-100 rounded-md focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-base font-bold text-slate-800 placeholder:text-slate-300 transition-all"
             />
           </div>
           
@@ -106,7 +106,7 @@ const FactoryStep = () => {
                 name="phonePrefix"
                 value={formData.phonePrefix}
                 onChange={handleChange}
-                className="w-32 h-16 px-4 bg-slate-50 border border-slate-100 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-sm font-bold text-slate-800 transition-all"
+                className="w-32 px-4 bg-slate-50 border border-slate-100 rounded-md focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-sm font-bold text-slate-800 transition-all"
               >
                 {COUNTRY_CODES.map(c => (
                   <option key={c.code} value={c.code}>{c.label}</option>
@@ -118,7 +118,7 @@ const FactoryStep = () => {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="XXX XXXX XXXX"
-                className="flex-1 h-16 px-6 bg-slate-50 border border-slate-100 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-base font-bold text-slate-800 placeholder:text-slate-300 transition-all"
+                className="flex-1 px-6 bg-slate-50 border border-slate-100 rounded-md focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-base font-bold text-slate-800 placeholder:text-slate-300 transition-all"
               />
             </div>
           </div>
@@ -131,7 +131,7 @@ const FactoryStep = () => {
               onChange={handleChange}
               placeholder="Enter the complete building number, street, district, and city where our inspector needs to visit..."
               rows={4}
-              className="w-full p-6 bg-slate-50 border border-slate-100 rounded-3xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-base font-bold text-slate-800 placeholder:text-slate-300 transition-all resize-none"
+              className="w-full p-6 bg-slate-50 border border-slate-100 rounded-md focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-base font-bold text-slate-800 placeholder:text-slate-300 transition-all resize-none"
             />
           </div>
         </div>
@@ -142,16 +142,18 @@ const FactoryStep = () => {
           type="button" 
           variant="secondary" 
           onClick={prevStep}
-          className="h-16 px-10 rounded-2xl font-bold border-slate-200 hover:bg-slate-50"
+          className="btn-secondary px-10 flex items-center justify-center gap-2"
         >
+          <ArrowLeft size={16} />
           Back
         </Button>
         <Button 
           type="button"
           onClick={handleContinue}
-          className="h-16 px-12 rounded-2xl font-black bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200"
+          className="btn-primary px-12 flex items-center justify-center gap-2"
         >
           Continue to Contact
+          <ArrowRight size={18} />
         </Button>
       </div>
     </div>
