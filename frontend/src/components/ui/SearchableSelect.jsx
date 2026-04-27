@@ -126,12 +126,13 @@ const SearchableSelect = ({
           {/* Options List */}
           <div className="max-h-[280px] overflow-y-auto overscroll-contain">
             {filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => {
+              filteredOptions.map((option, index) => {
                 const val = option.value || option.id;
+                const key = option.id || `opt-${index}-${val}`;
                 const isSelected = value === val;
                 return (
                   <button
-                    key={val}
+                    key={key}
                     type="button"
                     onClick={() => handleSelect(option)}
                     className={cn(

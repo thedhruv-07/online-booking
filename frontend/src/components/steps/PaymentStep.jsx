@@ -69,23 +69,48 @@ const PaymentStep = () => {
     setIsProcessing(true);
 
     try {
+      // 1. Submit the booking first to get a bookingId
+      // We pass receiptUploaded: false initially, we'll update it via the payment flow
       const result = await submitBooking({
         payment: { 
           method: selectedMethod,
-          receiptUploaded: !!receipt 
+          receiptUploaded: selectedMethod === PAYMENT_METHOD.BANK_TRANSFER 
         }
       });
 
-      if (result.success) {
-        setSubmittedBookingId(result.booking?._id);
-        setIsSuccess(true);
-        toast.success('Payment successful!');
-        // Keep clearDraft for later or do it now
-      } else {
-        setError(result.error || 'Failed to submit booking. Please try again.');
+      if (!result.success || !result.booking?._id) {
+        throw new Error(result.error || 'Failed to submit booking. Please try again.');
       }
+
+      const bookingId = result.booking._id;
+      setSubmittedBookingId(bookingId);
+
+      // 2. Handle specific payment methods
+      if (selectedMethod === PAYMENT_METHOD.BANK_TRANSFER) {
+        // Create payment record and upload receipt
+        const paymentResponse = await paymentService.createPayment(bookingId, PAYMENT_METHOD.BANK_TRANSFER);
+        const paymentId = paymentResponse.paymentId;
+
+        if (!paymentId) throw new Error('Failed to initialize payment record');
+
+        // Upload the receipt file
+        await paymentService.confirmBankTransfer(paymentId, receipt);
+        toast.success('Receipt uploaded and booking confirmed!');
+      } else if (selectedMethod === PAYMENT_METHOD.PAYPAL) {
+        // PayPal flow would go here (usually redirects or opens popup)
+        // For now, we'll just simulate success or redirect
+        toast.success('Redirecting to PayPal...');
+        // Simulation of redirect...
+      } else {
+        // Default (Card/Demo)
+        toast.success('Booking and payment successful!');
+      }
+
+      setIsSuccess(true);
+      clearDraft();
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred');
+      console.error('Payment flow error:', err);
+      setError(err.message || 'An unexpected error occurred during payment processing');
     } finally {
       setIsProcessing(false);
     }

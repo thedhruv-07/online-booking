@@ -50,5 +50,15 @@ api.interceptors.response.use(
   }
 );
 
+// Helper for file uploads
+api.uploadFile = (url, formData, onUploadProgress) => {
+  return api.post(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onUploadProgress,
+  });
+};
+
 export { api };
 export default api;
