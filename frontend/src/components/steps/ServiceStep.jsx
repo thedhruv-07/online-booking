@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShieldCheck,
   Settings,
   Search,
   FileText,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown
 } from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
 import { services as mockServices } from '../../utils/constants';
@@ -23,6 +24,7 @@ const serviceIcons = {
 const ServiceStep = () => {
   const { updateStepData, bookingData, nextStep } = useBooking();
   const [selectedServiceId, setSelectedServiceId] = useState(bookingData.service?.id || '');
+  const [openCategory, setOpenCategory] = useState('Inspection');
 
   const handleSelect = (service) => {
     setSelectedServiceId(service.id);
@@ -40,61 +42,84 @@ const ServiceStep = () => {
         <p className="text-slate-500 font-medium">Select the type of inspection that best fits your requirements. You can add more details in the next steps.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {mockServices.map((service) => {
-          const Icon = serviceIcons[service.id] || ShieldCheck;
-          const isSelected = selectedServiceId === service.id;
+      <div className="space-y-4">
+        {['Inspection', 'Audit', 'Inspection+'].map((category) => {
+          const categoryServices = mockServices.filter((s) => s.category === category);
+          
+          if (categoryServices.length === 0) return null;
+
+          const isOpen = openCategory === category;
 
           return (
-            <motion.div
-              key={service.id}
-              whileHover={{ y: -4 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleSelect(service)}
-              className={cn(
-                "relative p-6 rounded-3xl border-2 cursor-pointer transition-all duration-300 flex flex-col h-full",
-                isSelected
-                  ? "border-indigo-600 bg-indigo-50/30 ring-4 ring-indigo-50"
-                  : "border-slate-100 bg-white hover:border-slate-200 hover:shadow-lg hover:shadow-slate-100"
-              )}
-            >
-              {isSelected && (
-                <div className="absolute top-4 right-4 text-indigo-600">
-                  <CheckCircle2 size={24} fill="currentColor" className="text-white" />
-                </div>
-              )}
+            <div key={category} className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+              <button 
+                onClick={() => setOpenCategory(isOpen ? null : category)}
+                className="w-full flex items-center justify-between p-6 bg-slate-50 hover:bg-slate-100 transition-colors"
+              >
+                <h3 className="text-xl font-bold text-slate-800">{category}</h3>
+                <ChevronDown className={cn("text-slate-500 transition-transform duration-300", isOpen && "rotate-180")} />
+              </button>
+              
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="flex flex-col bg-white border-t border-slate-100">
+                      {categoryServices.map((service) => {
+                        const Icon = serviceIcons[service.id] || ShieldCheck;
+                        const isSelected = selectedServiceId === service.id;
 
-              <div className={cn(
-                "w-10 h-10 rounded-md flex items-center justify-center mb-6 transition-colors",
-                isSelected ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400"
-              )}>
-                <Icon size={20} />
-              </div>
+                        return (
+                          <div
+                            key={service.id}
+                            onClick={() => handleSelect(service)}
+                            className={cn(
+                              "flex flex-col sm:flex-row sm:items-center justify-between p-4 cursor-pointer transition-colors border-b border-slate-100 last:border-b-0",
+                              isSelected ? "bg-indigo-50/50" : "hover:bg-slate-50"
+                            )}
+                          >
+                            <div className="flex items-center gap-4 mb-3 sm:mb-0">
+                              <div className={cn(
+                                "w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0",
+                                isSelected ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-500"
+                              )}>
+                                <Icon size={18} />
+                              </div>
+                              <div>
+                                <h4 className={cn(
+                                  "text-base font-semibold",
+                                  isSelected ? "text-indigo-900" : "text-slate-700"
+                                )}>
+                                  {service.name}
+                                </h4>
+                                <p className="text-sm text-slate-500">{service.description}</p>
+                              </div>
+                            </div>
 
-              <div className="flex-1">
-                <h3 className={cn(
-                  "text-lg font-bold mb-2 transition-colors",
-                  isSelected ? "text-slate-900" : "text-slate-700"
-                )}>
-                  {service.name}
-                </h3>
-                <p className="text-slate-500 text-sm leading-relaxed mb-4">
-                  {service.description}
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                <div>
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Starting at</span>
-                  <span className="text-xl font-bold text-slate-900">${service.price.toFixed(2)}</span>
-                </div>
-                <div className={cn(
-                  isSelected ? "bg-indigo-600 text-white" : "bg-slate-50 text-slate-400"
-                )}>
-                  {isSelected ? "Selected" : "Select"}
-                </div>
-              </div>
-            </motion.div>
+                            <div className="sm:ml-4 flex justify-end shrink-0">
+                              {isSelected ? (
+                                <div className="flex items-center text-indigo-600 font-semibold text-sm">
+                                  <CheckCircle2 size={18} className="mr-1" />
+                                  Selected
+                                </div>
+                              ) : (
+                                <div className="px-4 py-1.5 rounded-full border border-slate-200 text-sm font-semibold text-slate-600 hover:border-indigo-600 hover:text-indigo-600 transition-colors">
+                                  Select
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           );
         })}
       </div>
