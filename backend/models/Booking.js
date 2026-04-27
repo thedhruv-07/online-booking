@@ -6,7 +6,15 @@ const bookingSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  service: mongoose.Schema.Types.Mixed,
+  service: {
+    selected: { type: [String], required: true },
+    country: { type: String, required: true },
+    region: { type: String, required: true },
+    basePrice: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
+    totalAmount: { type: Number, required: true },
+    currency: { type: String, default: "USD" }
+  },
   location: mongoose.Schema.Types.Mixed,
   product: mongoose.Schema.Types.Mixed,
   bookingFiles: {

@@ -28,7 +28,7 @@ const PaymentStep = () => {
   const [error, setError] = useState(null);
 
   const calculateTotal = () => {
-    const servicePrice = bookingData.service?.price || 0;
+    const servicePrice = bookingData.service?.totalAmount || 0;
     let total = servicePrice;
     if (bookingData.files?.length > 0) {
       total += 50;
@@ -197,6 +197,20 @@ const PaymentStep = () => {
 
   return (
     <div className="space-y-12">
+      <div className="flex items-center justify-between max-w-2xl mx-auto mb-10">
+        <button 
+          onClick={prevStep}
+          className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold text-sm transition-colors group"
+        >
+          <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-1" />
+          Back
+        </button>
+        <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
+          <Lock size={12} />
+          Secure Checkout
+        </div>
+      </div>
+
       <div className="text-center max-w-2xl mx-auto mb-10">
         <div className="mx-auto w-14 h-14 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-2xl flex items-center justify-center mb-5 shadow-sm">
           <Lock size={28} />
@@ -214,7 +228,7 @@ const PaymentStep = () => {
           {/* Minimal Tabs */}
           <div className="flex gap-2 p-1 bg-slate-100/50 rounded-xl w-fit border border-slate-200/50">
             {[
-              { id: 'card', name: 'Card', icon: CreditCard },
+              { id: PAYMENT_METHOD.CARD, name: 'Card', icon: CreditCard },
               { id: PAYMENT_METHOD.PAYPAL, name: 'PayPal', icon: Wallet },
               { id: PAYMENT_METHOD.BANK_TRANSFER, name: 'Bank Transfer', icon: Building2 },
             ].map((method) => (
@@ -373,12 +387,16 @@ const PaymentStep = () => {
             <h3 className="text-lg font-bold text-slate-900 mb-6">Summary</h3>
 
             <div className="space-y-4 mb-8">
-              <div className="flex justify-between items-start text-sm">
-                <div className="text-slate-600">
-                  <div className="font-semibold">{bookingData.service?.name}</div>
-                  <div className="text-xs mt-1 opacity-80">{bookingData.product?.name}</div>
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="flex justify-between items-start">
+                  <div className="text-slate-600">
+                    <div className="font-semibold">{bookingData.service?.name || 'Inspection Package'}</div>
+                    <div className="text-xs mt-1 font-bold tracking-widest uppercase opacity-80 text-indigo-600">
+                      {bookingData.service?.region === 'covered' ? 'Covered Region Pricing' : 'Standard Region Pricing'}
+                    </div>
+                  </div>
+                  <div className="font-semibold text-slate-900">${(bookingData.service?.totalAmount || 0).toFixed(2)}</div>
                 </div>
-                <div className="font-semibold text-slate-900">${bookingData.service?.price?.toFixed(2)}</div>
               </div>
               
               {bookingData.files?.length > 0 && (
@@ -437,14 +455,6 @@ const PaymentStep = () => {
               <span>Payments are secure and encrypted.</span>
             </div>
           </div>
-
-          <button
-            onClick={prevStep}
-            className="btn-secondary w-full mt-6 flex items-center justify-center gap-2"
-          >
-            <ArrowLeft size={16} />
-            Back to previous step
-          </button>
         </div>
       </div>
 

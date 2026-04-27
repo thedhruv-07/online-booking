@@ -31,6 +31,8 @@ export const PAYMENT_STATUS = {
 export const PAYMENT_METHOD = {
   PAYPAL: 'paypal',
   BANK_TRANSFER: 'bank_transfer',
+  CARD: 'card',
+  DEMO: 'demo'
 };
 
 // Step types for multi-step form
@@ -105,86 +107,15 @@ export const STEPPER_CONFIG = {
   },
 };
 
+// Import shared pricing (Vite allow fs: .. is required)
+import { COVERED_COUNTRIES as SHARED_COUNTRIES, services as SHARED_SERVICES } from '@shared/pricing';
+
+// Covered regions list (e.g., countries where baseline pricing applies)
+export const COVERED_COUNTRIES = SHARED_COUNTRIES;
+
 // Definitions for services, products, and factories
-export const services = [
-  {
-    id: 'pre-shipment',
-    name: 'Pre-Shipment Inspection',
-    description: 'Final inspection before goods are shipped',
-    price: 499,
-    category: 'Inspection',
-  },
-  {
-    id: 'during-production',
-    name: 'During Production Inspection',
-    description: 'Monitor quality during the manufacturing process',
-    price: 399,
-    category: 'Inspection',
-  },
-  {
-    id: 'container-loading',
-    name: 'Container-Loading Supervision',
-    description: 'Supervise loading and verify container integrity',
-    price: 199,
-    category: 'Inspection',
-  },
-  {
-    id: 'audit',
-    name: 'Factory Audit',
-    description: 'Comprehensive evaluation of factory capabilities',
-    price: 799,
-    category: 'Audit',
-  },
-  {
-    id: 'social-audit',
-    name: 'Social Audit',
-    description: 'Evaluation of social and ethical compliance at the facility',
-    price: 699,
-    category: 'Audit',
-  },
-  {
-    id: 'be-your-engineer',
-    name: 'Be Your Engineer',
-    description: 'Expert engineering support and guidance for your products',
-    price: 599,
-    category: 'Inspection+',
-  },
-  {
-    id: 'be-your-qc',
-    name: 'Be Your QC In Factory',
-    description: 'Dedicated quality control representation directly at the factory',
-    price: 499,
-    category: 'Inspection+',
-  },
-  {
-    id: 'construction-check',
-    name: 'Construction Check In Laboratory',
-    description: 'Laboratory verification of product construction and materials',
-    price: 399,
-    category: 'Inspection+',
-  },
-  {
-    id: 'heat-fire-testing',
-    name: 'Resistance To Heat And Fire Testing In Laboratory',
-    description: 'Specialized safety testing for heat and fire resistance',
-    price: 899,
-    category: 'Inspection+',
-  },
-  {
-    id: 'prototype-psi',
-    name: 'Product Prototype Testing In Laboratory + Pre-Shipment Inspection',
-    description: 'Comprehensive package combining prototype testing and final inspection',
-    price: 1299,
-    category: 'Inspection+',
-  },
-  {
-    id: 'one-stop-service',
-    name: 'One Stop Service',
-    description: 'Complete end-to-end inspection and quality assurance solution',
-    price: 1999,
-    category: 'Inspection+',
-  },
-];
+export const services = SHARED_SERVICES;
+
 
 export const products = [
   {

@@ -59,8 +59,8 @@ const AQLStep = () => {
 
         setResult({
           sampleSize: res.sampleSize,
-          major: res.majorAccept,
-          minor: res.minorAccept,
+          major: res.major,
+          minor: res.minor,
           codeLetter: res.codeLetter
         });
       } catch (err) {

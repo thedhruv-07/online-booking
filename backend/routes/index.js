@@ -5,6 +5,7 @@ const paymentRoutes = require('./payments');
 const uploadRoutes = require('./upload');
 const adminRoutes = require('./admin');
 const invoiceRoutes = require('./invoiceRoutes');
+const locationRoutes = require('./location');
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.use('/payments', paymentRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/admin', adminRoutes);
 router.use('/invoice', invoiceRoutes);
+router.use('/location', locationRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

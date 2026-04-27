@@ -4,23 +4,42 @@ const Booking = require('../models/Booking');
 // @route   POST /api/bookings
 exports.createBooking = async (req, res, next) => {
   try {
+    const { calculateFinalPrice } = await import('../../shared/pricing.js');
+    // 1. Backend IP Detection for Pricing Integrity
+    let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    if (ip === '::1' || ip === '127.0.0.1' || !ip) { ip = ''; } else { ip = ip.split(',')[0].trim(); }
 
-    // Forcefully clean the files data
+    let detectedCountry = null;
+    try {
+      const ipResponse = await fetch(`http://ip-api.com/json/${ip}`);
+      const ipData = await ipResponse.json();
+      if (ipData && ipData.status === 'success') {
+        detectedCountry = ipData.countryCode.toUpperCase();
+      }
+    } catch (e) {
+      console.warn('IP detection failed during booking creation, using fallback.');
+    }
+
+    // Fallback Logic: Detect succeeds -> force it. Detect fails -> check req.body.service.country (ISO-2 only)
+    let finalCountry = 'US';
+    if (detectedCountry) {
+      finalCountry = detectedCountry;
+    } else {
+      const bodyCountry = req.body.service?.country;
+      if (typeof bodyCountry === 'string' && bodyCountry.length === 2) {
+        finalCountry = bodyCountry.toUpperCase();
+      }
+    }
+
+    // 2. Securely calculate price
+    const selectedServices = req.body.service?.selected || [];
+    const pricingResult = calculateFinalPrice(selectedServices, finalCountry);
+
+    // 3. Add file processing fee if applicable
     let cleanFiles = [];
     if (req.body.files) {
       let rawFiles = req.body.files;
-      
-      // If it's a string, try to parse it
-      if (typeof rawFiles === 'string') {
-        try {
-          rawFiles = JSON.parse(rawFiles);
-        } catch (e) {
-          // If JSON parse fails (e.g. single quotes), try to fix it or just wipe it
-          rawFiles = [];
-        }
-      }
-
-      // If it's an array, clean each element
+      if (typeof rawFiles === 'string') { try { rawFiles = JSON.parse(rawFiles); } catch (e) { rawFiles = []; } }
       if (Array.isArray(rawFiles)) {
         cleanFiles = rawFiles.filter(f => f && typeof f === 'object').map(f => ({
           id: String(f.id || f._id || `file_${Date.now()}`),
@@ -32,20 +51,31 @@ exports.createBooking = async (req, res, next) => {
       }
     }
 
-    // Build the booking object manually to avoid any hidden properties in req.body
+    if (cleanFiles.length > 0) {
+      pricingResult.totalAmount += 50;
+    }
+
     const bookingFields = {
       userId: req.user._id,
-      service: req.body.service,
+      service: {
+        ...pricingResult,
+        totalAmount: pricingResult.totalAmount // already updated with fee
+      },
       location: req.body.location,
       product: req.body.product,
-      bookingFiles: cleanFiles, // Use the new field name
+      bookingFiles: cleanFiles,
       factory: req.body.factory,
       contact: req.body.contact,
       aql: req.body.aql,
       status: req.body.status || 'draft',
       paymentStatus: req.body.paymentStatus || 'pending',
-      totalAmount: req.body.totalAmount || 0,
-      quoteBreakdown: req.body.quoteBreakdown
+      totalAmount: pricingResult.totalAmount,
+      quoteBreakdown: {
+        basePrice: pricingResult.basePrice,
+        discount: pricingResult.discount,
+        fileFee: cleanFiles.length > 0 ? 50 : 0,
+        finalTotal: pricingResult.totalAmount
+      }
     };
 
     const booking = await Booking.create(bookingFields);
@@ -103,6 +133,36 @@ exports.updateBooking = async (req, res, next) => {
     if (!booking) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
+
+    // Only recalculate if service or files are being updated
+    if (req.body.service || req.body.bookingFiles) {
+      const { calculateFinalPrice } = await import('../../shared/pricing.js');
+      const selectedServices = req.body.service?.selected || booking.service.selected;
+      const country = req.body.service?.country || booking.service.country;
+      
+      const pricingResult = calculateFinalPrice(selectedServices, country);
+      
+      // Check files for fee
+      const hasFiles = (req.body.bookingFiles && req.body.bookingFiles.length > 0) || 
+                       (booking.bookingFiles && booking.bookingFiles.length > 0);
+      
+      if (hasFiles) {
+        pricingResult.totalAmount += 50;
+      }
+
+      req.body.service = {
+        ...booking.service.toObject(),
+        ...pricingResult
+      };
+      req.body.totalAmount = pricingResult.totalAmount;
+      req.body.quoteBreakdown = {
+        basePrice: pricingResult.basePrice,
+        discount: pricingResult.discount,
+        fileFee: hasFiles ? 50 : 0,
+        finalTotal: pricingResult.totalAmount
+      };
+    }
+
     booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true

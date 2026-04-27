@@ -19,11 +19,26 @@ exports.createPayment = async (req, res, next) => {
       throw new AppError('Booking not found', 404);
     }
 
+    // 🛡️ RE-CALCULATE PRICE FOR INTEGRITY
+    const { calculateFinalPrice } = await import('../../shared/pricing.js');
+    const pricingResult = calculateFinalPrice(booking.service.selected, booking.service.country);
+    
+    // Add file fee if applicable
+    if (booking.bookingFiles && booking.bookingFiles.length > 0) {
+      pricingResult.totalAmount += 50;
+    }
+
+    // STRICT COMPARISON
+    if (Math.abs(pricingResult.totalAmount - booking.totalAmount) > 0.01) {
+      console.error(`PAYMENT TAMPERING DETECTED: DB=${booking.totalAmount}, Calc=${pricingResult.totalAmount}`);
+      throw new AppError('Price mismatch detected. Please contact support or restart booking.', 400);
+    }
+
     const payment = await Payment.create({
       userId: req.user._id,
       bookingId,
       method,
-      amount: booking.totalAmount,
+      amount: pricingResult.totalAmount,
       status: 'pending',
     });
 
