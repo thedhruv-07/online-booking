@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  Filter, 
-  ChevronLeft, 
-  ChevronRight, 
-  Eye, 
+import {
+  Search,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
   MoreVertical,
   Plus,
   Clock,
@@ -12,13 +12,16 @@ import {
   XCircle,
   AlertCircle,
   Download,
-  Trash2
+  Trash2,
+  Upload
 } from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
 import { api } from '../../services/api';
+import { paymentService } from '../../services/payment.service';
 import { Link } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 import { Modal } from '../../components/ui';
+import { toast } from 'react-hot-toast';
 
 const statusFilters = [
   { label: 'All Bookings', value: '' },
@@ -35,6 +38,7 @@ const statusStyles = {
   in_progress: 'bg-blue-50 text-blue-600 border-blue-100',
   completed: 'bg-indigo-50 text-indigo-600 border-indigo-100',
   cancelled: 'bg-rose-50 text-rose-600 border-rose-100',
+  receipt_uploaded: 'bg-purple-50 text-purple-600 border-purple-100',
 };
 
 const MyBookings = () => {
@@ -45,6 +49,10 @@ const MyBookings = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmTarget, setConfirmTarget] = useState(null);   // booking object
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
+  const [receiptError, setReceiptError] = useState('');
 
   useEffect(() => {
     fetchBookings({ 
@@ -95,6 +103,40 @@ const MyBookings = () => {
       window.alert(err.response?.data?.message || 'Failed to delete booking.');
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleReceiptFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      setReceiptError('Please upload a PDF file only.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setReceiptError('File size must be under 10 MB.');
+      return;
+    }
+    setReceiptFile(file);
+    setReceiptError('');
+  };
+
+  const handleUploadReceipt = async () => {
+    if (!receiptFile) {
+      setReceiptError('Please select a PDF receipt to upload.');
+      return;
+    }
+    setIsUploadingReceipt(true);
+    try {
+      await paymentService.uploadBankReceipt(confirmTarget._id, receiptFile);
+      toast.success('Receipt uploaded — awaiting admin confirmation');
+      setConfirmTarget(null);
+      setReceiptFile(null);
+      fetchBookings({ search: searchTerm, status: activeFilter, page: currentPage });
+    } catch (err) {
+      setReceiptError(err.message || 'Upload failed. Please try again.');
+    } finally {
+      setIsUploadingReceipt(false);
     }
   };
 
@@ -198,14 +240,36 @@ const MyBookings = () => {
                       <td className="px-6 py-4">
                         <span className={cn(
                           "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border",
-                          statusStyles[status] || statusStyles.pending
+                          statusStyles[
+                            booking.payment?.receiptUploaded && booking.status === 'pending'
+                              ? 'receipt_uploaded'
+                              : status
+                          ] || statusStyles.pending
                         )}>
-                          {status.replace('_', ' ')}
+                          {booking.payment?.receiptUploaded && booking.status === 'pending'
+                            ? 'Receipt Uploaded'
+                            : status.replace('_', ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right overflow-visible">
                         <div className="flex items-center justify-end gap-2 relative">
-                          <Link 
+                          {booking.payment?.method === 'bank_transfer' &&
+                            booking.status === 'pending' &&
+                            !booking.payment?.receiptUploaded && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setConfirmTarget(booking);
+                                  setReceiptFile(null);
+                                  setReceiptError('');
+                                }}
+                                className="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-all"
+                                title="Upload bank transfer receipt"
+                              >
+                                <Upload size={18} />
+                              </button>
+                            )}
+                          <Link
                             to={`/dashboard/bookings/${booking._id}`}
                             className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                             title="View Details"
@@ -362,6 +426,79 @@ const MyBookings = () => {
                   <Trash2 size={16} />
                   Delete
                 </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Bank Transfer Receipt Upload Modal */}
+      <Modal
+        isOpen={!!confirmTarget}
+        onClose={() => { setConfirmTarget(null); setReceiptFile(null); setReceiptError(''); }}
+        title="Confirm Bank Transfer"
+        size="sm"
+      >
+        <div className="space-y-5 py-2">
+          <div className="bg-slate-50 rounded-2xl p-4 space-y-1.5 text-sm">
+            <div className="flex justify-between">
+              <span className="text-slate-500 font-medium">Booking</span>
+              <span className="font-bold text-slate-900">
+                #{confirmTarget?._id?.slice(-8).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 font-medium">Service</span>
+              <span className="font-bold text-slate-900">
+                {confirmTarget?.service?.name || 'Inspection'}
+              </span>
+            </div>
+          </div>
+
+          <p className="text-sm text-slate-600 font-medium">
+            Upload your bank transfer receipt (PDF only, max 10 MB). Our team will confirm your payment manually.
+          </p>
+
+          <div>
+            <input
+              type="file"
+              id="receipt-pdf-input"
+              accept=".pdf"
+              onChange={handleReceiptFileChange}
+              className="hidden"
+            />
+            <label
+              htmlFor="receipt-pdf-input"
+              className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-indigo-400 transition-all"
+            >
+              <Upload size={20} className="text-slate-400 mb-2" />
+              <p className="text-sm font-semibold text-slate-700">
+                {receiptFile ? receiptFile.name : 'Click to select PDF'}
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">PDF only, max 10 MB</p>
+            </label>
+          </div>
+
+          {receiptError && (
+            <p className="text-rose-600 text-sm font-bold">{receiptError}</p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={() => { setConfirmTarget(null); setReceiptFile(null); setReceiptError(''); }}
+              className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleUploadReceipt}
+              disabled={isUploadingReceipt || !receiptFile}
+              className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isUploadingReceipt ? (
+                <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Uploading...</>
+              ) : (
+                <><Upload size={14} /> Upload Receipt</>
               )}
             </button>
           </div>
