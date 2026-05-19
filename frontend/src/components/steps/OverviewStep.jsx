@@ -22,16 +22,21 @@ const OverviewStep = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitError(null);
-    const result = await submitBooking();
-    if (result.success) {
-      setPayment({
-        bookingId: result.booking._id,
-        totalAmount: bookingData.service?.totalAmount || 0,
-        serviceName: bookingData.service?.name || '',
-      });
-      nextStep();
-    } else {
-      setSubmitError(result.error || 'Failed to submit booking. Please try again.');
+    try {
+      const result = await submitBooking();
+      if (result.success) {
+        setPayment({
+          bookingId: result.booking._id,
+          totalAmount: bookingData.service?.totalAmount || 0,
+          serviceName: bookingData.service?.name || '',
+        });
+        nextStep();
+      } else {
+        setSubmitError(result.error || 'Failed to submit booking. Please try again.');
+        setIsSubmitting(false);
+      }
+    } catch {
+      setSubmitError('Failed to submit booking. Please try again.');
       setIsSubmitting(false);
     }
   };
