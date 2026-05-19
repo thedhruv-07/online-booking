@@ -106,6 +106,8 @@ const ContactStep = () => {
   const cancelAdd = () => {
     setShowAddForm(false);
     setValidationError('');
+    setUseProfile(false);
+    setAddForm({ name: '', email: '', phone: '', phonePrefix: '+86', designation: '' });
   };
 
   const handleContinue = () => {
