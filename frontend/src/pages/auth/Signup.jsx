@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../store/authStore';
 import { getCountries } from '../../utils/geoData';
+import AuthNavbar from '../../components/layout/AuthNavbar';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -79,8 +80,9 @@ const Signup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-12">
-      <motion.div 
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 pt-24 pb-12">
+      <AuthNavbar />
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-2xl w-full bg-white rounded-xl shadow-lg border border-slate-200 p-8 sm:p-12"
