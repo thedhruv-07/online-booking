@@ -116,10 +116,27 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
+  const isTokenExpired = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload.exp) return false;
+      return payload.exp * 1000 <= Date.now();
+    } catch {
+      return false;
+    }
+  };
+
   const checkAuth = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      return;
+    }
+
+    if (isTokenExpired(token)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      dispatch({ type: AUTH_ACTIONS.LOGOUT });
       return;
     }
 
@@ -137,6 +154,7 @@ export function AuthProvider({ children }) {
       }
     } catch (error) {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     }
   };

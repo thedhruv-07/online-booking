@@ -130,8 +130,8 @@ After user selects a **country** (not city), a modal opens automatically.
 - Modal is informational only — does not block progress
 
 ### Implementation
-- Local state `showPricingModal` in `LocationStep.jsx`
-- `useEffect` watches `formData.country` — when it changes to a non-empty value, `setShowPricingModal(true)`
+- Local state `showPricingModal` in `LocationStep.jsx`, plus `initialCountry` ref set to `bookingData.location?.country` on mount
+- `useEffect` watches `formData.country` — triggers `setShowPricingModal(true)` **only when the country changes to a new non-empty value AND differs from the initial hydrated value** (prevents the modal from firing when the step loads with a saved draft country)
 - Use existing `Modal` component from `components/ui/Modal`
 - Pricing data from `@shared/pricing` (`calculateFinalPrice`, `COVERED_COUNTRIES`, `services`)
 
@@ -152,7 +152,7 @@ Show an additional **"Confirm Payment"** button (amber color) in the Action colu
 3. PDF-only file upload (single file, max 10MB)
 4. **"Upload Receipt"** button → calls `POST /payments/bank-receipt` with `{ bookingId, receiptFile }`
 5. On success: close modal, refresh bookings list, show toast "Receipt uploaded — awaiting admin confirmation"
-6. Booking row status badge changes to "Awaiting Confirmation" (new status style: purple)
+6. Booking row no longer shows the "Confirm Payment" button; instead the status badge shows "Receipt Uploaded" derived from `payment.receiptUploaded === true` (no new backend status enum value — booking stays `pending`, badge is derived from the payment field)
 
 ### New service method in `payment.service.js`
 ```

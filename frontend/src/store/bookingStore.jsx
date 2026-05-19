@@ -178,9 +178,6 @@ export function BookingProvider({ children }) {
 
   // Initial data loading
   useEffect(() => {
-    if (localStorage.getItem('token')) {
-      fetchBookings();
-    }
     loadDraft();
   }, []);
 
