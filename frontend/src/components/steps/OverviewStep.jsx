@@ -1,20 +1,40 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useBooking } from '../../hooks/useBooking';
 import { 
-  ClipboardCheck, 
-  MapPin, 
-  Package, 
-  Factory, 
-  User, 
-  Calendar, 
+  ClipboardCheck,
+  MapPin,
+  Package,
+  Factory,
+  User,
+  Calendar,
   Hash,
   Shield,
-  CheckSquare
+  CheckSquare,
+  Loader2
 } from 'lucide-react';
 import { StepNavigation } from '../booking';
 
 const OverviewStep = () => {
-  const { bookingData, prevStep, nextStep } = useBooking();
+  const { bookingData, prevStep, nextStep, submitBooking, setPayment } = useBooking();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    const result = await submitBooking();
+    if (result.success) {
+      setPayment({
+        bookingId: result.booking._id,
+        totalAmount: bookingData.service?.totalAmount || 0,
+        serviceName: bookingData.service?.name || '',
+      });
+      nextStep();
+    } else {
+      setSubmitError(result.error || 'Failed to submit booking. Please try again.');
+      setIsSubmitting(false);
+    }
+  };
 
   // Generate real-looking system IDs once per component mount or when bookingData changes
   const systemIds = useMemo(() => {
@@ -143,16 +163,22 @@ const OverviewStep = () => {
               <Shield size={12} />
               Verified Protocol
             </div>
-            <h3 className="text-xl font-bold mb-2 text-slate-900">Ready to initiate inspection?</h3>
+            <h3 className="text-xl font-bold mb-2 text-slate-900">Ready to submit your inspection request?</h3>
             <p className="text-slate-500 text-sm font-medium leading-relaxed">
-              By confirming, you authorize Absolute Veritas to begin coordinating with the factory.
+              By confirming, you authorise Absolute Veritas to begin coordinating with the factory. You will be directed to complete payment on the next screen.
             </p>
           </div>
-      <StepNavigation 
-        onBack={prevStep}
-        onNext={nextStep}
-        nextLabel="Confirm & Proceed"
-      />
+          <div className="flex flex-col items-center gap-3 w-full lg:w-auto">
+            {submitError && (
+              <p className="text-rose-600 text-sm font-bold text-center">{submitError}</p>
+            )}
+            <StepNavigation
+              onBack={prevStep}
+              onNext={handleSubmit}
+              nextLabel={isSubmitting ? 'Submitting...' : 'Submit Booking Request'}
+              isValid={!isSubmitting}
+            />
+          </div>
         </div>
       </div>
 
