@@ -316,7 +316,7 @@ const sendBookingReceiptEmail = async ({ user, booking, receiptPath }) => {
         to: adminEmail,
         subject: `New Booking Payment Received — Booking #${shortId}`,
         html: adminHtml,
-        attachments: receiptPath ? [{ filename: 'payment-receipt.pdf', path: receiptPath }] : [],
+        attachments: receiptPath ? [{ filename: path.basename(receiptPath), path: receiptPath }] : [],
       });
     } catch (e) {
       console.error('Admin receipt email failed:', e.message);
