@@ -120,12 +120,14 @@ export const paymentService = {
    * Upload bank transfer receipt by booking ID
    * @param {string} bookingId
    * @param {File} file - Receipt image/PDF
+   * @param {string} [method='bank_transfer'] - Payment method to record on the booking
    * @returns {Promise<{success: boolean}>}
    */
-  uploadBankReceipt: async (bookingId, file) => {
+  uploadBankReceipt: async (bookingId, file, method = 'bank_transfer') => {
     const formData = new FormData();
     formData.append('bookingId', bookingId);
     formData.append('receipt', file);
+    formData.append('method', method);
     return api.uploadFile('/payments/bank-receipt', formData);
   },
 };
