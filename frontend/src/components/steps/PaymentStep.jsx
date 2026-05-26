@@ -29,6 +29,20 @@ const PaymentStep = () => {
   const serviceName  = bookingData.payment?.serviceName || bookingData.service?.name || 'Inspection Service';
   const shortId      = bookingId ? `#${bookingId.slice(-8).toUpperCase()}` : '—';
 
+  if (!bookingId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] py-16 max-w-xl mx-auto text-center space-y-4">
+        <p className="text-slate-600 font-medium">Booking reference not found. Please restart the booking process.</p>
+        <button
+          onClick={() => navigate('/booking/create')}
+          className="text-indigo-600 font-bold hover:underline"
+        >
+          Start New Booking
+        </button>
+      </div>
+    );
+  }
+
   const finishAndNavigate = () => {
     clearDraft();
     navigate('/dashboard/bookings');
@@ -63,13 +77,11 @@ const PaymentStep = () => {
   };
 
   const handleSkipAndFinish = async () => {
-    try {
-      await bookingService.updateBooking(bookingId, {
-        payment: { method: 'razorpay', status: 'pending' },
-      });
-    } catch (err) {
+    await bookingService.updateBooking(bookingId, {
+      payment: { method: 'razorpay', status: 'pending' },
+    }).catch((err) => {
       console.error('Failed to update booking payment method:', err.message);
-    }
+    });
     finishAndNavigate();
   };
 

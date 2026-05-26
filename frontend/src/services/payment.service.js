@@ -128,7 +128,7 @@ export const paymentService = {
     formData.append('bookingId', bookingId);
     formData.append('receipt', file);
     formData.append('method', method);
-    return api.uploadFile('/payments/bank-receipt', formData);
+    return api.uploadFile('/payments/bank-receipt', formData, { showToast: false });
   },
 };
 
