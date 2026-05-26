@@ -279,7 +279,73 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
   });
 };
 
+/**
+ * Send receipt notification emails after a receipt is uploaded.
+ * Admin gets the file as an attachment; client gets a confirmation only.
+ * @param {{ user: Object, booking: Object, receiptPath: string|null }} opts
+ */
+const sendBookingReceiptEmail = async ({ user, booking, receiptPath }) => {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const shortId = booking._id.toString().slice(-8).toUpperCase();
+
+  const formatDate = (d) => {
+    if (!d) return 'N/A';
+    return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
+  // --- Admin email (with receipt attachment) ---
+  if (adminEmail) {
+    const adminHtml = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+        <h2 style="color: #1e293b;">New Booking Payment Received</h2>
+        <table style="width:100%; border-collapse: collapse;">
+          <tr><td style="padding: 8px 0; color: #64748b; width: 40%;">Booking ID</td><td style="padding: 8px 0; font-weight: 600;">${booking._id}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Client Name</td><td style="padding: 8px 0; font-weight: 600;">${user.name}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Client Email</td><td style="padding: 8px 0; font-weight: 600;">${user.email}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Inspection Type</td><td style="padding: 8px 0; font-weight: 600;">${(booking.service?.selected || []).join(', ') || 'N/A'}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Inspection Date</td><td style="padding: 8px 0; font-weight: 600;">${formatDate(booking.inspectionDate)}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Factory</td><td style="padding: 8px 0; font-weight: 600;">${booking.factory?.name || 'N/A'}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Amount</td><td style="padding: 8px 0; font-weight: 600;">${booking.service?.totalAmount} ${booking.service?.currency || 'USD'}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Payment Method</td><td style="padding: 8px 0; font-weight: 600;">${(booking.payment?.method || 'N/A').replace('_', ' ').toUpperCase()}</td></tr>
+        </table>
+        ${receiptPath ? '<p style="margin-top: 16px; color: #475569;">Receipt is attached to this email.</p>' : '<p style="margin-top: 16px; color: #94a3b8;">No receipt file was uploaded.</p>'}
+      </div>
+    `;
+    await sendEmail({
+      to: adminEmail,
+      subject: `New Booking Payment Received — Booking #${shortId}`,
+      html: adminHtml,
+      attachments: receiptPath ? [{ path: receiptPath }] : [],
+    });
+  }
+
+  // --- Client email (no attachment) ---
+  const clientEmail = booking.userId?.email || user.email;
+  const clientName = booking.userId?.name || user.name;
+  const clientHtml = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #1e293b;">Payment Receipt Received</h2>
+      <p>Dear ${clientName},</p>
+      <p>We have received your payment receipt for your inspection booking. Our team will verify your payment and confirm your booking within 1–2 business days.</p>
+      <h3 style="color: #374151; margin-top: 24px;">Booking Details</h3>
+      <ul style="line-height: 2;">
+        <li><strong>Booking ID:</strong> ${booking._id}</li>
+        <li><strong>Inspection Type:</strong> ${(booking.service?.selected || []).join(', ') || 'N/A'}</li>
+        <li><strong>Inspection Date:</strong> ${formatDate(booking.inspectionDate)}</li>
+        <li><strong>Amount:</strong> ${booking.service?.totalAmount} ${booking.service?.currency || 'USD'}</li>
+      </ul>
+      <p style="margin-top: 24px;">If you have any questions, contact us at <a href="mailto:cs@absoluteveritas.com">cs@absoluteveritas.com</a></p>
+    </div>
+  `;
+  await sendEmail({
+    to: clientEmail,
+    subject: `Payment Receipt Received — Booking #${shortId}`,
+    html: clientHtml,
+  });
+};
+
 module.exports = {
   sendEmail,
-  sendBookingEmail
+  sendBookingEmail,
+  sendBookingReceiptEmail,
 };
