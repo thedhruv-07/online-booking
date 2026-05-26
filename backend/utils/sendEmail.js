@@ -305,18 +305,22 @@ const sendBookingReceiptEmail = async ({ user, booking, receiptPath }) => {
           <tr><td style="padding: 8px 0; color: #64748b;">Inspection Type</td><td style="padding: 8px 0; font-weight: 600;">${(booking.service?.selected || []).join(', ') || 'N/A'}</td></tr>
           <tr><td style="padding: 8px 0; color: #64748b;">Inspection Date</td><td style="padding: 8px 0; font-weight: 600;">${formatDate(booking.inspectionDate)}</td></tr>
           <tr><td style="padding: 8px 0; color: #64748b;">Factory</td><td style="padding: 8px 0; font-weight: 600;">${booking.factory?.name || 'N/A'}</td></tr>
-          <tr><td style="padding: 8px 0; color: #64748b;">Amount</td><td style="padding: 8px 0; font-weight: 600;">${booking.service?.totalAmount} ${booking.service?.currency || 'USD'}</td></tr>
-          <tr><td style="padding: 8px 0; color: #64748b;">Payment Method</td><td style="padding: 8px 0; font-weight: 600;">${(booking.payment?.method || 'N/A').replace('_', ' ').toUpperCase()}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Amount</td><td style="padding: 8px 0; font-weight: 600;">${booking.service?.totalAmount ?? 'N/A'} ${booking.service?.currency || 'USD'}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Payment Method</td><td style="padding: 8px 0; font-weight: 600;">${(booking.payment?.method || 'N/A').replace(/_/g, ' ').toUpperCase()}</td></tr>
         </table>
         ${receiptPath ? '<p style="margin-top: 16px; color: #475569;">Receipt is attached to this email.</p>' : '<p style="margin-top: 16px; color: #94a3b8;">No receipt file was uploaded.</p>'}
       </div>
     `;
-    await sendEmail({
-      to: adminEmail,
-      subject: `New Booking Payment Received — Booking #${shortId}`,
-      html: adminHtml,
-      attachments: receiptPath ? [{ path: receiptPath }] : [],
-    });
+    try {
+      await sendEmail({
+        to: adminEmail,
+        subject: `New Booking Payment Received — Booking #${shortId}`,
+        html: adminHtml,
+        attachments: receiptPath ? [{ filename: 'payment-receipt.pdf', path: receiptPath }] : [],
+      });
+    } catch (e) {
+      console.error('Admin receipt email failed:', e.message);
+    }
   }
 
   // --- Client email (no attachment) ---
@@ -332,7 +336,7 @@ const sendBookingReceiptEmail = async ({ user, booking, receiptPath }) => {
         <li><strong>Booking ID:</strong> ${booking._id}</li>
         <li><strong>Inspection Type:</strong> ${(booking.service?.selected || []).join(', ') || 'N/A'}</li>
         <li><strong>Inspection Date:</strong> ${formatDate(booking.inspectionDate)}</li>
-        <li><strong>Amount:</strong> ${booking.service?.totalAmount} ${booking.service?.currency || 'USD'}</li>
+        <li><strong>Amount:</strong> ${booking.service?.totalAmount ?? 'N/A'} ${booking.service?.currency || 'USD'}</li>
       </ul>
       <p style="margin-top: 24px;">If you have any questions, contact us at <a href="mailto:cs@absoluteveritas.com">cs@absoluteveritas.com</a></p>
     </div>
