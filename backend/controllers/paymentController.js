@@ -302,6 +302,9 @@ exports.uploadBankReceipt = async (req, res, next) => {
   try {
     const { bookingId, method = 'bank_transfer' } = req.body;
 
+    const VALID_METHODS = ['razorpay', 'bank_transfer'];
+    const safeMethod = VALID_METHODS.includes(method) ? method : 'bank_transfer';
+
     if (!bookingId) {
       throw new AppError('bookingId is required', 400);
     }
@@ -323,7 +326,7 @@ exports.uploadBankReceipt = async (req, res, next) => {
       mimetype: req.file.mimetype,
       uploadedAt: new Date(),
     };
-    booking.payment.method = method;
+    booking.payment.method = safeMethod;
     // payment.status intentionally stays 'pending' — admin confirms manually
     await booking.save();
 
