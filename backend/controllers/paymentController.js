@@ -1,7 +1,7 @@
 const Payment = require('../models/Payment');
 const Booking = require('../models/Booking');
 const { AppError } = require('../middleware/errorHandler');
-const { sendBookingEmail } = require('../utils/sendEmail');
+const { sendBookingEmail, sendBookingReceiptEmail } = require('../utils/sendEmail');
 
 /**
  * ✅ Create new payment session
@@ -29,8 +29,8 @@ exports.createPayment = async (req, res, next) => {
     }
 
     // STRICT COMPARISON
-    if (Math.abs(pricingResult.totalAmount - booking.totalAmount) > 0.01) {
-      console.error(`PAYMENT TAMPERING DETECTED: DB=${booking.totalAmount}, Calc=${pricingResult.totalAmount}`);
+    if (Math.abs(pricingResult.totalAmount - booking.service.totalAmount) > 0.01) {
+      console.error(`PAYMENT TAMPERING DETECTED: DB=${booking.service.totalAmount}, Calc=${pricingResult.totalAmount}`);
       throw new AppError('Price mismatch detected. Please contact support or restart booking.', 400);
     }
 
@@ -105,15 +105,18 @@ exports.verifyPayPal = async (req, res, next) => {
     await payment.save();
 
     const updatedBooking = await Booking.findByIdAndUpdate(payment.bookingId, {
-      paymentStatus: 'paid',
+      'payment.status': 'paid',
+      'payment.method': 'paypal',
+      'payment.paypalOrderId': paymentId,
+      'payment.paidAt': new Date(),
       status: 'confirmed',
     }, { new: true });
 
     try {
-      await sendBookingEmail({ 
-        user: req.user, 
-        booking: updatedBooking, 
-        payment 
+      await sendBookingEmail({
+        user: req.user,
+        booking: updatedBooking,
+        payment
       });
     } catch (emailError) {
       console.error('Failed to send booking email:', emailError);
@@ -147,16 +150,27 @@ exports.handleBankTransfer = async (req, res, next) => {
     payment.transactionId = `BT-${payment._id}`;
     await payment.save();
 
+    const receiptUpdate = req.file ? {
+      'payment.receiptFile': {
+        filename: req.file.filename,
+        url: `/uploads/${req.file.filename}`,
+        mimetype: req.file.mimetype,
+      }
+    } : {};
+
     const updatedBooking = await Booking.findByIdAndUpdate(payment.bookingId, {
-      paymentStatus: 'paid',
+      'payment.status': 'paid',
+      'payment.method': 'bank_transfer',
+      'payment.paidAt': new Date(),
+      ...receiptUpdate,
       status: 'confirmed',
     }, { new: true });
 
     try {
-      await sendBookingEmail({ 
-        user: req.user, 
-        booking: updatedBooking, 
-        payment 
+      await sendBookingEmail({
+        user: req.user,
+        booking: updatedBooking,
+        payment
       });
     } catch (emailError) {
       console.error('Failed to send booking email:', emailError);
@@ -188,13 +202,14 @@ exports.demoSuccess = async (req, res, next) => {
       userId: req.user._id,
       bookingId,
       method: 'demo',
-      amount: booking.totalAmount,
+      amount: booking.service.totalAmount,
       status: 'completed',
       transactionId: `DEMO-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
     });
 
     const updatedBooking = await Booking.findByIdAndUpdate(bookingId, {
-      paymentStatus: 'paid',
+      'payment.status': 'paid',
+      'payment.paidAt': new Date(),
       status: 'confirmed',
     }, { new: true });
 
@@ -268,8 +283,59 @@ exports.refundPayment = async (req, res, next) => {
     await payment.save();
 
     await Booking.findByIdAndUpdate(payment.bookingId, {
-      paymentStatus: 'refunded',
+      'payment.status': 'refunded',
     });
+
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * ✅ Upload bank/payment receipt by booking ID
+ * POST /payments/bank-receipt
+ * Body: bookingId (string), method (string, optional, default: 'bank_transfer')
+ * File: receipt (via multer)
+ */
+exports.uploadBankReceipt = async (req, res, next) => {
+  try {
+    const { bookingId, method = 'bank_transfer' } = req.body;
+
+    if (!bookingId) {
+      throw new AppError('bookingId is required', 400);
+    }
+
+    if (!req.file) {
+      throw new AppError('Receipt file is required', 400);
+    }
+
+    const booking = await Booking.findOne({ _id: bookingId, userId: req.user._id })
+      .populate('userId', 'name email');
+
+    if (!booking) {
+      throw new AppError('Booking not found', 404);
+    }
+
+    booking.payment.receiptFile = {
+      filename: req.file.filename,
+      url: `/uploads/${req.file.filename}`,
+      mimetype: req.file.mimetype,
+      uploadedAt: new Date(),
+    };
+    booking.payment.method = method;
+    // payment.status intentionally stays 'pending' — admin confirms manually
+    await booking.save();
+
+    try {
+      await sendBookingReceiptEmail({
+        user: req.user,
+        booking,
+        receiptPath: req.file.path,
+      });
+    } catch (emailErr) {
+      console.error('Failed to send receipt emails:', emailErr.message);
+    }
 
     res.json({ success: true });
   } catch (error) {
