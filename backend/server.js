@@ -84,6 +84,13 @@ const connectDB = async () => {
   try {
     await mongoose.connect(MONGODB_URI);
     console.log('MongoDB connected successfully.');
+    // start background workers that depend on DB
+    try {
+      // Start Bull-based webhook worker
+      require('./workers/bullWebhookWorker');
+    } catch (e) {
+      console.warn('Failed to start Bull webhook worker:', e.message);
+    }
   } catch (error) {
     console.error('MongoDB connection error:', error.message);
     console.warn('⚠️ Server is running without a database connection. Some features may not work.');

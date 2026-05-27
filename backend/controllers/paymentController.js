@@ -3,6 +3,82 @@ const Booking = require('../models/Booking');
 const { AppError } = require('../middleware/errorHandler');
 const { sendBookingEmail, sendBookingReceiptEmail } = require('../utils/sendEmail');
 
+const REPORT_APP_WEBHOOK_URL = process.env.REPORT_APP_WEBHOOK_URL;
+const REPORT_APP_WEBHOOK_SECRET = process.env.REPORT_APP_WEBHOOK_SECRET;
+const WebhookDelivery = require('../models/WebhookDelivery');
+const crypto = require('crypto');
+const BACKEND_PUBLIC_URL = (process.env.BACKEND_URL || process.env.API_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
+
+const toAbsoluteUrl = (maybeRelativeUrl) => {
+  if (!maybeRelativeUrl) return null;
+  if (/^https?:\/\//i.test(maybeRelativeUrl)) return maybeRelativeUrl;
+  return `${BACKEND_PUBLIC_URL}${maybeRelativeUrl.startsWith('/') ? '' : '/'}${maybeRelativeUrl}`;
+};
+
+/**
+ * Enqueue webhook delivery to Report App. This creates a persistent delivery
+ * record which a background worker will process with retries and HMAC signature.
+ */
+const notifyReportApp = async ({ eventType, booking, payment, user, receiptUrl = null }) => {
+  if (!REPORT_APP_WEBHOOK_URL) return;
+
+  const payload = {
+    eventType,
+    source: 'booking-app',
+    createdAt: new Date().toISOString(),
+    booking: {
+      id: booking._id.toString(),
+      status: booking.status,
+      inspectionDate: booking.inspectionDate,
+      service: booking.service,
+      product: booking.product,
+      factory: booking.factory,
+      contact: booking.contact,
+      aql: booking.aql,
+    },
+    payment: payment ? {
+      id: payment._id?.toString?.() || payment.id || null,
+      status: payment.status,
+      method: payment.method,
+      amount: payment.amount,
+      transactionId: payment.transactionId || null,
+      payerId: payment.payerId || null,
+      receiptUrl: toAbsoluteUrl(receiptUrl),
+    } : null,
+    user: user ? {
+      id: user._id?.toString?.() || user.id || null,
+      name: user.name,
+      email: user.email,
+    } : null,
+  };
+
+  // Idempotency: prefer payment id, fallback to booking id+eventType
+  const idempotencyKey = (payload.payment && payload.payment.id) ? `payment:${payload.payment.id}` : `booking:${payload.booking.id}:${eventType}`;
+
+  try {
+    const existing = await WebhookDelivery.findOne({ idempotencyKey, status: 'sent' });
+    if (existing) return; // already sent
+
+    const delivery = await WebhookDelivery.create({
+      url: REPORT_APP_WEBHOOK_URL,
+      eventType,
+      payload,
+      idempotencyKey,
+      nextAttemptAt: Date.now(),
+    });
+
+    // enqueue Bull job for processing
+    try {
+      const { addDeliveryJob } = require('../queues/webhookQueue');
+      await addDeliveryJob(delivery._id.toString(), { attempts: delivery.maxAttempts });
+    } catch (qErr) {
+      console.error('Failed to enqueue Bull job:', qErr.message);
+    }
+  } catch (err) {
+    console.error('Failed to enqueue webhook delivery:', err.message);
+  }
+};
+
 /**
  * ✅ Create new payment session
  */
@@ -122,6 +198,17 @@ exports.verifyPayPal = async (req, res, next) => {
       console.error('Failed to send booking email:', emailError);
     }
 
+    try {
+      await notifyReportApp({
+        eventType: 'booking.confirmed',
+        booking: updatedBooking,
+        payment,
+        user: req.user,
+      });
+    } catch (webhookError) {
+      console.error('Failed to notify report app:', webhookError.message);
+    }
+
     res.json({ success: true, payment });
   } catch (error) {
     next(error);
@@ -176,6 +263,17 @@ exports.handleBankTransfer = async (req, res, next) => {
       console.error('Failed to send booking email:', emailError);
     }
 
+    try {
+      await notifyReportApp({
+        eventType: 'booking.confirmed',
+        booking: updatedBooking,
+        payment,
+        user: req.user,
+      });
+    } catch (webhookError) {
+      console.error('Failed to notify report app:', webhookError.message);
+    }
+
     res.json({ success: true });
   } catch (error) {
     next(error);
@@ -221,6 +319,17 @@ exports.demoSuccess = async (req, res, next) => {
       });
     } catch (emailError) {
       console.error('Failed to send booking email:', emailError);
+    }
+
+    try {
+      await notifyReportApp({
+        eventType: 'booking.confirmed',
+        booking: updatedBooking,
+        payment,
+        user: req.user,
+      });
+    } catch (webhookError) {
+      console.error('Failed to notify report app:', webhookError.message);
     }
 
     res.json({
@@ -338,6 +447,18 @@ exports.uploadBankReceipt = async (req, res, next) => {
       });
     } catch (emailErr) {
       console.error('Failed to send receipt emails:', emailErr.message);
+    }
+
+    try {
+      await notifyReportApp({
+        eventType: 'booking.payment.received',
+        booking,
+        payment: booking.payment,
+        user: req.user,
+        receiptUrl: booking.payment.receiptFile?.url || null,
+      });
+    } catch (webhookError) {
+      console.error('Failed to notify report app:', webhookError.message);
     }
 
     res.json({ success: true });
