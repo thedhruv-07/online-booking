@@ -1,187 +1,195 @@
+import React, { useMemo, useState } from 'react';
 import { useBooking } from '../../hooks/useBooking';
-import Button from '../ui/Button';
-import { formatCurrency } from '../../utils/helpers';
+import { 
+  ClipboardCheck,
+  MapPin,
+  Package,
+  Factory,
+  User,
+  Calendar,
+  Hash,
+  Shield,
+  CheckSquare,
+  Loader2
+} from 'lucide-react';
+import { StepNavigation } from '../booking';
 
-/**
- * Step 8: Booking Overview
- */
 const OverviewStep = () => {
-  const { bookingData, prevStep, nextStep, setOverview } = useBooking();
+  const { bookingData, prevStep, nextStep, submitBooking, setPayment } = useBooking();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
-
-  const handleConfirm = () => {
-    const summary = {
-      totalAmount: calculateTotal(),
-      itemCount: 1,
-      estimatedCompletion: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    };
-    setOverview(summary);
-    nextStep();
-  };
-
-
-  const calculateTotal = () => {
-    // Base service price
-    const servicePrice = bookingData.service?.price || 0;
-
-    // Additional costs based on selections
-    let total = servicePrice;
-
-    // Add file upload handling fee if files present
-    if (bookingData.files && bookingData.files.length > 0) {
-      total += 50; // File processing fee
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const result = await submitBooking();
+      if (result.success) {
+        setPayment({
+          bookingId: result.booking._id,
+          totalAmount: bookingData.service?.totalAmount || 0,
+          serviceName: bookingData.service?.name || '',
+        });
+        nextStep();
+      } else {
+        setSubmitError(result.error || 'Failed to submit booking. Please try again.');
+        setIsSubmitting(false);
+      }
+    } catch {
+      setSubmitError('Failed to submit booking. Please try again.');
+      setIsSubmitting(false);
     }
-
-    return total;
   };
 
-  const renderDetailRow = (label, value) => (
-    <div className="flex justify-between py-2 border-b border-gray-100">
-      <span className="text-gray-600">{label}</span>
-      <span className="font-medium text-gray-900">{value}</span>
+  // Generate real-looking system IDs once per component mount or when bookingData changes
+  const systemIds = useMemo(() => {
+    const seed = bookingData.product?.name || 'default';
+    const hash = (str) => {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+      return Math.abs(h).toString(16);
+    };
+    
+    return {
+      avId: `AV-${hash(seed + 'av').padEnd(12, '0').slice(0, 12)}`,
+      productId: `AV-P-${hash(seed + 'prod').padEnd(12, '0').slice(0, 12)}`,
+      factoryId: `AV-F-${hash((bookingData.factory?.name || 'fact') + 'f').padEnd(12, '0').slice(0, 12)}`,
+      factoryContactId: `AV-C-${hash((bookingData.contact?.name || 'cont') + 'c').padEnd(12, '0').slice(0, 12)}`,
+    };
+  }, [bookingData.product?.name, bookingData.factory?.name, bookingData.contact?.name]);
+
+  const SummaryCard = ({ title, icon: Icon, color, children }) => (
+    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-full">
+      <div className={`px-6 py-4 border-b border-slate-50 flex items-center gap-3 ${color.bg}`}>
+        <div className={`p-2 rounded-xl bg-white shadow-sm ${color.text}`}>
+          <Icon size={20} />
+        </div>
+        <h3 className="font-bold text-slate-800">{title}</h3>
+      </div>
+      <div className="p-6 space-y-4 flex-1">
+        {children}
+      </div>
+    </div>
+  );
+
+  const DetailItem = ({ label, value, icon: Icon }) => (
+    <div className="flex flex-col gap-1">
+      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+        {Icon && <Icon size={10} />}
+        {label}
+      </span>
+      <span className="text-sm font-semibold text-slate-700 break-words">
+        {value || <span className="text-slate-300 italic">Not specified</span>}
+      </span>
     </div>
   );
 
   return (
-    <div className="card">
-      <h2 className="text-2xl font-bold mb-6">Booking Overview</h2>
-      <p className="text-gray-600 mb-6">
-        Review your booking details before proceeding to payment.
-      </p>
-
-      <div className="space-y-6">
-        {/* Service */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              1
-            </span>
-            Service
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Service Type', bookingData.service?.name || 'N/A')}
-            {renderDetailRow('Base Price', formatCurrency(bookingData.service?.price || 0))}
-          </div>
-        </section>
-
-        {/* Location */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              2
-            </span>
-            Location
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Address', `${bookingData.location?.address || 'N/A'}, ${bookingData.location?.city || ''}`)}
-            {renderDetailRow('Country', bookingData.location?.country || 'N/A')}
-            {renderDetailRow('Postal Code', bookingData.location?.postalCode || 'N/A')}
-          </div>
-        </section>
-
-        {/* Product */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              3
-            </span>
-            Product
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Product Type', bookingData.product?.name || 'N/A')}
-            {bookingData.product?.category && renderDetailRow('Category', bookingData.product.category)}
-          </div>
-        </section>
-
-        {/* Uploads */}
-        {bookingData.files?.length > 0 && (
-          <section>
-            <h3 className="text-lg font-semibold mb-3 flex items-center">
-              <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-                4
-              </span>
-              Documents
-            </h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              {bookingData.files.map((file) => (
-                <div key={file.id} className="flex items-center py-2">
-                  <svg className="w-5 h-5 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Factory */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              5
-            </span>
-            Factory
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Factory', bookingData.factory?.name || 'N/A')}
-            {bookingData.factory?.location && renderDetailRow('Location', bookingData.factory.location)}
-          </div>
-        </section>
-
-        {/* Contact */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              6
-            </span>
-            Contact
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Contact Person', bookingData.contact?.name || 'N/A')}
-            {renderDetailRow('Email', bookingData.contact?.email || 'N/A')}
-            {renderDetailRow('Phone', bookingData.contact?.phone || 'N/A')}
-            {bookingData.contact?.company && renderDetailRow('Company', bookingData.contact.company)}
-          </div>
-        </section>
-
-        {/* AQL */}
-        <section>
-          <h3 className="text-lg font-semibold mb-3 flex items-center">
-            <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold mr-2">
-              7
-            </span>
-            AQL Configuration
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {renderDetailRow('Inspection Level', bookingData.aql?.inspectionLevel === 'general' ? 'General' : 'Special')}
-            {renderDetailRow('Sample Size', bookingData.aql?.sampleSize === 'level-1' ? 'Level I' : bookingData.aql?.sampleSize === 'level-2' ? 'Level II' : 'Level III')}
-            {renderDetailRow('Accept Limit', bookingData.aql?.acceptLimit || 'N/A')}
-            {renderDetailRow('Reject Limit', bookingData.aql?.rejectLimit || 'N/A')}
-          </div>
-        </section>
+    <div className="space-y-10">
+      <div className="text-center max-w-2xl mx-auto">
+        <div className="mx-auto w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center mb-8 shadow-xl">
+          <ClipboardCheck size={32} />
+        </div>
+        <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight uppercase">Review & Confirm</h2>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Verify your booking parameters</p>
       </div>
 
-      {/* Total */}
-      <div className="mt-6 p-6 bg-blue-50 rounded-lg">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-gray-600">Estimated Total</p>
-            <p className="text-3xl font-bold text-blue-600">{formatCurrency(calculateTotal())}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Service & Product Card */}
+        <SummaryCard 
+          title="Product & Service" 
+          icon={Package} 
+          color={{ bg: 'bg-orange-50/50', text: 'text-orange-600' }}
+        >
+          <DetailItem label="Booking ID" value={systemIds.avId} icon={Hash} />
+          <DetailItem label="Service Type" value={bookingData.service?.name} icon={Shield} />
+          <DetailItem label="Product Name" value={bookingData.product?.name} />
+          <DetailItem label="Quantity" value={`${bookingData.product?.quantity} ${bookingData.product?.unitType}`} />
+          <DetailItem label="Inspection Date" value={bookingData.product?.inspectionDate} icon={Calendar} />
+        </SummaryCard>
+
+        {/* Location & Factory Card */}
+        <SummaryCard 
+          title="Factory Details" 
+          icon={Factory} 
+          color={{ bg: 'bg-indigo-50/50', text: 'text-indigo-600' }}
+        >
+          <DetailItem label="Factory Name" value={bookingData.factory?.name} />
+          <DetailItem label="Location" value={`${bookingData.location?.city}, ${bookingData.location?.country}`} icon={MapPin} />
+          <DetailItem label="Address" value={bookingData.factory?.location || bookingData.location?.address} />
+          <DetailItem label="Factory ID" value={systemIds.factoryId} icon={Hash} />
+        </SummaryCard>
+
+        {/* Contact Details Card */}
+        <SummaryCard 
+          title="Contact Person" 
+          icon={User} 
+          color={{ bg: 'bg-blue-50/50', text: 'text-blue-600' }}
+        >
+          <DetailItem label="Contact Name" value={bookingData.contact?.name} />
+          <DetailItem label="Email ID" value={bookingData.contact?.email} />
+          <DetailItem label="Phone Number" value={bookingData.contact?.phone} />
+          <DetailItem label="Designation" value={bookingData.contact?.designation} />
+          <DetailItem label="Contact ID" value={systemIds.factoryContactId} icon={Hash} />
+        </SummaryCard>
+
+        {/* AQL Configuration Card */}
+        <SummaryCard 
+          title="Quality Standards" 
+          icon={Shield} 
+          color={{ bg: 'bg-indigo-50/50', text: 'text-indigo-600' }}
+        >
+          <DetailItem label="Total Lot Size" value={`${bookingData.aql?.lotSize?.toLocaleString() || 0} Units`} />
+          <DetailItem label="Strictness" value={<span className="capitalize">{bookingData.aql?.strictnessMode || 'Standard'}</span>} />
+          <DetailItem label="Quality Level" value={<span className="capitalize">{bookingData.aql?.qualityMode || 'Standard'} Quality</span>} />
+          
+          <div className="bg-white border border-indigo-100 rounded-lg p-4 mt-4 shadow-sm">
+            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block mb-2">Total Sample Size</span>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-md flex items-center justify-center shrink-0">
+                <CheckSquare size={16} />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-indigo-600">{bookingData.aql?.sampleSize || 0}</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Units</span>
+              </div>
+            </div>
+            <p className="text-xs font-medium text-slate-500 mt-3 pt-3 border-t border-slate-100">
+              The inspector will thoroughly check this sample from your lot.
+            </p>
           </div>
-          <p className="text-sm text-gray-500">
-            Final price may vary based on actual inspection time
-          </p>
+        </SummaryCard>
+      </div>
+
+      <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm relative overflow-hidden">
+        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div className="max-w-xl text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-4">
+              <Shield size={12} />
+              Verified Protocol
+            </div>
+            <h3 className="text-xl font-bold mb-2 text-slate-900">Ready to submit your inspection request?</h3>
+            <p className="text-slate-500 text-sm font-medium leading-relaxed">
+              By confirming, you authorise Absolute Veritas to begin coordinating with the factory. You will be directed to complete payment on the next screen.
+            </p>
+          </div>
+          <div className="flex flex-col items-center gap-3 w-full lg:w-auto">
+            {submitError && (
+              <p className="text-rose-600 text-sm font-bold text-center">{submitError}</p>
+            )}
+            <StepNavigation
+              onBack={prevStep}
+              onNext={handleSubmit}
+              nextLabel={isSubmitting ? 'Submitting...' : 'Submit Booking Request'}
+              isValid={!isSubmitting}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="mt-8 flex justify-between">
-        <Button type="button" variant="secondary" onClick={prevStep}>
-          Back
-        </Button>
-        <Button type="button" onClick={handleConfirm}>
-          Proceed to Payment
-        </Button>
+      <div className="text-center space-y-2">
+        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Absolute Veritas Global Quality Control</p>
+        <p className="text-[9px] text-slate-300 font-bold">Copyright © 2024. Standard Inspection Terms Apply.</p>
       </div>
     </div>
   );

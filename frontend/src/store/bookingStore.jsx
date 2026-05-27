@@ -24,6 +24,11 @@ const initialState = {
     payment: null,
   },
   bookings: [],
+  pagination: {
+    total: 0,
+    page: 1,
+    pages: 1
+  },
   isSubmitting: false,
   isLoading: false,
   error: null,
@@ -82,7 +87,9 @@ function bookingReducer(state, action) {
         ...state,
         bookingData: {
           ...state.bookingData,
-          files: action.payload,
+          files: Array.isArray(action.payload) 
+            ? action.payload.filter(f => f && typeof f === 'object')
+            : [],
         },
       };
 
@@ -115,6 +122,7 @@ function bookingReducer(state, action) {
       return {
         ...state,
         bookingData: { ...state.bookingData, ...action.payload.bookingData },
+        currentStep: action.payload.currentStep || state.currentStep,
         savedDraftId: action.payload.id,
       };
 
@@ -143,7 +151,12 @@ function bookingReducer(state, action) {
       };
 
     case BOOKING_ACTIONS.SET_BOOKINGS:
-      return { ...state, bookings: action.payload, isLoading: false };
+      return { 
+        ...state, 
+        bookings: action.payload.data || [], 
+        pagination: action.payload.pagination || state.pagination,
+        isLoading: false 
+      };
 
     case BOOKING_ACTIONS.SET_LOADING:
       return { ...state, isLoading: action.payload };
@@ -165,21 +178,19 @@ export function BookingProvider({ children }) {
 
   // Initial data loading
   useEffect(() => {
-    if (localStorage.getItem('token')) {
-      fetchBookings();
-    }
+    loadDraft();
   }, []);
 
   // Save draft to localStorage on data change
   useEffect(() => {
     const timer = setTimeout(() => {
       if (hasData(state.bookingData)) {
-        saveDraftToStorage(state.bookingData);
+        saveDraftToStorage(state.bookingData, state.currentStep);
       }
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [state.bookingData]);
+  }, [state.bookingData, state.currentStep]);
 
 
   const hasData = (data) => {
@@ -190,10 +201,11 @@ export function BookingProvider({ children }) {
     });
   };
 
-  const saveDraftToStorage = (bookingData) => {
+  const saveDraftToStorage = (bookingData, currentStep) => {
     try {
       const draft = {
         bookingData,
+        currentStep,
         timestamp: Date.now(),
       };
       localStorage.setItem('bookingDraft', JSON.stringify(draft));
@@ -209,10 +221,10 @@ export function BookingProvider({ children }) {
     try {
       const saved = localStorage.getItem('bookingDraft');
       if (saved) {
-        const { bookingData } = JSON.parse(saved);
+        const { bookingData, currentStep } = JSON.parse(saved);
         dispatch({
           type: BOOKING_ACTIONS.LOAD_DRAFT,
-          payload: { bookingData, id: 'local' },
+          payload: { bookingData, currentStep, id: 'local' },
         });
         return true;
       }
@@ -286,17 +298,20 @@ export function BookingProvider({ children }) {
    * Set payment data
    */
   const setPayment = (data) => {
-    dispatch({ type: BOOKING_ACTIONS.SET_PAYMENT, payload: data });
+    dispatch({
+      type: BOOKING_ACTIONS.SET_PAYMENT,
+      payload: data,
+    });
   };
 
   /**
    * Fetch all bookings
    */
-  const fetchBookings = async () => {
+  const fetchBookings = async (filters = {}) => {
     dispatch({ type: BOOKING_ACTIONS.SET_LOADING, payload: true });
     try {
-      const data = await bookingService.getBookings();
-      dispatch({ type: BOOKING_ACTIONS.SET_BOOKINGS, payload: data });
+      const response = await bookingService.getBookings(filters);
+      dispatch({ type: BOOKING_ACTIONS.SET_BOOKINGS, payload: response });
     } catch (error) {
       dispatch({ type: BOOKING_ACTIONS.SET_ERROR, payload: error.message });
       dispatch({ type: BOOKING_ACTIONS.SET_LOADING, payload: false });
@@ -307,31 +322,66 @@ export function BookingProvider({ children }) {
    * Submit booking
    */
 
-  const submitBooking = async () => {
+  const submitBooking = async (overrides = {}) => {
     dispatch({ type: BOOKING_ACTIONS.SET_SUBMITTING, payload: true });
     dispatch({ type: BOOKING_ACTIONS.CLEAR_ERROR });
 
     try {
+      const mergedData = {
+        ...state.bookingData,
+        ...overrides,
+      };
+
       // Validate all steps before submitting
       for (const step of state.steps) {
-        const stepData = state.bookingData[step.route];
+        // Skip validation for overview and payment as they are final stages
+        if (['overview', 'payment'].includes(step.route)) continue;
+
+        let stepData;
+        if (step.route === 'upload') {
+          stepData = mergedData.files && mergedData.files.length > 0;
+        } else {
+          stepData = mergedData[step.route];
+        }
+
         if (!stepData) {
           throw new Error(`Please complete the ${step.name} step`);
         }
       }
 
-      const booking = await bookingService.createBooking({
-        ...state.bookingData,
+      // Clean and validate files data before submission
+      let sanitizedFiles = [];
+      if (Array.isArray(mergedData.files)) {
+        sanitizedFiles = mergedData.files
+          .filter(f => f && typeof f === 'object') // Ensure we only have objects
+          .map(({ file, ...rest }) => ({
+            id: rest.id || `file_${Date.now()}`,
+            name: rest.name || 'document',
+            url: rest.url || '',
+            size: Number(rest.size) || 0,
+            type: rest.type || 'application/octet-stream'
+          }));
+      }
+
+      const sanitizedBookingData = {
+        ...mergedData,
+        files: sanitizedFiles
+      };
+
+      const response = await bookingService.createBooking({
+        ...sanitizedBookingData,
         savedDraftId: state.savedDraftId,
       });
 
       // Clear draft after successful submission
       localStorage.removeItem('bookingDraft');
 
-      dispatch({ type: BOOKING_ACTIONS.CLEAR_BOOKING });
       showNotification('Booking created successfully!', 'success');
 
-      return { success: true, booking };
+      // Extract the actual booking object from the { success: true, data: booking } response
+      const createdBooking = response.data || response;
+
+      return { success: true, booking: createdBooking };
     } catch (error) {
       dispatch({
         type: BOOKING_ACTIONS.SET_ERROR,
@@ -341,6 +391,22 @@ export function BookingProvider({ children }) {
       return { success: false, error: error.message };
     } finally {
       dispatch({ type: BOOKING_ACTIONS.SET_SUBMITTING, payload: false });
+    }
+  };
+
+  const deleteBooking = async (bookingId) => {
+    dispatch({ type: BOOKING_ACTIONS.SET_LOADING, payload: true });
+    try {
+      await bookingService.deleteBooking(bookingId);
+      showNotification('Booking deleted successfully!', 'success');
+      // Refresh the list
+      await fetchBookings();
+      return { success: true };
+    } catch (error) {
+      showNotification(error.message || 'Failed to delete booking', 'error');
+      return { success: false, error: error.message };
+    } finally {
+      dispatch({ type: BOOKING_ACTIONS.SET_LOADING, payload: false });
     }
   };
 
@@ -356,6 +422,7 @@ export function BookingProvider({ children }) {
     setPayment,
     submitBooking,
     fetchBookings,
+    deleteBooking,
     loadDraft,
     clearDraft,
   };

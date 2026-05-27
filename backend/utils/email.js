@@ -1,4 +1,14 @@
 const nodemailer = require('nodemailer');
+const path = require('path');
+
+// Ensure environment variables from backend/.env are loaded even if the process
+// was started from a different working directory. This makes email sending
+// robust in dev environments and CI.
+try {
+  require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+} catch (e) {
+  // ignore
+}
 
 let cachedTransporter = null;
 

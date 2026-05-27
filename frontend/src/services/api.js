@@ -1,149 +1,66 @@
-/**
- * API configuration and interceptors
- */
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+const api = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-/**
- * Creates an axios instance with default config
- */
-class ApiClient {
-  constructor() {
-    this.baseURL = BASE_URL;
-    this.defaultHeaders = {
-      'Content-Type': 'application/json',
-    };
-  }
-
-  getAuthHeaders() {
+// Request interceptor for auth token
+api.interceptors.request.use(
+  (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      return { 'Authorization': `Bearer ${token}` };
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return {};
-  }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-  /**
-   * Makes an HTTP request
-   * @param {string} endpoint - API endpoint
-   * @param {object} options - Fetch options
-   * @returns {Promise<any>} Response data
-   */
-  async request(endpoint, options = {}) {
-
-    const url = `${this.baseURL}${endpoint}`;
-
-    const config = {
-      headers: {
-        ...this.defaultHeaders,
-        ...this.getAuthHeaders(),
-        ...options.headers,
-      },
-      ...options,
-    };
-
-    try {
-      const response = await fetch(url, config);
-
-      if (!response.ok) {
-        const error = await this.parseError(response);
-        throw new Error(error.message || 'An error occurred');
-      }
-
-      // If no content (204 status), return null
-      if (response.status === 204) {
-        return null;
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('API Request failed:', error);
-      throw error;
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    let message = error.response?.data?.message || error.response?.data?.error || 'Something went wrong';
+    
+    // Handle Network Error (like ERR_CONNECTION_REFUSED)
+    if (!error.response && error.request) {
+      message = 'Backend server is unreachable. Please ensure the backend is running on port 3001.';
+      console.error('Network Error:', error);
     }
-  }
-
-  /**
-   * Parses error response
-   * @param {Response} response - Fetch response object
-   * @returns {Promise<{message: string, status: number}>} Parsed error
-   */
-  async parseError(response) {
-    let message = 'An error occurred';
-    try {
-      const data = await response.json();
-      message = data.message || message;
-    } catch {
-      message = response.statusText || message;
+    
+    // Auto logout on 401
+    if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
     }
-    return { message, status: response.status };
-  }
 
-  /**
-   * GET request
-   */
-  async get(endpoint) {
-    return this.request(endpoint, { method: 'GET' });
-  }
-
-  /**
-   * POST request
-   */
-  async post(endpoint, data) {
-    return this.request(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  /**
-   * PUT request
-   */
-  async put(endpoint, data) {
-    return this.request(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
-
-  /**
-   * DELETE request
-   */
-  async delete(endpoint) {
-    return this.request(endpoint, { method: 'DELETE' });
-  }
-
-  /**
-   * Upload file using FormData
-   * @param {string} endpoint - API endpoint
-   * @param {FormData} formData - Form data with file
-   * @param {Function} onUploadProgress - Progress callback
-   * @returns {Promise<any>} Response data
-   */
-  async uploadFile(endpoint, formData) {
-    const url = `${this.baseURL}${endpoint}`;
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          ...this.getAuthHeaders(),
-        },
-      });
-
-      if (!response.ok) {
-        const error = await this.parseError(response);
-        throw new Error(error.message || 'Upload failed');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('File upload failed:', error);
-      throw error;
+    // Don't show toast for specific routes or if handled locally
+    if (error.config?.showToast !== false) {
+      toast.error(message);
     }
-  }
-}
 
-// Export singleton instance
-export const api = new ApiClient();
+    return Promise.reject(error);
+  }
+);
+
+// Helper for file uploads
+api.uploadFile = (url, formData, config = {}) => {
+  const { onUploadProgress, ...restConfig } = config;
+  return api.post(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onUploadProgress,
+    ...restConfig,
+  });
+};
+
+export { api };
+export default api;

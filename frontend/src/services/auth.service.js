@@ -48,6 +48,26 @@ export const authService = {
   },
 
   /**
+   * Update user profile
+   * @param {Object} userData - { name, phone }
+   * @returns {Promise<User>}
+   */
+  updateProfile: async (userData) => {
+    const response = await api.put('/auth/profile', userData);
+    return response;
+  },
+
+  /**
+   * Update password
+   * @param {Object} data - { currentPassword, newPassword }
+   * @returns {Promise<{message: string}>}
+   */
+  updatePassword: async (data) => {
+    const response = await api.put('/auth/update-password', data);
+    return response;
+  },
+
+  /**
    * Refresh access token
    * @returns {Promise<{token: string}>}
    */

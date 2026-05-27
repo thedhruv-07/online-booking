@@ -80,5 +80,55 @@ export const paymentService = {
     const response = await api.get('/admin/payments');
     return response;
   },
+
+  /**
+   * Demo successful payment
+   * @param {string} bookingId
+   * @returns {Promise<{success: boolean, message: string}>}
+   */
+  demoSuccess: async (bookingId) => {
+    const response = await api.post('/payments/demo-success', { bookingId });
+    return response;
+  },
+
+  /**
+   * Download Invoice PDF
+   * @param {string} bookingId
+   */
+  downloadInvoice: async (bookingId) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/invoice/${bookingId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) throw new Error('Failed to download invoice');
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoice-${bookingId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+
+  /**
+   * Upload bank transfer receipt by booking ID
+   * @param {string} bookingId
+   * @param {File} file - Receipt image/PDF
+   * @param {string} [method='bank_transfer'] - Payment method to record on the booking
+   * @returns {Promise<{success: boolean}>}
+   */
+  uploadBankReceipt: async (bookingId, file, method = 'bank_transfer') => {
+    const formData = new FormData();
+    formData.append('bookingId', bookingId);
+    formData.append('receipt', file);
+    formData.append('method', method);
+    return api.uploadFile('/payments/bank-receipt', formData, { showToast: false });
+  },
 };
 

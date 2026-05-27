@@ -1,107 +1,120 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Check } from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
-import { BOOKING_STEPS } from '../../utils/constants';
+import { cn } from '../../utils/cn';
 
-/**
- * Multi-step form stepper component
- */
 const Stepper = () => {
   const { currentStep, steps, goToStep } = useBooking();
 
-
-  const getStepStatus = (stepIndex) => {
-    if (stepIndex < currentStep) return 'completed';
-    if (stepIndex === currentStep) return 'active';
-    return 'pending';
-  };
-
-  const isStepAccessible = (stepIndex) => {
-    // Allow accessing previous steps and current step
-    return stepIndex <= currentStep;
-  };
+  const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between">
-        {steps.map((step, index) => {
-          const status = getStepStatus(index);
-          const accessible = isStepAccessible(index);
-          const isLast = index === steps.length - 1;
+    <div className="w-full py-6">
+      {/* Desktop Stepper */}
+      <div className="hidden md:block relative">
+        <div className="flex items-center justify-between mb-8">
+          {steps.map((step, index) => {
+            const isCompleted = index < currentStep;
+            const isActive = index === currentStep;
 
-          return (
-            <div key={step.id} className="flex-1 flex items-center">
-              {/* Step circle */}
-              <div className="flex flex-col items-center">
+            return (
+              <div key={step.id} className="relative flex flex-col items-center flex-1 group">
+                {/* Connector Line (Left) */}
+                {index !== 0 && (
+                  <div className={cn(
+                    "absolute left-0 right-1/2 top-5 h-0.5 -translate-x-1/2 transition-all duration-500",
+                    isCompleted ? "bg-indigo-600" : "bg-slate-200"
+                  )} />
+                )}
+                
+                {/* Connector Line (Right) */}
+                {index !== steps.length - 1 && (
+                  <div className={cn(
+                    "absolute left-1/2 right-0 top-5 h-0.5 translate-x-1/2 transition-all duration-500",
+                    isCompleted || (isActive && currentStep > index) ? "bg-indigo-600" : "bg-slate-200"
+                  )} />
+                )}
+
                 <button
-                  onClick={() => accessible && goToStep(index)}
-
-                  disabled={!accessible}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-200 ${
-                    status === 'completed'
-                      ? 'bg-green-500 text-white cursor-pointer hover:bg-green-600'
-                      : status === 'active'
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100'
-                      : 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                  } ${accessible ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                  title={step.name}
+                  onClick={() => index <= currentStep && goToStep(index)}
+                  disabled={index > currentStep}
+                  className={cn(
+                    "relative z-10 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300",
+                    isCompleted 
+                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100" 
+                      : isActive 
+                        ? "bg-white text-indigo-600 border-2 border-indigo-600 ring-4 ring-indigo-50"
+                        : "bg-white text-slate-400 border-2 border-slate-200"
+                  )}
                 >
-                  {status === 'completed' ? (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                  {isCompleted ? (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                    >
+                      <Check size={18} strokeWidth={3} />
+                    </motion.div>
                   ) : (
                     index + 1
                   )}
                 </button>
-
-                {/* Step label - hidden on small screens */}
-                <span
-                  className={`mt-2 text-xs font-medium hidden sm:block ${
-                    status === 'active' ? 'text-blue-600' : 'text-gray-500'
-                  }`}
-                >
+                
+                <span className={cn(
+                  "mt-3 text-xs font-bold tracking-tight uppercase transition-all duration-300",
+                  isActive ? "text-indigo-600" : isCompleted ? "text-slate-800" : "text-slate-400"
+                )}>
                   {step.name}
                 </span>
               </div>
-
-              {/* Connector line */}
-              {!isLast && (
-                <div
-                  className={`flex-1 h-1 mx-2 rounded ${
-                    index < currentStep ? 'bg-green-500' : 'bg-gray-300'
-                  }`}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Mobile step indicator */}
-      <div className="mt-4 sm:hidden">
-        <p className="text-center text-sm font-medium text-blue-600">
-          Step {currentStep + 1} of {steps.length}: {steps[currentStep]?.name}
-        </p>
-      </div>
-
-      {/* Progress bar (desktop) */}
-      <div className="hidden sm:block mt-4">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">
-            Progress: {currentStep + 1} of {steps.length} steps
-          </span>
-          <span className="text-gray-500">
-            {Math.round(((currentStep + 1) / steps.length) * 100)}% complete
-          </span>
+            );
+          })}
         </div>
-        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+      </div>
+
+      {/* Mobile Stepper / Progress Bar */}
+      <div className="md:hidden space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Step {currentStep + 1} of {steps.length}</p>
+            <h2 className="text-lg font-bold text-slate-800">{steps[currentStep]?.name}</h2>
+          </div>
+          <div className="text-right">
+            <p className="text-lg font-black text-indigo-600">{Math.round(progress)}%</p>
+          </div>
+        </div>
+        
+        <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <motion.div 
+            className="h-full bg-indigo-600 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           />
+        </div>
+      </div>
+
+      {/* Desktop Sub-heading with Progress */}
+      <div className="hidden md:flex items-center justify-between bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm mt-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold">
+            {currentStep + 1}
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-800">{steps[currentStep]?.name}</h3>
+            <p className="text-sm text-slate-500 font-medium">Please provide the necessary details for this step</p>
+          </div>
+        </div>
+        
+        <div className="flex flex-col items-end gap-1">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{Math.round(progress)}% Complete</span>
+          <div className="w-48 h-2 bg-slate-100 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-indigo-600 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
       </div>
     </div>

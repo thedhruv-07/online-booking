@@ -31,6 +31,8 @@ export const PAYMENT_STATUS = {
 export const PAYMENT_METHOD = {
   PAYPAL: 'paypal',
   BANK_TRANSFER: 'bank_transfer',
+  CARD: 'card',
+  DEMO: 'demo'
 };
 
 // Step types for multi-step form
@@ -105,39 +107,15 @@ export const STEPPER_CONFIG = {
   },
 };
 
+// Import shared pricing (Vite allow fs: .. is required)
+import { COVERED_COUNTRIES as SHARED_COUNTRIES, services as SHARED_SERVICES } from '@shared/pricing';
+
+// Covered regions list (e.g., countries where baseline pricing applies)
+export const COVERED_COUNTRIES = SHARED_COUNTRIES;
+
 // Definitions for services, products, and factories
-export const services = [
-  {
-    id: 'pre-production',
-    name: 'Pre-Production Inspection',
-    description: 'Check materials and components before manufacturing begins',
-    price: 299,
-  },
-  {
-    id: 'during-production',
-    name: 'During Production Inspection',
-    description: 'Monitor quality during the manufacturing process',
-    price: 399,
-  },
-  {
-    id: 'pre-shipment',
-    name: 'Pre-Shipment Inspection',
-    description: 'Final inspection before goods are shipped',
-    price: 499,
-  },
-  {
-    id: 'container-loading',
-    name: 'Container Loading Supervision',
-    description: 'Supervise loading and verify container integrity',
-    price: 199,
-  },
-  {
-    id: 'audit',
-    name: 'Factory Audit',
-    description: 'Comprehensive evaluation of factory capabilities',
-    price: 799,
-  },
-];
+export const services = SHARED_SERVICES;
+
 
 export const products = [
   {

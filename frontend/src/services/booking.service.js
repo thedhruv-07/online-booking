@@ -60,6 +60,16 @@ export const bookingService = {
   },
 
   /**
+   * Delete booking
+   * @param {string} bookingId
+   * @returns {Promise<{success: boolean}>}
+   */
+  deleteBooking: async (bookingId) => {
+    const response = await api.delete(`/bookings/${bookingId}`);
+    return response;
+  },
+
+  /**
    * Get booking summary/quote
    * @param {Object} bookingData - Partial booking data for quote
    * @returns {Promise<{totalAmount: number, breakdown: Object}>}

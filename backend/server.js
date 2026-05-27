@@ -1,111 +1,108 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const path = require('path');
-const fs = require('fs');
-
-const connectDB = require('./config/db');
+const dotenv = require('dotenv');
+const apiRoutes = require('./routes');
 const { errorHandler } = require('./middleware/errorHandler');
 
+// Load env vars
 dotenv.config();
-
-// Catch unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
-// Catch uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
-});
 
 const app = express();
 
-/**
- * ✅ Connect DB
- */
-/**
- * ✅ Ensure uploads folder exists
- */
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Simple request logger for debugging
+app.use((req, res, next) => {
+  console.log(`➡️ ${req.method} ${req.originalUrl} (auth: ${req.headers.authorization ? 'yes' : 'no'})`);
+  next();
+});
 
 /**
  * ✅ Middlewares
  */
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174',
+  'http://127.0.0.1:5175',
+  'https://bookingapp0.netlify.app',
+  process.env.FRONTEND_URL
+].filter(Boolean).map(url => url.replace(/\/$/, ""));
+
 app.use(cors({
-  origin: ['http://localhost:5173','http://localhost:5174', 'http://127.0.0.1:5173'],
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    // Clean current origin to match
+    const cleanOrigin = origin.replace(/\/$/, "");
+    
+    if (allowedOrigins.includes(cleanOrigin) || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked for origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
-
-// Request logging middleware
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
-  });
-  next();
-});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/**
- * ✅ Static files
- */
-app.use('/uploads', express.static(uploadDir));
-
-/**
- * ✅ Routes
- */
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/bookings', require('./routes/bookings'));
-app.use('/api/payments', require('./routes/payments'));
-app.use('/api/upload', require('./routes/upload'));
-app.use('/api/admin', require('./routes/admin'));
-
-/**
- * ✅ Health check
- */
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-  });
-});
-
-/**
- * ❌ 404 API handler
- */
-app.use((req, res) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({
-      message: 'API endpoint not found',
-    });
+// Gracefully handle invalid JSON payloads to avoid noisy stack traces
+app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.parse.failed') {
+    return res.status(400).json({ success: false, message: 'Invalid JSON payload' });
   }
+  next(err);
 });
 
+// Static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// (removed temporary debug handlers)
+
 /**
- * 🔥 ERROR HANDLER (MUST BE LAST)
+ * ✅ API Routes
+ */
+app.use('/api', apiRoutes);
+
+/**
+ * ✅ Error Handling
  */
 app.use(errorHandler);
 
 /**
- * ✅ Start server
+ * ✅ Database Connection & Server Start
  */
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log('MongoDB connected successfully.');
+    // start background workers that depend on DB
+    try {
+      // Start Bull-based webhook worker
+      require('./workers/bullWebhookWorker');
+    } catch (e) {
+      console.warn('Failed to start Bull webhook worker:', e.message);
+    }
+  } catch (error) {
+    console.error('MongoDB connection error:', error.message);
+    console.warn('⚠️ Server is running without a database connection. Some features may not work.');
+  }
+};
 
 const startServer = async () => {
   try {
-    console.log('Connecting to MongoDB...');
     await connectDB();
-    console.log('MongoDB connected successfully.');
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`📡 Network access via http://127.0.0.1:${PORT}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -114,3 +111,10 @@ const startServer = async () => {
 };
 
 startServer();
+
+// Global unhandled rejection handler
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED REJECTION! 💥 Shutting down...');
+  console.error(err.name, err.message);
+  process.exit(1);
+});

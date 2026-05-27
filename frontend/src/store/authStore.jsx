@@ -116,6 +116,16 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
+  const isTokenExpired = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload.exp) return false;
+      return payload.exp * 1000 <= Date.now();
+    } catch {
+      return false;
+    }
+  };
+
   const checkAuth = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -123,14 +133,28 @@ export function AuthProvider({ children }) {
       return;
     }
 
+    if (isTokenExpired(token)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      dispatch({ type: AUTH_ACTIONS.LOGOUT });
+      return;
+    }
+
     try {
-      const user = await authService.getProfile();
-      dispatch({
-        type: AUTH_ACTIONS.LOGIN_SUCCESS,
-        payload: { user },
-      });
+      const response = await authService.getProfile();
+      const user = response.user || response.data?.user;
+      
+      if (user) {
+        dispatch({
+          type: AUTH_ACTIONS.LOGIN_SUCCESS,
+          payload: { user },
+        });
+      } else {
+        throw new Error('User not found in profile response');
+      }
     } catch (error) {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     }
   };
@@ -316,6 +340,42 @@ export function AuthProvider({ children }) {
     });
   };
 
+  const updateProfile = async (userData) => {
+    dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
+    try {
+      const response = await authService.updateProfile(userData);
+      const user = response.user || response.data?.user;
+      
+      if (user) {
+        dispatch({
+          type: AUTH_ACTIONS.UPDATE_USER,
+          payload: user,
+        });
+        showNotification('Profile updated successfully!', 'success');
+        return { success: true };
+      }
+    } catch (error) {
+      showNotification(error.message || 'Failed to update profile', 'error');
+      return { success: false, error: error.message };
+    } finally {
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+    }
+  };
+
+  const changePassword = async (currentPassword, newPassword) => {
+    dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
+    try {
+      await authService.updatePassword({ currentPassword, newPassword });
+      showNotification('Password updated successfully!', 'success');
+      return { success: true };
+    } catch (error) {
+      showNotification(error.message || 'Failed to update password', 'error');
+      return { success: false, error: error.message };
+    } finally {
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+    }
+  };
+
   const value = {
     ...state,
     login,
@@ -327,6 +387,8 @@ export function AuthProvider({ children }) {
     logout,
     clearError,
     updateUser,
+    updateProfile,
+    changePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

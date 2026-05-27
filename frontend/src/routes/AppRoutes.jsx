@@ -6,12 +6,11 @@ import { Layout } from '../components/layout';
 import { Login, Signup, VerifyEmail, ForgotPassword, ResetPassword } from '../pages/auth';
 
 // Dashboard pages
-import { Dashboard, MyBookings } from '../pages/dashboard';
+import { Dashboard, MyBookings, BookingDetails, PaymentsPage, ProfilePage, SettingsPage } from '../pages/dashboard';
 
 // Booking pages
 import CreateBooking from '../pages/booking/CreateBooking';
 import { BookingLayout } from '../components/booking';
-
 
 // Admin pages
 import { AdminDashboard, Users, Bookings, Payments } from '../pages/admin';
@@ -27,10 +26,12 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      {/* Root — redirect to dashboard if logged in, else login */}
+      <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+
+      {/* Auth Routes */}
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Signup />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
@@ -46,6 +47,30 @@ const AppRoutes = () => {
       >
         <Route index element={<Dashboard />} />
         <Route path="bookings" element={<MyBookings />} />
+        <Route path="bookings/:id" element={<BookingDetails />} />
+        <Route path="payments" element={<PaymentsPage />} />
+      </Route>
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<ProfilePage />} />
+      </Route>
+
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<SettingsPage />} />
       </Route>
 
       {/* Booking Routes */}
