@@ -10,7 +10,7 @@ const Stepper = () => {
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div className="w-full py-4 sticky top-20 z-40">
+    <div className="w-full py-6">
       {/* Desktop Stepper */}
       <div className="hidden md:block relative">
         <div className="flex items-center justify-between mb-8">
@@ -94,26 +94,30 @@ const Stepper = () => {
         </div>
       </div>
 
-      {/* Desktop Sub-heading with Progress */}
-      <div className="hidden md:flex items-center justify-between bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm mt-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold">
-            {currentStep + 1}
-          </div>
-          <div>
-            <h3 className="font-bold text-slate-800">{steps[currentStep]?.name}</h3>
-            <p className="text-sm text-slate-500 font-medium">Please provide the necessary details for this step</p>
-          </div>
-        </div>
-        
-        <div className="flex flex-col items-end gap-1">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{Math.round(progress)}% Complete</span>
-          <div className="w-48 h-2 bg-slate-100 rounded-full overflow-hidden">
-            <motion.div 
-              className="h-full bg-indigo-600 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-            />
+      {/* Desktop Sub-heading with Progress (sticky, compact) */}
+      <div className="hidden md:block mt-4">
+        <div className="sticky top-16 z-40">
+          <div className="bg-white/95 backdrop-blur-sm px-5 py-3 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-sm">
+                {currentStep + 1}
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-800 text-sm lg:text-base">{steps[currentStep]?.name}</h3>
+                <p className="text-xs text-slate-500 font-medium">Please provide the necessary details for this step</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{Math.round(progress)}% Complete</span>
+              <div className="w-40 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-indigo-600 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
