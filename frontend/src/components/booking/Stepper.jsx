@@ -13,10 +13,7 @@ const Stepper = () => {
     <div className="w-full py-4 sticky top-20 z-40">
       {/* Desktop Stepper */}
       <div className="hidden md:block relative">
-          <div className="fixed top-0 left-0 right-0 z-50">
-            <div className="max-w-[1200px] mx-auto px-6">
-              <div className="bg-white/90 backdrop-blur-sm rounded-b-xl border-b border-slate-100">
-                <div className="flex items-center justify-between py-3">
+        <div className="flex items-center justify-between mb-8">
           {steps.map((step, index) => {
             const isCompleted = index < currentStep;
             const isActive = index === currentStep;
@@ -72,12 +69,7 @@ const Stepper = () => {
               </div>
             );
           })}
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* spacer to preserve layout when fixed */}
-          <div className="hidden md:block h-20" />
+        </div>
       </div>
 
       {/* Mobile Stepper / Progress Bar */}
