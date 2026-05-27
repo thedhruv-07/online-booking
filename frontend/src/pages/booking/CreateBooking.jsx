@@ -46,7 +46,7 @@ const CreateBooking = () => {
   return (
     <>
       <Stepper />
-      <div className="mt-6">
+      <div className="mt-6 md:mt-28">
         {renderStep()}
       </div>
     </>

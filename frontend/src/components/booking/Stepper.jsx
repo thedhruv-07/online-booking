@@ -10,7 +10,7 @@ const Stepper = () => {
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div className="w-full py-6">
+    <div className="w-full py-4 sticky top-20 z-40">
       {/* Desktop Stepper */}
       <div className="hidden md:block relative">
         <div className="flex items-center justify-between mb-8">

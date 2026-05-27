@@ -40,8 +40,8 @@ const BookingLayout = () => {
               <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
               Back to Dashboard
             </Link>
-            <h1 className="text-5xl font-black text-slate-900 tracking-tight lg:text-6xl">Create Booking</h1>
-            <p className="text-slate-500 font-medium mt-3 text-lg">Configure your inspection request step by step in our high-end booking engine.</p>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight lg:text-4xl">Create Booking</h1>
+            <p className="text-slate-500 font-medium mt-2 text-sm lg:text-base">Configure your inspection request step by step in our high-end booking engine.</p>
           </div>
           
           <div className="bg-white border border-slate-100 p-6 rounded-3xl flex items-start gap-4 max-w-md shadow-sm">
