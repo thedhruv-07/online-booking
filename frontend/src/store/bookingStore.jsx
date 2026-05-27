@@ -3,6 +3,8 @@
  * Persists draft bookings to localStorage
  */
 
+/* eslint-disable react-refresh/only-export-components */
+
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { bookingService } from '../services/booking.service';
 import { BOOKING_STEPS } from '../utils/constants';
@@ -176,23 +178,6 @@ const BookingContext = createContext(null);
 export function BookingProvider({ children }) {
   const [state, dispatch] = useReducer(bookingReducer, initialState);
 
-  // Initial data loading
-  useEffect(() => {
-    loadDraft();
-  }, []);
-
-  // Save draft to localStorage on data change
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (hasData(state.bookingData)) {
-        saveDraftToStorage(state.bookingData, state.currentStep);
-      }
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [state.bookingData, state.currentStep]);
-
-
   const hasData = (data) => {
     return Object.values(data).some((value) => {
       if (Array.isArray(value)) return value.length > 0;
@@ -233,6 +218,22 @@ export function BookingProvider({ children }) {
     }
     return false;
   };
+
+  // Initial data loading
+  useEffect(() => {
+    loadDraft();
+  }, []);
+
+  // Save draft to localStorage on data change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (hasData(state.bookingData)) {
+        saveDraftToStorage(state.bookingData, state.currentStep);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [state.bookingData, state.currentStep]);
 
   /**
    * Clear saved draft

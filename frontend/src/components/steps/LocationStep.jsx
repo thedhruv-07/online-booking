@@ -7,9 +7,7 @@ import { MapPin, Globe, Navigation, Mail } from 'lucide-react';
 import { StepNavigation } from '../booking';
 import { cn } from '../../utils/cn';
 
-// @shared/pricing uses a default export on some bundlers; handle both
-import * as _pricing from '@shared/pricing';
-const { calculateFinalPrice, services: allServices } = _pricing.default || _pricing;
+import { calculateFinalPrice, services as allServices } from '@shared/pricing';
 
 const LocationStep = () => {
   const { updateStepData, bookingData, nextStep, prevStep } = useBooking();

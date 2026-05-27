@@ -88,7 +88,7 @@ export const API_ENDPOINTS = {
 export const VALIDATION = {
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-  PHONE: /^[\d\s\-\+\(\)]{10,}$/,
+  PHONE: /^[\d\s\-+()]{10,}$/,
 };
 
 // File upload constraints

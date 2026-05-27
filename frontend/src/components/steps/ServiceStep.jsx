@@ -14,10 +14,7 @@ import {
   Tag
 } from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
-// Import from shared pricing (Vite allow fs: .. is required)
-import * as SHARED_PRICING_MODULE from '@shared/pricing';
-const SHARED_PRICING = SHARED_PRICING_MODULE.default || SHARED_PRICING_MODULE;
-const { services, calculateFinalPrice, COVERED_COUNTRIES, bundles } = SHARED_PRICING;
+import { services, calculateFinalPrice, COVERED_COUNTRIES, bundles } from '@shared/pricing';
 import { cn } from '../../utils/cn';
 import { locationService } from '../../services/location.service';
 
