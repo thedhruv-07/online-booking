@@ -37,7 +37,7 @@ exports.getAllBookings = async (req, res, next) => {
 
     const query = {};
     if (status) query.status = status;
-    if (paymentStatus) query.paymentStatus = paymentStatus;
+    if (paymentStatus) query['payment.status'] = paymentStatus;
 
     const bookings = await Booking.find(query)
       .populate('userId', 'name email')

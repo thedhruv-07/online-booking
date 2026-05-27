@@ -97,6 +97,7 @@ const ServiceStep = () => {
   const handleNext = () => {
     updateStepData('service', {
       ...pricingResult,
+      selected: selectedServices,
       name: services
         .filter(s => selectedServices.includes(s.id))
         .map(s => s.name)

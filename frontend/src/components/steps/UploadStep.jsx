@@ -1,16 +1,63 @@
+import { useState } from 'react';
 import { useBooking } from '../../hooks/useBooking';
 import { FileUpload, Alert } from '../ui';
 import { StepNavigation } from '../booking';
 import { FileText } from 'lucide-react';
+import { uploadService } from '../../services/upload.service';
 
 const UploadStep = () => {
   const { bookingData, setFiles, removeFile, prevStep, nextStep } = useBooking();
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
   const handleFilesSelected = (files, isMultiple) => {
     if (isMultiple) {
       setFiles([...bookingData.files, ...files]);
     } else {
       setFiles([...bookingData.files, files[0]]);
+    }
+  };
+
+  const handleNext = async () => {
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const uploaded = await Promise.all(
+        bookingData.files.map(async (entry) => {
+          // If the entry already has a URL it was uploaded earlier by FileUpload
+          // and we should not re-upload it. Just forward the metadata.
+          if (entry && (entry.url || entry.filename && entry.url)) {
+            return {
+              filename: entry.filename || entry.name || 'document',
+              url: entry.url,
+              mimetype: entry.mimetype || entry.type || 'application/octet-stream',
+            };
+          }
+
+          const rawFile = entry instanceof File ? entry : entry.file;
+          if (rawFile instanceof File) {
+            const result = await uploadService.uploadBookingDocument(rawFile);
+            return {
+              filename: rawFile.name,
+              url: result.url,
+              mimetype: rawFile.type,
+            };
+          }
+
+          // Fallback for unknown shapes
+          return {
+            filename: entry.filename || entry.name || 'document',
+            url: entry.url || '',
+            mimetype: entry.mimetype || entry.type || 'application/octet-stream',
+          };
+        })
+      );
+      setFiles(uploaded);
+      nextStep();
+    } catch (err) {
+      setUploadError('Failed to upload one or more documents. Please try again.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -35,6 +82,10 @@ const UploadStep = () => {
           </Alert>
         )}
 
+        {uploadError && (
+          <Alert type="error">{uploadError}</Alert>
+        )}
+
         <FileUpload
           onFilesSelected={handleFilesSelected}
           existingFiles={bookingData.files}
@@ -48,8 +99,9 @@ const UploadStep = () => {
 
       <StepNavigation
         onBack={prevStep}
-        onNext={nextStep}
-        nextLabel="Continue to Factory"
+        onNext={handleNext}
+        isValid={!uploading}
+        nextLabel={uploading ? 'Uploading...' : 'Continue to Factory'}
       />
     </div>
   );

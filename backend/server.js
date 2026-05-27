@@ -11,6 +11,12 @@ dotenv.config();
 
 const app = express();
 
+// Simple request logger for debugging
+app.use((req, res, next) => {
+  console.log(`➡️ ${req.method} ${req.originalUrl} (auth: ${req.headers.authorization ? 'yes' : 'no'})`);
+  next();
+});
+
 /**
  * ✅ Middlewares
  */
@@ -45,8 +51,18 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Gracefully handle invalid JSON payloads to avoid noisy stack traces
+app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.parse.failed') {
+    return res.status(400).json({ success: false, message: 'Invalid JSON payload' });
+  }
+  next(err);
+});
+
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// (removed temporary debug handlers)
 
 /**
  * ✅ API Routes

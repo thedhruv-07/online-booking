@@ -86,7 +86,7 @@ const generatePDF = async (doc, booking, invoice) => {
   doc.strokeColor('#eeeeee').lineWidth(1).moveTo(50, currentY).lineTo(550, currentY).stroke();
   currentY += 15;
   doc.fontSize(12).fillColor('#000000').text('TOTAL AMOUNT', 350, currentY);
-  doc.fontSize(16).fillColor('#4f46e5').text(`$${booking.totalAmount?.toFixed(2)}`, 470, currentY - 3);
+  doc.fontSize(16).fillColor('#4f46e5').text(`$${booking.service.totalAmount?.toFixed(2)}`, 470, currentY - 3);
 
   // Footer
   const bottomY = 700;
@@ -120,8 +120,8 @@ exports.downloadInvoice = async (req, res) => {
         invoiceId,
         userId: booking.userId._id,
         bookingId: booking._id,
-        amount: booking.totalAmount,
-        paymentStatus: booking.paymentStatus === 'paid' ? 'COMPLETED' : 'PENDING'
+        amount: booking.service.totalAmount,
+        paymentStatus: booking.payment?.status === 'paid' ? 'COMPLETED' : 'PENDING'
       });
     }
 
@@ -159,8 +159,8 @@ exports.directDownload = async (req, res) => {
         invoiceId,
         userId: booking.userId._id,
         bookingId: booking._id,
-        amount: booking.totalAmount,
-        paymentStatus: booking.paymentStatus === 'paid' ? 'COMPLETED' : 'PENDING'
+        amount: booking.service.totalAmount,
+        paymentStatus: booking.payment?.status === 'paid' ? 'COMPLETED' : 'PENDING'
       });
     }
 

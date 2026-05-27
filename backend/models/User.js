@@ -49,6 +49,26 @@ const userSchema = new mongoose.Schema({
     paymentReminders: { type: Boolean, default: true },
     marketing: { type: Boolean, default: false },
   },
+  // Saved factories for quick reuse in booking flow
+  savedFactories: [
+    {
+      name: { type: String, required: true },
+      location: { type: String },
+      phone: { type: String },
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
+  // Saved contacts for booking flow (contact persons)
+  savedContacts: [
+    {
+      name: { type: String, required: true },
+      email: { type: String },
+      phone: { type: String },
+      countryCode: { type: String },
+      position: { type: String },
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
   verificationToken: String,
   verificationTokenExpiry: Date,
   resetPasswordToken: String,

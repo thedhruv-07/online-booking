@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Search,
   Filter,
@@ -62,11 +63,17 @@ const MyBookings = () => {
     });
   }, [activeFilter, currentPage]);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside or when the page scrolls/resizes
   useEffect(() => {
     const handleClickOutside = () => setActiveDropdown(null);
     document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    document.addEventListener('scroll', handleClickOutside, true);
+    window.addEventListener('resize', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('scroll', handleClickOutside, true);
+      window.removeEventListener('resize', handleClickOutside);
+    };
   }, []);
 
   const handleSearch = (e) => {
@@ -83,7 +90,17 @@ const MyBookings = () => {
 
   const toggleDropdown = (e, id) => {
     e.stopPropagation();
-    setActiveDropdown(activeDropdown === id ? null : id);
+    if (activeDropdown?.id === id) {
+      setActiveDropdown(null);
+      return;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    setActiveDropdown({
+      id,
+      top: rect.bottom + 8,
+      right: window.innerWidth - rect.right,
+    });
   };
 
   const handleDeleteClick = (e, booking) => {
@@ -192,8 +209,8 @@ const MyBookings = () => {
       </div>
 
       {/* Bookings Table */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden min-h-[400px]">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-visible min-h-[400px]">
+        <div className="overflow-x-auto overflow-y-visible">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50">
@@ -282,42 +299,50 @@ const MyBookings = () => {
                               onClick={(e) => toggleDropdown(e, booking._id)}
                               className={cn(
                                 "p-2 rounded-lg transition-all",
-                                activeDropdown === booking._id 
+                                activeDropdown?.id === booking._id 
                                   ? "bg-slate-100 text-slate-900 shadow-inner" 
                                   : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                               )}
                             >
                               <MoreVertical size={18} />
                             </button>
-
-                            {activeDropdown === booking._id && (
-                              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[100] animate-in fade-in zoom-in duration-200 origin-top-right">
-                                <button 
-                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
-                                  onClick={(e) => handleDeleteClick(e, booking)}
-                                >
-                                  <Trash2 size={16} />
-                                  Delete Booking
-                                </button>
-                                <button 
-                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                                  onClick={() => window.alert('Invoice download coming soon!')}
-                                >
-                                  <Download size={16} />
-                                  Download Invoice
-                                </button>
-                                <div className="h-px bg-slate-50 my-1 mx-2"></div>
-                                <button 
-                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
-                                  onClick={() => window.alert('Please contact support to cancel this booking.')}
-                                >
-                                  <XCircle size={16} />
-                                  Cancel Booking
-                                </button>
-                              </div>
-                            )}
                           </div>
                         </div>
+
+                          {activeDropdown?.id === booking._id && typeof document !== 'undefined' && createPortal(
+                            <div
+                              className="fixed w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[9999] animate-in fade-in zoom-in duration-200 origin-top-right"
+                              style={{
+                                top: `${Math.max(8, activeDropdown.top)}px`,
+                                right: `${Math.max(8, activeDropdown.right)}px`,
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button 
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                                onClick={(e) => handleDeleteClick(e, booking)}
+                              >
+                                <Trash2 size={16} />
+                                Delete Booking
+                              </button>
+                              <button 
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                                onClick={() => window.alert('Invoice download coming soon!')}
+                              >
+                                <Download size={16} />
+                                Download Invoice
+                              </button>
+                              <div className="h-px bg-slate-50 my-1 mx-2"></div>
+                              <button 
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                                onClick={() => window.alert('Please contact support to cancel this booking.')}
+                              >
+                                <XCircle size={16} />
+                                Cancel Booking
+                              </button>
+                            </div>,
+                            document.body
+                          )}
                       </td>
                     </tr>
                   );

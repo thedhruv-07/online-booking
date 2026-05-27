@@ -42,11 +42,9 @@ exports.createBooking = async (req, res, next) => {
       if (typeof rawFiles === 'string') { try { rawFiles = JSON.parse(rawFiles); } catch (e) { rawFiles = []; } }
       if (Array.isArray(rawFiles)) {
         cleanFiles = rawFiles.filter(f => f && typeof f === 'object').map(f => ({
-          id: String(f.id || f._id || `file_${Date.now()}`),
-          name: String(f.name || 'document'),
+          filename: String(f.name || f.filename || 'document'),
           url: String(f.url || ''),
-          size: Number(f.size) || 0,
-          type: String(f.type || 'application/octet-stream')
+          mimetype: String(f.type || f.mimetype || 'application/octet-stream'),
         }));
       }
     }
@@ -59,17 +57,21 @@ exports.createBooking = async (req, res, next) => {
       userId: req.user._id,
       service: {
         ...pricingResult,
+        name: req.body.service?.name,
         totalAmount: pricingResult.totalAmount // already updated with fee
       },
-      location: req.body.location,
+      inspectionDate: req.body.product?.inspectionDate || req.body.inspectionDate,
       product: req.body.product,
       bookingFiles: cleanFiles,
+      location: req.body.location,
       factory: req.body.factory,
       contact: req.body.contact,
       aql: req.body.aql,
       status: req.body.status || 'draft',
-      paymentStatus: req.body.paymentStatus || 'pending',
-      totalAmount: pricingResult.totalAmount,
+      payment: {
+        status: 'pending',
+        method: req.body.payment?.method || null,
+      },
       quoteBreakdown: {
         basePrice: pricingResult.basePrice,
         discount: pricingResult.discount,
@@ -154,7 +156,6 @@ exports.updateBooking = async (req, res, next) => {
         ...booking.service.toObject(),
         ...pricingResult
       };
-      req.body.totalAmount = pricingResult.totalAmount;
       req.body.quoteBreakdown = {
         basePrice: pricingResult.basePrice,
         discount: pricingResult.discount,
@@ -163,7 +164,16 @@ exports.updateBooking = async (req, res, next) => {
       };
     }
 
-    booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {
+    const ALLOWED_FIELDS = ['status', 'payment', 'inspectionDate', 'product', 'factory', 'contact', 'aql', 'bookingFiles'];
+    const updateData = {};
+    for (const field of ALLOWED_FIELDS) {
+      if (req.body[field] !== undefined) updateData[field] = req.body[field];
+    }
+    // Include server-recalculated pricing when it was computed above
+    if (req.body.service)        updateData.service        = req.body.service;
+    if (req.body.quoteBreakdown) updateData.quoteBreakdown = req.body.quoteBreakdown;
+
+    booking = await Booking.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true
     });

@@ -28,7 +28,7 @@ const ContactStep = () => {
     email: '',
     phone: '',
     phonePrefix: '+86',
-    designation: '',
+    position: '',
   });
 
   const phoneCodes = useMemo(() => getPhoneCodes(), []);
@@ -49,7 +49,7 @@ const ContactStep = () => {
         email: user.email || '',
         phone: user.phone?.replace(/^\+\d+\s/, '') || '',
         phonePrefix: user.phone?.match(/^\+\d+/)?.[0] || '+86',
-        designation: user.designation || 'Client Contact',
+        position: user.position || 'Client Contact',
       });
     }
   }, [useProfile, user]);
@@ -80,7 +80,7 @@ const ContactStep = () => {
   };
 
   const handleSaveContact = async () => {
-    if (!addForm.name || !addForm.email || !addForm.phone || !addForm.designation) {
+    if (!addForm.name || !addForm.email || !addForm.phone || !addForm.position) {
       setValidationError('Please fill in all contact fields');
       return;
     }
@@ -90,12 +90,12 @@ const ContactStep = () => {
         name: addForm.name,
         email: addForm.email,
         phone: `${addForm.phonePrefix} ${addForm.phone}`,
-        designation: addForm.designation,
+        position: addForm.position,
       });
       setSavedContacts((prev) => [...prev, created]);
       setSelectedContactId(created._id);
       setShowAddForm(false);
-      setAddForm({ name: '', email: '', phone: '', phonePrefix: '+86', designation: '' });
+      setAddForm({ name: '', email: '', phone: '', phonePrefix: '+86', position: '' });
     } catch (err) {
       setValidationError(err.message || 'Failed to save contact');
     } finally {
@@ -107,7 +107,7 @@ const ContactStep = () => {
     setShowAddForm(false);
     setValidationError('');
     setUseProfile(false);
-    setAddForm({ name: '', email: '', phone: '', phonePrefix: '+86', designation: '' });
+    setAddForm({ name: '', email: '', phone: '', phonePrefix: '+86', position: '' });
   };
 
   const handleContinue = () => {
@@ -125,7 +125,7 @@ const ContactStep = () => {
       name: selectedContact.name,
       email: selectedContact.email,
       phone: selectedContact.phone,
-      designation: selectedContact.designation,
+      position: selectedContact.position,
     });
     nextStep();
   };
@@ -188,7 +188,7 @@ const ContactStep = () => {
                 <p><span className="font-bold text-slate-500">Name:</span>{' '}<span className="text-slate-800 font-semibold">{selectedContact.name}</span></p>
                 <p><span className="font-bold text-slate-500">Email:</span>{' '}<span className="text-slate-800 font-semibold">{selectedContact.email}</span></p>
                 <p><span className="font-bold text-slate-500">Phone:</span>{' '}<span className="text-slate-800 font-semibold">{selectedContact.phone}</span></p>
-                <p><span className="font-bold text-slate-500">Designation:</span>{' '}<span className="text-slate-800 font-semibold">{selectedContact.designation}</span></p>
+                <p><span className="font-bold text-slate-500">Position:</span>{' '}<span className="text-slate-800 font-semibold">{selectedContact.position}</span></p>
               </div>
             </motion.div>
           )}
@@ -282,9 +282,9 @@ const ContactStep = () => {
 
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-500 uppercase tracking-widest">
-                    Designation <span className="text-rose-500">*</span>
+                    Position <span className="text-rose-500">*</span>
                   </label>
-                  <Input name="designation" value={addForm.designation} onChange={handleAddFormChange} placeholder="e.g. Factory Manager" />
+                  <Input name="position" value={addForm.position} onChange={handleAddFormChange} placeholder="e.g. Factory Manager" />
                 </div>
               </div>
 

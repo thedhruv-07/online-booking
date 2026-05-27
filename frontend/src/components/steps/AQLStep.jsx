@@ -80,8 +80,17 @@ const AQLStep = () => {
     setIsSaving(true);
     setTimeout(() => {
       updateStepData('aql', {
-        ...form,
-        ...result
+        inspectionType:   form.inspectionType,
+        inspectionLevel:  form.inspectionLevel,
+        unitType:         form.unitType,
+        lotSize:          Number(form.lotSize),
+        piecesPerSet:     Number(form.piecesPerSet),
+        majorDefectLimit: Number(form.majorAQL),
+        minorDefectLimit: Number(form.minorAQL),
+        sampleSize:       result.sampleSize,
+        acceptPoint:      result.major,
+        rejectPoint:      result.minor,
+        codeLetter:       result.codeLetter,
       });
       nextStep();
       setIsSaving(false);

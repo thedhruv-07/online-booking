@@ -51,12 +51,14 @@ api.interceptors.response.use(
 );
 
 // Helper for file uploads
-api.uploadFile = (url, formData, onUploadProgress) => {
+api.uploadFile = (url, formData, config = {}) => {
+  const { onUploadProgress, ...restConfig } = config;
   return api.post(url, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
     onUploadProgress,
+    ...restConfig,
   });
 };
 
