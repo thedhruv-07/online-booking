@@ -21,23 +21,26 @@ const StepNavigation = ({
         <Button 
           type="button" 
           variant="secondary" 
+          size="sm"
           onClick={onBack}
-          className="btn-secondary px-10 flex items-center justify-center gap-2"
+          className="!font-medium !px-4 !py-1.5 flex items-center justify-center gap-1.5"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={14} />
           {backLabel}
         </Button>
       )}
-      
+
       <div className={isFirstStep ? "w-full flex justify-end" : ""}>
         <Button 
           type="button"
+          variant="primary"
+          size="sm"
           onClick={onNext}
           disabled={!isValid}
-          className="btn-primary px-12 flex items-center justify-center gap-2 w-full sm:w-auto"
+          className="!font-medium !px-5 !py-1.5 flex items-center justify-center gap-1.5 w-full sm:w-auto"
         >
           {nextLabel}
-          {!isLastStep && <ArrowRight size={18} />}
+          {!isLastStep && <ArrowRight size={14} />}
         </Button>
       </div>
     </div>

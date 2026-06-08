@@ -66,7 +66,7 @@ const Alert = ({ type = 'info', title, children, onClose, className = '' }) => {
 
   return (
     <div
-      className={`${typeConfig.bg} border-l-4 ${typeConfig.border} p-4 rounded-r-md ${className}`}
+      className={`${typeConfig.bg} border-l-4 ${typeConfig.border} p-4 rounded-r-[16px] ${className}`}
       role="alert"
     >
       <div className="flex items-start">

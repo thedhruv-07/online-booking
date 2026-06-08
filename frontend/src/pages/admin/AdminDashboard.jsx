@@ -14,18 +14,16 @@ const AdminDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const data = await bookingService.getAdminStats();
-        
-        // Transform real data into the format needed for the UI
+
         const statsArray = [
           { label: 'Total Users', value: (data.totalUsers || 0).toLocaleString(), change: '', color: 'bg-blue-500' },
           { label: 'Total Bookings', value: (data.totalBookings || 0).toLocaleString(), change: '', color: 'bg-green-500' },
           { label: 'Total Payments', value: (data.totalPayments || 0).toLocaleString(), change: '', color: 'bg-yellow-500' },
           { label: 'Revenue', value: formatCurrency(data.revenue || 0), change: '', color: 'bg-purple-500' },
         ];
-        
+
         setStats(statsArray);
-        
-        // Use real recent bookings for activities if available
+
         if (data.recentBookings) {
           const activities = data.recentBookings.map(b => ({
             id: b._id,
@@ -43,7 +41,6 @@ const AdminDashboard = () => {
 
     fetchDashboardData();
   }, []);
-
 
   return (
     <div className="space-y-6">
@@ -79,7 +76,6 @@ const AdminDashboard = () => {
           ))
         )}
       </div>
-
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activity */}

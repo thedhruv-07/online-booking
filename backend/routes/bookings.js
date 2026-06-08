@@ -12,7 +12,7 @@ const { auth } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.use(auth); // Protect all booking routes
+router.use(auth); 
 
 router.route('/')
   .get(getBookings)

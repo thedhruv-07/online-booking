@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Radius</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: #0f0f0f; color: #e5e5e5; padding: 32px; min-height: 100vh; }
+  h1 { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #888; margin-bottom: 32px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card { border: 2px solid #2a2a2a; border-radius: 12px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.15s; background: #1a1a1a; }
+  .card:hover { border-color: #555; transform: translateY(-2px); }
+  .card.selected { border-color: #F58220; }
+  .preview { background: #f5f5f5; padding: 20px; }
+  .card-body { padding: 16px; border-top: 1px solid #2a2a2a; }
+  .card-body h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .card-body p { font-size: 12px; color: #888; line-height: 1.5; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .tag-rec { background: rgba(245,130,32,0.15); color: #F58220; }
+  .tag-alt { background: rgba(148,163,184,0.15); color: #94a3b8; }
+  .indicator { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; border: 1px solid #333; border-radius: 30px; padding: 10px 24px; font-size: 13px; color: #888; }
+  .indicator span { color: #F58220; font-weight: 600; }
+
+  /* shared layout */
+  .pg-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .pg-title { font-size: 16px; font-weight: 700; color: #0B3A70; }
+  .pg-sub { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+  .btn-row { display: flex; gap: 6px; }
+
+  /* stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+  .stat { background: #fff; border: 1px solid #ebebeb; padding: 10px 12px; border-left: 3px solid #ebebeb; }
+  .stat.o { border-left-color: #F58220; }
+  .stat.n { border-left-color: #0B3A70; }
+  .stat-val { font-size: 20px; font-weight: 700; color: #111; }
+  .stat-lbl { font-size: 9px; color: #9ca3af; margin-top: 2px; }
+
+  /* table */
+  .tbl { background: #fff; border: 1px solid #ebebeb; overflow: hidden; }
+  .tbl-hdr { font-size: 9px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 12px; background: #fafafa; display: flex; gap: 10px; border-bottom: 1px solid #ebebeb; }
+  .tbl-row { font-size: 10px; color: #374151; padding: 8px 12px; border-top: 1px solid #f5f5f5; display: flex; gap: 10px; align-items: center; }
+  .badge { font-size: 9px; padding: 2px 7px; font-weight: 600; }
+  .badge-p { background: #fef3c7; color: #92400e; }
+  .badge-c { background: #dcfce7; color: #166534; }
+  .col1 { flex: 2; font-weight: 500; }
+  .col2 { flex: 2; }
+  .col3 { flex: 1; }
+
+  /* btn mocks */
+  .btn-a { background: #F58220; color: #fff; border: none; padding: 7px 14px; font-size: 11px; font-weight: 600; border-radius: 4px; }
+  .btn-b-sec { background: #fff; color: #0B3A70; border: 1px solid #dde1e7; padding: 7px 12px; font-size: 11px; font-weight: 600; border-radius: 4px; }
+  .btn-b { background: #F58220; color: #fff; border: none; padding: 7px 14px; font-size: 11px; font-weight: 600; border-radius: 7px; }
+  .btn-b-sec2 { background: #fff; color: #0B3A70; border: 1px solid #dde1e7; padding: 7px 12px; font-size: 11px; font-weight: 600; border-radius: 7px; }
+  .btn-c { background: #F58220; color: #fff; border: none; padding: 7px 14px; font-size: 11px; font-weight: 600; border-radius: 20px; }
+  .btn-c-sec { background: #fff; color: #0B3A70; border: 1px solid #dde1e7; padding: 7px 12px; font-size: 11px; font-weight: 600; border-radius: 20px; }
+</style>
+</head>
+<body>
+
+<h1>How sharp or soft should corners be?</h1>
+<p class="subtitle">This affects every card, button, badge and input across the whole app. Click to select.</p>
+
+<div class="cards">
+
+  <!-- A: Sharp (4px) -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="pg-header">
+        <div><div class="pg-title">Dashboard</div><div class="pg-sub">Monday, 8 June 2026</div></div>
+        <div class="btn-row"><div class="btn-b-sec">View Bookings</div><div class="btn-a">+ New Booking</div></div>
+      </div>
+      <div class="stats">
+        <div class="stat o" style="border-radius:4px"><div class="stat-val">2</div><div class="stat-lbl">Total Bookings</div></div>
+        <div class="stat n" style="border-radius:4px"><div class="stat-val">0</div><div class="stat-lbl">Scheduled</div></div>
+        <div class="stat" style="border-radius:4px"><div class="stat-val">0</div><div class="stat-lbl">Completed</div></div>
+        <div class="stat" style="border-radius:4px"><div class="stat-val">0</div><div class="stat-lbl">Pending Pay</div></div>
+      </div>
+      <div class="tbl" style="border-radius:4px">
+        <div class="tbl-hdr"><span class="col1">Booking ID</span><span class="col2">Service</span><span class="col3">Status</span></div>
+        <div class="tbl-row"><span class="col1">BK-20260001</span><span class="col2">Pre-shipment Insp.</span><span class="col3"><span class="badge badge-p" style="border-radius:3px">Pending</span></span></div>
+        <div class="tbl-row"><span class="col1">BK-20260002</span><span class="col2">DPI Inspection</span><span class="col3"><span class="badge badge-c" style="border-radius:3px">Confirmed</span></span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-alt">Option A</div>
+      <h3>Sharp — 4px</h3>
+      <p>Very crisp, almost square corners. Feels like Bloomberg, Reuters, or legacy enterprise software. Very serious.</p>
+    </div>
+  </div>
+
+  <!-- B: Balanced (8px) -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="pg-header">
+        <div><div class="pg-title">Dashboard</div><div class="pg-sub">Monday, 8 June 2026</div></div>
+        <div class="btn-row"><div class="btn-b-sec2">View Bookings</div><div class="btn-b">+ New Booking</div></div>
+      </div>
+      <div class="stats">
+        <div class="stat o" style="border-radius:8px"><div class="stat-val">2</div><div class="stat-lbl">Total Bookings</div></div>
+        <div class="stat n" style="border-radius:8px"><div class="stat-val">0</div><div class="stat-lbl">Scheduled</div></div>
+        <div class="stat" style="border-radius:8px"><div class="stat-val">0</div><div class="stat-lbl">Completed</div></div>
+        <div class="stat" style="border-radius:8px"><div class="stat-val">0</div><div class="stat-lbl">Pending Pay</div></div>
+      </div>
+      <div class="tbl" style="border-radius:8px">
+        <div class="tbl-hdr"><span class="col1">Booking ID</span><span class="col2">Service</span><span class="col3">Status</span></div>
+        <div class="tbl-row"><span class="col1">BK-20260001</span><span class="col2">Pre-shipment Insp.</span><span class="col3"><span class="badge badge-p" style="border-radius:4px">Pending</span></span></div>
+        <div class="tbl-row"><span class="col1">BK-20260002</span><span class="col2">DPI Inspection</span><span class="col3"><span class="badge badge-c" style="border-radius:4px">Confirmed</span></span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-rec">Option B — Recommended</div>
+      <h3>Balanced — 8px</h3>
+      <p>Modern but still formal. The sweet spot for B2B SaaS. Used by Stripe, Linear, Intercom. Professional without feeling sterile.</p>
+    </div>
+  </div>
+
+  <!-- C: Soft (16px) current -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="pg-header">
+        <div><div class="pg-title">Dashboard</div><div class="pg-sub">Monday, 8 June 2026</div></div>
+        <div class="btn-row"><div class="btn-c-sec">View Bookings</div><div class="btn-c">+ New Booking</div></div>
+      </div>
+      <div class="stats">
+        <div class="stat o" style="border-radius:16px"><div class="stat-val">2</div><div class="stat-lbl">Total Bookings</div></div>
+        <div class="stat n" style="border-radius:16px"><div class="stat-val">0</div><div class="stat-lbl">Scheduled</div></div>
+        <div class="stat" style="border-radius:16px"><div class="stat-val">0</div><div class="stat-lbl">Completed</div></div>
+        <div class="stat" style="border-radius:16px"><div class="stat-val">0</div><div class="stat-lbl">Pending Pay</div></div>
+      </div>
+      <div class="tbl" style="border-radius:16px">
+        <div class="tbl-hdr"><span class="col1">Booking ID</span><span class="col2">Service</span><span class="col3">Status</span></div>
+        <div class="tbl-row"><span class="col1">BK-20260001</span><span class="col2">Pre-shipment Insp.</span><span class="col3"><span class="badge badge-p" style="border-radius:8px">Pending</span></span></div>
+        <div class="tbl-row"><span class="col1">BK-20260002</span><span class="col2">DPI Inspection</span><span class="col3"><span class="badge badge-c" style="border-radius:8px">Confirmed</span></span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-alt">Option C — Current</div>
+      <h3>Soft — 16px</h3>
+      <p>Your current style. Friendly and modern but reads as consumer-app, not enterprise. The main source of the "vibe coded" feeling.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="indicator" id="indicator">No selection yet</div>
+
+<script>
+function toggleSelect(el) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const labels = { a: 'Option A — Sharp 4px', b: 'Option B — Balanced 8px', c: 'Option C — Soft 16px (current)' };
+  document.getElementById('indicator').innerHTML = 'Selected: <span>' + labels[el.dataset.choice] + '</span>';
+  try { fetch('/__select', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ choice: el.dataset.choice, text: labels[el.dataset.choice] }) }); } catch(e) {}
+}
+</script>
+</body>
+</html>

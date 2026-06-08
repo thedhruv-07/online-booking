@@ -1,4 +1,4 @@
-// User types
+
 export const USER_ROLES = {
   USER: 'user',
   ADMIN: 'admin',
@@ -11,7 +11,6 @@ export const USER_STATUS = {
   VERIFIED: 'verified',
 };
 
-// Booking types
 export const BOOKING_STATUS = {
   DRAFT: 'draft',
   PENDING: 'pending',
@@ -35,7 +34,6 @@ export const PAYMENT_METHOD = {
   DEMO: 'demo'
 };
 
-// Step types for multi-step form
 export const BOOKING_STEPS = [
   { id: 1, name: 'Service', route: 'service' },
   { id: 2, name: 'Location', route: 'location' },
@@ -48,7 +46,6 @@ export const BOOKING_STEPS = [
   { id: 9, name: 'Payment', route: 'payment' },
 ];
 
-// API endpoints
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
@@ -84,21 +81,18 @@ export const API_ENDPOINTS = {
   },
 };
 
-// Validation patterns
 export const VALIDATION = {
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
   PHONE: /^[\d\s\-+()]{10,}$/,
 };
 
-// File upload constraints
 export const UPLOAD_CONFIG = {
-  MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+  MAX_FILE_SIZE: 10 * 1024 * 1024, 
   ALLOWED_EXTENSIONS: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
   MAX_FILES: 5,
 };
 
-// Stepper component constants
 export const STEPPER_CONFIG = {
   COLORS: {
     ACTIVE: 'bg-blue-600',
@@ -107,15 +101,11 @@ export const STEPPER_CONFIG = {
   },
 };
 
-// Import shared pricing (Vite allow fs: .. is required)
 import { COVERED_COUNTRIES as SHARED_COUNTRIES, services as SHARED_SERVICES } from '@shared/pricing';
 
-// Covered regions list (e.g., countries where baseline pricing applies)
 export const COVERED_COUNTRIES = SHARED_COUNTRIES;
 
-// Definitions for services, products, and factories
 export const services = SHARED_SERVICES;
-
 
 export const products = [
   {

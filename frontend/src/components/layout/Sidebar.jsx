@@ -3,13 +3,15 @@ import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   ClipboardList, 
-  Plus, 
+  PlusCircle, 
   CreditCard,
   User, 
   Settings, 
   LogOut, 
   ChevronLeft, 
-  ChevronRight
+  ChevronRight,
+  FileText,
+  Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/cn';
@@ -19,7 +21,7 @@ import useUIStore from '../../store/uiStore.js';
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
   { icon: ClipboardList, label: 'My Bookings', to: '/dashboard/bookings' },
-  { icon: Plus, label: 'Create Booking', to: '/booking/create', highlight: true },
+  { icon: PlusCircle, label: 'Create Booking', to: '/booking/create', highlight: true },
   { icon: CreditCard, label: 'Payments', to: '/dashboard/payments' },
 ];
 
@@ -35,9 +37,9 @@ const SidebarLink = ({ icon: Icon, label, to, isCollapsed, highlight }) => (
     className={({ isActive }) =>
       cn(
         'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group text-[13px] font-medium',
-        highlight && !isActive && 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100',
-        !highlight && !isActive && 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-        isActive && 'bg-indigo-600 text-white shadow-sm shadow-indigo-200'
+        highlight && !isActive && 'text-av-orange bg-av-orange-light hover:bg-[#FFE8D6]',
+        !highlight && !isActive && 'text-gray-600 hover:bg-av-orange-light hover:text-av-orange',
+        isActive && 'bg-av-orange text-white shadow-sm shadow-av-orange/20'
       )
     }
   >
@@ -70,21 +72,22 @@ const Sidebar = () => {
       {/* Logo */}
       <div className="h-16 px-4 flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shrink-0">
-            <span className="text-white font-bold text-sm">A</span>
-          </div>
-          <AnimatePresence mode="wait">
-            {!isSidebarCollapsed && (
-              <motion.span
+          {isSidebarCollapsed ? (
+            <div className="w-8 h-8 flex items-center justify-center shrink-0">
+              <img src="/company-logo.png" alt="AV" className="w-8 h-8 object-contain" />
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-[15px] font-semibold text-gray-900 whitespace-nowrap"
+                className="flex items-center"
               >
-                Absolute Veritas
-              </motion.span>
-            )}
-          </AnimatePresence>
+                <img src="/company-logo.png" alt="Absolute Veritas Inspection Service" className="h-10 object-contain max-w-[180px]" />
+              </motion.div>
+            </AnimatePresence>
+          )}
         </div>
         <button
           onClick={toggleSidebar}
@@ -98,7 +101,7 @@ const Sidebar = () => {
       <div className="flex-1 overflow-y-auto custom-scrollbar py-4 px-3">
         <div className="space-y-1">
           {navItems.map((item) => (
-            <SidebarLink key={item.to} {...item} isCollapsed={isSidebarCollapsed} />
+            <SidebarLink key={item.label} {...item} isCollapsed={isSidebarCollapsed} />
           ))}
         </div>
       </div>

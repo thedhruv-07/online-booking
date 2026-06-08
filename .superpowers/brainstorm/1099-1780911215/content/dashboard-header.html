@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Header</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: #0f0f0f; color: #e5e5e5; padding: 32px; min-height: 100vh; }
+  h1 { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #888; margin-bottom: 32px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card { border: 2px solid #2a2a2a; border-radius: 12px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.15s; background: #1a1a1a; }
+  .card:hover { border-color: #555; transform: translateY(-2px); }
+  .card.selected { border-color: #F58220; }
+  .preview { background: #f5f5f5; padding: 20px; }
+  .card-body { padding: 16px; border-top: 1px solid #2a2a2a; }
+  .card-body h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .card-body p { font-size: 12px; color: #888; line-height: 1.5; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .tag-rec { background: rgba(245,130,32,0.15); color: #F58220; }
+  .tag-alt { background: rgba(148,163,184,0.15); color: #94a3b8; }
+  .indicator { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; border: 1px solid #333; border-radius: 30px; padding: 10px 24px; font-size: 13px; color: #888; }
+  .indicator span { color: #F58220; font-weight: 600; }
+
+  /* shared stats + table that appear below each option */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+  .stat-card { background: #fff; border: 1px solid #ebebeb; border-radius: 8px; padding: 10px 12px; border-left: 3px solid #ebebeb; }
+  .stat-card.orange { border-left-color: #F58220; }
+  .stat-card.navy { border-left-color: #0B3A70; }
+  .stat-val { font-size: 20px; font-weight: 700; color: #111; line-height: 1; margin-bottom: 3px; }
+  .stat-lbl { font-size: 10px; color: #9ca3af; }
+
+  /* Option A — bare page header */
+  .hdr-a { display: flex; align-items: flex-start; justify-content: space-between; }
+  .hdr-a .left .page-title { font-size: 20px; font-weight: 700; color: #0B3A70; letter-spacing: -0.02em; }
+  .hdr-a .left .page-sub { font-size: 12px; color: #9ca3af; margin-top: 3px; }
+  .hdr-a .right { display: flex; gap: 8px; }
+  .btn-primary { background: #F58220; color: #fff; border: none; border-radius: 7px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn-secondary { background: #fff; color: #0B3A70; border: 1px solid #dde1e7; border-radius: 7px; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .divider-line { height: 1px; background: #ebebeb; margin: 14px 0; }
+
+  /* Option B — branded card */
+  .hdr-b { background: #fff; border: 1px solid #ebebeb; border-radius: 10px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; border-top: 3px solid #0B3A70; }
+  .hdr-b .left .label { font-size: 9px; font-weight: 700; color: #F58220; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .hdr-b .left .page-title { font-size: 18px; font-weight: 700; color: #111; letter-spacing: -0.02em; }
+  .hdr-b .left .page-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+  .hdr-b .right { display: flex; gap: 8px; }
+
+  /* Option C — gradient hero (current style, cleaned up) */
+  .hdr-c {
+    background: linear-gradient(135deg, #0B3A70 0%, #1a5fa8 100%);
+    border-radius: 10px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .hdr-c::before {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(245,130,32,0.15);
+  }
+  .hdr-c::after {
+    content: '';
+    position: absolute;
+    right: 40px; bottom: -30px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .hdr-c .left .label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 5px; }
+  .hdr-c .left .page-title { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+  .hdr-c .left .page-title span { color: #F58220; }
+  .hdr-c .left .page-sub { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+  .hdr-c .right { display: flex; gap: 8px; position: relative; z-index: 1; }
+  .btn-primary-inv { background: #F58220; color: #fff; border: none; border-radius: 7px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-outline-inv { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 7px; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h1>How should the top of your dashboard look?</h1>
+<p class="subtitle">The current design has a big decorative hero banner. These are three alternatives. Click to select.</p>
+
+<div class="cards">
+
+  <!-- A: Bare page header -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="hdr-a">
+        <div class="left">
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Monday, 8 June 2026 · Absolute Veritas</div>
+        </div>
+        <div class="right">
+          <div class="btn-secondary">View Bookings</div>
+          <div class="btn-primary">+ New Booking</div>
+        </div>
+      </div>
+      <div class="divider-line"></div>
+      <div class="stats-row">
+        <div class="stat-card orange"><div class="stat-val">2</div><div class="stat-lbl">Total Bookings</div></div>
+        <div class="stat-card navy"><div class="stat-val">0</div><div class="stat-lbl">Scheduled</div></div>
+        <div class="stat-card"><div class="stat-val">0</div><div class="stat-lbl">Completed</div></div>
+        <div class="stat-card"><div class="stat-val">0</div><div class="stat-lbl">Pending Pay</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-rec">Option A — Recommended</div>
+      <h3>Clean Page Header</h3>
+      <p>Title + date + action buttons inline. No decorative background. Gets straight to the data. Very Stripe / Notion-like.</p>
+    </div>
+  </div>
+
+  <!-- B: Branded card -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="hdr-b">
+        <div class="left">
+          <div class="label">Welcome back</div>
+          <div class="page-title">Good morning, Dhruv</div>
+          <div class="page-sub">You have 2 active bookings · June 2026</div>
+        </div>
+        <div class="right">
+          <div class="btn-secondary">View Bookings</div>
+          <div class="btn-primary">+ New Booking</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card orange"><div class="stat-val">2</div><div class="stat-lbl">Total Bookings</div></div>
+        <div class="stat-card navy"><div class="stat-val">0</div><div class="stat-lbl">Scheduled</div></div>
+        <div class="stat-card"><div class="stat-val">0</div><div class="stat-lbl">Completed</div></div>
+        <div class="stat-card"><div class="stat-val">0</div><div class="stat-lbl">Pending Pay</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-alt">Option B</div>
+      <h3>Branded Welcome Card</h3>
+      <p>White card with a navy top border accent, name greeting, booking summary. Warm but still formal. Contained, no blobs.</p>
+    </div>
+  </div>
+
+  <!-- C: Gradient hero (refined) -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="hdr-c">
+        <div class="left">
+          <div class="label">Welcome back</div>
+          <div class="page-title">Hello, <span>Dhruv</span></div>
+          <div class="page-sub">Manage inspections · 2 active bookings</div>
+        </div>
+        <div class="right">
+          <div class="btn-outline-inv">View Bookings</div>
+          <div class="btn-primary-inv">+ New Booking</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card orange"><div class="stat-val">2</div><div class="stat-lbl">Total Bookings</div></div>
+        <div class="stat-card navy"><div class="stat-val">0</div><div class="stat-lbl">Scheduled</div></div>
+        <div class="stat-card"><div class="stat-val">0</div><div class="stat-lbl">Completed</div></div>
+        <div class="stat-card"><div class="stat-val">0</div><div class="stat-lbl">Pending Pay</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-alt">Option C</div>
+      <h3>Gradient Hero (Refined)</h3>
+      <p>Your current style, tightened up. Smaller, no blur blobs — just a clean navy gradient card. Retains warmth but feels more controlled.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="indicator" id="indicator">No selection yet</div>
+
+<script>
+function toggleSelect(el) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const labels = { a: 'Option A — Clean Page Header', b: 'Option B — Branded Welcome Card', c: 'Option C — Gradient Hero Refined' };
+  document.getElementById('indicator').innerHTML = 'Selected: <span>' + labels[el.dataset.choice] + '</span>';
+  try {
+    fetch('/__select', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ choice: el.dataset.choice, text: labels[el.dataset.choice] }) });
+  } catch(e) {}
+}
+</script>
+</body>
+</html>

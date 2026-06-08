@@ -12,7 +12,7 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [formError, setFormError] = useState('');
@@ -58,7 +58,7 @@ const ResetPassword = () => {
           <h2 className="text-2xl font-bold text-gray-900">Invalid Link</h2>
           <p className="mt-2 text-gray-600">This password reset link is invalid or has expired.</p>
           <div className="mt-6">
-            <Link to="/forgot-password" title="Try again" className="text-blue-600 hover:text-blue-500 font-medium">
+            <Link to="/forgot-password" title="Try again" className="text-av-navy hover:text-blue-500 font-medium">
               Request a new link
             </Link>
           </div>

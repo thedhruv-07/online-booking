@@ -9,7 +9,7 @@ import { StepNavigation } from '../booking';
  */
 const ProductStep = () => {
   const { updateStepData, bookingData, prevStep, nextStep } = useBooking();
-  
+
   const [formData, setFormData] = useState({
     name: bookingData.product?.name || '',
     description: bookingData.product?.description || '',
@@ -52,7 +52,7 @@ const ProductStep = () => {
   return (
     <div className="space-y-8">
       <div className="text-center max-w-2xl mx-auto mb-10">
-        <div className="mx-auto w-16 h-16 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+        <div className="mx-auto w-16 h-16 bg-orange-50 text-orange-600 rounded-[16px] flex items-center justify-center mb-6 shadow-sm">
           <Package size={32} />
         </div>
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Product Details</h2>
@@ -60,7 +60,7 @@ const ProductStep = () => {
       </div>
 
       {validationError && (
-        <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-sm font-medium text-center">
+        <div className="p-4 bg-rose-50 border border-rose-100 rounded-[16px] text-rose-600 text-sm font-medium text-center">
           {validationError}
         </div>
       )}

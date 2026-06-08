@@ -8,7 +8,6 @@ import { cn } from '../../utils/cn';
 const getActivityFromBookings = (bookings = []) => {
   const activities = [];
 
-  // Sort by most recent first
   const sorted = [...bookings].sort((a, b) => 
     new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
   );
@@ -39,8 +38,8 @@ const getActivityFromBookings = (bookings = []) => {
       activities.push({
         id: `${b._id}-paid`,
         icon: CreditCard,
-        iconColor: 'text-blue-500',
-        iconBg: 'bg-blue-50',
+        iconColor: 'text-av-navy',
+        iconBg: 'bg-av-light-blue',
         text: `Payment received for #${id}`,
         time,
       });
@@ -49,7 +48,7 @@ const getActivityFromBookings = (bookings = []) => {
         id: `${b._id}-created`,
         icon: ClipboardList,
         iconColor: 'text-gray-500',
-        iconBg: 'bg-gray-50',
+        iconBg: 'bg-gray-100',
         text: `Booking #${id} created`,
         time,
       });
@@ -77,30 +76,30 @@ const RecentActivity = ({ bookings = [] }) => {
   const activities = getActivityFromBookings(bookings);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-900">Recent Activity</h3>
-        <Clock size={15} className="text-gray-400" />
+    <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-6 shadow-av-card">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-bold text-gray-900 tracking-wide uppercase">Recent Activity</h3>
+        <Clock size={16} className="text-gray-400" />
       </div>
 
       {activities.length > 0 ? (
-        <div className="space-y-0.5">
+        <div className="space-y-3">
           {activities.map((activity) => (
-            <div key={activity.id} className="flex items-start gap-3 p-2.5 rounded-lg">
-              <div className={cn("w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5", activity.iconBg)}>
-                <activity.icon size={13} className={activity.iconColor} />
+            <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg">
+              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 shadow-sm", activity.iconBg)}>
+                <activity.icon size={14} className={activity.iconColor} />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-700">{activity.text}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{formatRelativeTime(activity.time)}</p>
+              <div className="flex-1 min-w-0 pt-0.5">
+                <p className="text-sm font-medium text-gray-700 leading-snug">{activity.text}</p>
+                <p className="text-xs font-bold text-gray-400 mt-1">{formatRelativeTime(activity.time)}</p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="py-8 text-center">
-          <Clock size={20} className="text-gray-300 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">No recent activity</p>
+        <div className="py-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200 mt-2">
+          <Clock size={24} className="text-gray-300 mx-auto mb-3" />
+          <p className="text-sm font-bold text-gray-500">No recent activity</p>
         </div>
       )}
     </div>

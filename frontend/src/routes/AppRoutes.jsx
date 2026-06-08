@@ -2,20 +2,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useAuth } from '../store/authStore';
 import { Layout } from '../components/layout';
 
-// Auth pages
 import { Login, Signup, VerifyEmail, ForgotPassword, ResetPassword } from '../pages/auth';
 
-// Dashboard pages
 import { Dashboard, MyBookings, BookingDetails, PaymentsPage, ProfilePage, SettingsPage } from '../pages/dashboard';
 
-// Booking pages
 import CreateBooking from '../pages/booking/CreateBooking';
 import { BookingLayout } from '../components/booking';
 
-// Admin pages
 import { AdminDashboard, Users, Bookings, Payments } from '../pages/admin';
 
-// Components
 import ProtectedRoute from './ProtectedRoute';
 
 /**
@@ -78,14 +73,13 @@ const AppRoutes = () => {
         path="/booking"
         element={
           <ProtectedRoute>
-            <BookingLayout />
+            <Layout />
           </ProtectedRoute>
         }
       >
         <Route index element={<Navigate to="create" replace />} />
         <Route path="create" element={<CreateBooking />} />
       </Route>
-
 
       {/* Admin Routes */}
       <Route

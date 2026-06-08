@@ -27,7 +27,7 @@ const SearchableSelect = ({
     options.find(opt => (opt.value || opt.id) === value),
     [options, value]
   );
-  
+
   const filteredOptions = useMemo(() => {
     if (!searchTerm) return options;
     const search = searchTerm.toLowerCase().trim();
@@ -51,7 +51,6 @@ const SearchableSelect = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  // Focus input when dropdown opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -79,7 +78,7 @@ const SearchableSelect = ({
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'w-full flex items-center justify-between px-4 h-12 bg-slate-50 border rounded-xl transition-all duration-200 text-left',
-          isOpen ? 'border-indigo-500 ring-4 ring-indigo-500/5' : 'border-slate-100 hover:border-slate-200',
+          isOpen ? 'border-av-orange-light0 ring-4 ring-av-orange-light0/5' : 'border-slate-100 hover:border-slate-200',
           error ? 'border-rose-300 bg-rose-50/50' : '',
           className
         )}
@@ -107,7 +106,7 @@ const SearchableSelect = ({
                 ref={inputRef}
                 type="text"
                 placeholder={searchPlaceholder}
-                className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500 transition-all"
+                className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:border-av-orange-light0 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -137,7 +136,7 @@ const SearchableSelect = ({
                     onClick={() => handleSelect(option)}
                     className={cn(
                       'w-full flex items-center justify-between px-4 py-3 text-sm font-bold transition-colors text-left border-b border-slate-50 last:border-0',
-                      isSelected ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'
+                      isSelected ? 'bg-av-orange-light text-av-orange' : 'text-slate-600 hover:bg-slate-50'
                     )}
                   >
                     <span className="truncate">{option.label || option.name}</span>

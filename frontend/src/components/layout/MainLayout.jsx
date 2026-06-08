@@ -10,7 +10,7 @@ const DashboardLayout = () => {
   const { isSidebarCollapsed } = useUIStore();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-av-background flex">
       <Sidebar />
 
       <div 
@@ -20,7 +20,7 @@ const DashboardLayout = () => {
         )}
       >
         <Navbar />
-        
+
         <main className="flex-1 p-6 lg:p-8">
           <motion.div
             initial={{ opacity: 0, y: 6 }}
@@ -31,8 +31,8 @@ const DashboardLayout = () => {
           </motion.div>
         </main>
 
-        <footer className="py-4 px-8 text-center text-gray-400 text-xs border-t border-gray-100 bg-white">
-          © {new Date().getFullYear()} Absolute Veritas. All rights reserved.
+        <footer className="py-4 px-8 text-center text-gray-400 text-xs border-t border-av-border bg-white">
+          © Absolute Veritas Inspection Service | Support: info@av-inspec.com
         </footer>
       </div>
     </div>

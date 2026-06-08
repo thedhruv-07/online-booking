@@ -102,9 +102,9 @@ export const paymentService = {
         'Authorization': `Bearer ${token}`
       }
     });
-    
+
     if (!response.ok) throw new Error('Failed to download invoice');
-    
+
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');

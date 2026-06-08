@@ -22,8 +22,6 @@ const LocationStep = () => {
   const [availableStates, setAvailableStates] = useState([]);
   const [showPricingModal, setShowPricingModal] = useState(false);
 
-  // Track the country that was already saved (hydrated from draft) so we
-  // don't fire the modal when the step first loads with a saved country.
   const initialCountryRef = useRef(bookingData.location?.country || '');
 
   useEffect(() => {
@@ -34,7 +32,6 @@ const LocationStep = () => {
     }
   }, [formData.country]);
 
-  // Show pricing modal only when user actively changes the country
   useEffect(() => {
     if (formData.country && formData.country !== initialCountryRef.current) {
       setShowPricingModal(true);
@@ -58,7 +55,6 @@ const LocationStep = () => {
   const countries = getCountries();
   const isFormValid = formData.country && formData.city && formData.address && formData.postalCode;
 
-  // Pricing calculation for the modal
   const selectedServiceIds = bookingData.service?.selected || [];
   const pricingResult = formData.country
     ? calculateFinalPrice(selectedServiceIds, formData.country)
@@ -68,7 +64,7 @@ const LocationStep = () => {
   return (
     <div className="space-y-8">
       <div className="text-center max-w-2xl mx-auto mb-10">
-        <div className="mx-auto w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+        <div className="mx-auto w-16 h-16 bg-av-orange-light text-av-orange rounded-[16px] flex items-center justify-center mb-6 shadow-sm">
           <MapPin size={32} />
         </div>
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Location Details</h2>
@@ -82,7 +78,7 @@ const LocationStep = () => {
           {/* Country */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700 ml-1 flex items-center gap-2">
-              <Globe size={14} className="text-indigo-500" />
+              <Globe size={14} className="text-av-orange-light0" />
               Country
             </label>
             <Select
@@ -105,7 +101,7 @@ const LocationStep = () => {
               className="space-y-2"
             >
               <label className="text-sm font-bold text-slate-700 ml-1 flex items-center gap-2">
-                <Navigation size={14} className="text-indigo-500" />
+                <Navigation size={14} className="text-av-orange-light0" />
                 State / Province
               </label>
               <Select
@@ -123,7 +119,7 @@ const LocationStep = () => {
           {/* Address */}
           <div className="md:col-span-2 space-y-2">
             <label className="text-sm font-bold text-slate-700 ml-1 flex items-center gap-2">
-              <MapPin size={14} className="text-indigo-500" />
+              <MapPin size={14} className="text-av-orange-light0" />
               Detailed Address
             </label>
             <Input
@@ -138,7 +134,7 @@ const LocationStep = () => {
           {/* Postal Code */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700 ml-1 flex items-center gap-2">
-              <Mail size={14} className="text-indigo-500" />
+              <Mail size={14} className="text-av-orange-light0" />
               Postal / ZIP Code
             </label>
             <Input
@@ -217,7 +213,7 @@ const LocationStep = () => {
 
           <button
             onClick={() => setShowPricingModal(false)}
-            className="w-full mt-4 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all"
+            className="w-full mt-4 py-3 bg-av-orange text-white rounded-[16px] font-bold text-sm hover:bg-av-orange-hover transition-all"
           >
             Continue with this pricing
           </button>

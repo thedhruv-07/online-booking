@@ -41,7 +41,6 @@ const ContactStep = () => {
       .finally(() => setIsLoadingContacts(false));
   }, []);
 
-  // Auto-fill form from user profile when toggle is on
   useEffect(() => {
     if (useProfile && user) {
       setAddForm({
@@ -133,7 +132,7 @@ const ContactStep = () => {
   return (
     <div className="space-y-8">
       <div className="text-center max-w-2xl mx-auto mb-10">
-        <div className="mx-auto w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+        <div className="mx-auto w-16 h-16 bg-av-light-blue text-av-navy rounded-[16px] flex items-center justify-center mb-6 shadow-sm">
           <Users size={32} />
         </div>
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Factory Contact</h2>
@@ -143,7 +142,7 @@ const ContactStep = () => {
       </div>
 
       {validationError && (
-        <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-sm font-medium text-center">
+        <div className="p-4 bg-rose-50 border border-rose-100 rounded-[16px] text-rose-600 text-sm font-medium text-center">
           {validationError}
         </div>
       )}
@@ -176,10 +175,10 @@ const ContactStep = () => {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="bg-blue-50 border border-blue-100 rounded-3xl p-6"
+              className="bg-av-light-blue border border-blue-100 rounded-3xl p-6"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
+                <div className="w-8 h-8 bg-blue-600 rounded-[16px] flex items-center justify-center">
                   <Check size={16} className="text-white" />
                 </div>
                 <h3 className="font-bold text-slate-900">Selected Contact</h3>
@@ -205,7 +204,7 @@ const ContactStep = () => {
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                  <div className="w-10 h-10 rounded-[16px] bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
                     <Plus size={20} />
                   </div>
                   <h3 className="text-lg font-bold text-slate-900">New Contact</h3>
@@ -216,9 +215,9 @@ const ContactStep = () => {
               </div>
 
               {/* Profile auto-fill toggle */}
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between mb-6">
+              <div className="bg-slate-50 p-4 rounded-[16px] border border-slate-100 flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-blue-500 shadow-sm">
+                  <div className="w-8 h-8 rounded-[16px] bg-white flex items-center justify-center text-blue-500 shadow-sm">
                     <User size={16} />
                   </div>
                   <p className="text-sm font-bold text-slate-800">Use my profile details</p>
@@ -292,7 +291,7 @@ const ContactStep = () => {
                 <button
                   onClick={handleSaveContact}
                   disabled={isSaving}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-[16px] font-bold text-sm hover:bg-blue-700 transition-all disabled:opacity-50"
                 >
                   {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                   {isSaving ? 'Saving...' : 'Save Contact'}

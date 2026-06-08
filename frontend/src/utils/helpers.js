@@ -84,7 +84,7 @@ export const debounce = (func, wait = 300) => {
  */
 export const showNotification = (message, type = 'info') => {
   console.log(`[${type.toUpperCase()}]: ${message}`);
-  // Integrate with toast library in production
+
 };
 
 /**

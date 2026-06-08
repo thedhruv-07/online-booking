@@ -10,7 +10,7 @@ const BookingLayout = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-av-orange animate-spin mx-auto mb-4" />
           <p className="text-slate-500 font-medium">Loading session...</p>
         </div>
       </div>
@@ -25,8 +25,8 @@ const BookingLayout = () => {
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-8 lg:px-16 xl:px-24">
       {/* Background Decor */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-100 rounded-full blur-[120px] opacity-40"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-100 rounded-full blur-[100px] opacity-30"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-av-orange-light rounded-full blur-[120px] opacity-40"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-av-light-blue rounded-full blur-[100px] opacity-30"></div>
       </div>
 
       <div className="w-full max-w-full mx-auto">
@@ -35,7 +35,7 @@ const BookingLayout = () => {
           <div>
             <Link 
               to="/dashboard" 
-              className="inline-flex items-center gap-2 text-slate-400 hover:text-indigo-600 font-bold text-sm transition-colors mb-6 group"
+              className="inline-flex items-center gap-2 text-slate-400 hover:text-av-orange font-bold text-sm transition-colors mb-6 group"
             >
               <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
               Back to Dashboard
@@ -43,10 +43,10 @@ const BookingLayout = () => {
             <h1 className="text-2xl font-semibold text-slate-900 tracking-tight lg:text-3xl">Create Booking</h1>
             <p className="text-slate-500 font-medium mt-2 text-sm lg:text-sm">Configure your inspection request step by step in our high-end booking engine.</p>
           </div>
-          
+
           <div className="bg-white border border-slate-100 p-6 rounded-3xl flex items-start gap-4 max-w-md shadow-sm">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center shrink-0">
-              <Info className="w-5 h-5 text-indigo-600" />
+            <div className="w-10 h-10 rounded-[16px] bg-av-orange-light flex items-center justify-center shrink-0">
+              <Info className="w-5 h-5 text-av-orange" />
             </div>
             <p className="text-xs text-slate-500 font-medium leading-relaxed">
               <span className="text-slate-900 font-bold block mb-1 uppercase tracking-wider">Draft Mode Active</span>

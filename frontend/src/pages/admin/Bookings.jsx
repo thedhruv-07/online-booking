@@ -21,7 +21,6 @@ const Bookings = () => {
     fetchAllBookings();
   }, []);
 
-
   const getStatusColor = (status) => {
     const colors = {
       pending: 'bg-yellow-100 text-yellow-800',
@@ -32,8 +31,6 @@ const Bookings = () => {
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
-
-
 
   return (
     <div className="space-y-6">

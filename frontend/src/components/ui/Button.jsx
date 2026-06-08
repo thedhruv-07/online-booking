@@ -21,15 +21,15 @@ const Button = forwardRef(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-bold rounded-2xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0';
+      'inline-flex items-center justify-center font-bold rounded-av transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0';
 
     const variants = {
-      primary: 'bg-indigo-600 text-white hover:bg-indigo-500 focus:ring-indigo-500/20 shadow-xl shadow-indigo-100',
-      secondary: 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 focus:ring-slate-500/10 shadow-sm',
+      primary: 'bg-av-orange text-white hover:bg-av-orange-hover focus:ring-av-orange/20 shadow-lg shadow-av-orange/20',
+      secondary: 'bg-white text-av-navy border border-av-navy hover:bg-av-navy hover:text-white focus:ring-av-navy/10 shadow-sm',
       danger: 'bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 focus:ring-rose-500/10',
-      success: 'bg-emerald-600 text-white hover:bg-emerald-500 focus:ring-emerald-500/20 shadow-xl shadow-emerald-100',
+      success: 'bg-emerald-600 text-white hover:bg-emerald-500 focus:ring-emerald-500/20 shadow-lg shadow-emerald-200/50',
       outline:
-        'border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 focus:ring-indigo-500/10',
+        'border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 focus:ring-av-orange/10',
     };
 
     const sizes = {

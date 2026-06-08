@@ -7,23 +7,20 @@ const AuthNavbar = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6 z-50 shadow-sm">
-      <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-indigo-200">
-          <ShieldCheck className="w-5 h-5 text-white" />
-        </div>
-        <span className="font-bold text-slate-900 text-lg tracking-tight">Absolute Veritas</span>
+      <div className="flex items-center">
+        <img src="/company-logo.png" alt="Absolute Veritas" className="h-10 object-contain" />
       </div>
       {isSignup ? (
         <Link
           to="/login"
-          className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-sm"
+          className="px-5 py-2 bg-av-orange text-white rounded-xl font-bold text-sm hover:bg-av-orange-hover transition-all shadow-sm"
         >
           Sign In
         </Link>
       ) : (
         <Link
           to="/signup"
-          className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-sm"
+          className="px-5 py-2 bg-av-orange text-white rounded-xl font-bold text-sm hover:bg-av-orange-hover transition-all shadow-sm"
         >
           Create Account
         </Link>

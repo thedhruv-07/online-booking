@@ -1,22 +1,17 @@
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-// Ensure environment variables from backend/.env are loaded even if the process
-// was started from a different working directory. This makes email sending
-// robust in dev environments and CI.
 try {
   require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 } catch (e) {
-  // ignore
+
 }
 
 let cachedTransporter = null;
 
-// Create transporter
 const createTransporter = async () => {
   if (cachedTransporter) return cachedTransporter;
 
-  // Use real credentials if SMTP_USER is provided
   if (process.env.SMTP_USER && process.env.SMTP_PASS) {
     const isGmail = (process.env.SMTP_HOST || '').includes('gmail.com');
     const transporter = nodemailer.createTransport(isGmail ? {
@@ -35,7 +30,6 @@ const createTransporter = async () => {
       },
     });
 
-    // Test the connection
     try {
       await transporter.verify();
       console.log('✅ SMTP CONNECTION SUCCESSFUL - Real emails will be sent!');
@@ -48,7 +42,6 @@ const createTransporter = async () => {
     }
   }
 
-  // Fallback to Ethereal
   console.log('ℹ️ No SMTP credentials - Using Ethereal (Test Mode)');
   const testAccount = await nodemailer.createTestAccount();
   cachedTransporter = nodemailer.createTransport({
@@ -85,7 +78,7 @@ const sendEmail = async (to, subject, html) => {
     });
 
     console.log(`✅ Email sent successfully! ID: ${info.messageId}`);
-    // If using ethereal, log preview URL
+
     const previewUrl = nodemailer.getTestMessageUrl(info);
     if (previewUrl) {
       console.log(`\x1b[36m%s\x1b[0m`, `🔗 PREVIEW LINK (CLICK THIS): ${previewUrl}`);
@@ -107,12 +100,12 @@ const sendEmail = async (to, subject, html) => {
  */
 const sendVerificationEmail = async (email, token, name) => {
   const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-  const subject = 'Verify your email - Booking App';
+  const subject = 'Verify your email - Absolute Veritas';
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2>Welcome to Booking App, ${name}!</h2>
+      <h2>Welcome to Absolute Veritas, ${name}!</h2>
       <p>Please verify your email address by clicking the link below:</p>
-      <p><a href="${verificationUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Email</a></p>
+      <p><a href="${verificationUrl}" style="background-color: #F58220; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Email</a></p>
       <p>If the button doesn't work, copy and paste this URL into your browser:</p>
       <p><code>${verificationUrl}</code></p>
       <p>This link will expire in 24 hours.</p>
@@ -130,12 +123,12 @@ const sendVerificationEmail = async (email, token, name) => {
  */
 const sendPasswordResetEmail = async (email, token, name) => {
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-  const subject = 'Reset your password - Booking App';
+  const subject = 'Reset your password - Absolute Veritas';
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2>Hello ${name},</h2>
       <p>You requested to reset your password. Click the link below to set a new password:</p>
-      <p><a href="${resetUrl}" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
+      <p><a href="${resetUrl}" style="background-color: #F58220; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
       <p>If the button doesn't work, copy and paste this URL into your browser:</p>
       <p><code>${resetUrl}</code></p>
       <p>This link will expire in 1 hour.</p>
@@ -151,10 +144,9 @@ module.exports = {
   sendPasswordResetEmail,
 };
 
-// Startup check - test the connection immediately
 if (process.env.SMTP_USER && process.env.SMTP_PASS) {
   createTransporter().then(() => {
-    // Connection test is triggered inside createTransporter
+
   }).catch(err => {
     console.error('❌ SMTP INITIALIZATION FAILED:', err.message);
   });

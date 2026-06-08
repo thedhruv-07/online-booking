@@ -36,7 +36,6 @@ const FactoryStep = () => {
       .finally(() => setIsLoadingFactories(false));
   }, []);
 
-  // Options for the select: saved factories + sentinel for Add New
   const selectOptions = useMemo(() => [
     ...savedFactories.map((f) => ({ id: f._id, name: f.name })),
     { id: '__add_new__', name: '+ Add New Factory' },
@@ -111,7 +110,7 @@ const FactoryStep = () => {
   return (
     <div className="space-y-10">
       <div className="text-center max-w-2xl mx-auto">
-        <div className="mx-auto w-16 h-16 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+        <div className="mx-auto w-16 h-16 bg-slate-50 text-slate-600 rounded-[16px] flex items-center justify-center mb-6 shadow-sm">
           <Factory size={32} />
         </div>
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Factory Details</h2>
@@ -121,7 +120,7 @@ const FactoryStep = () => {
       </div>
 
       {validationError && (
-        <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-sm font-medium text-center max-w-2xl mx-auto">
+        <div className="p-4 bg-rose-50 border border-rose-100 rounded-[16px] text-rose-600 text-sm font-medium text-center max-w-2xl mx-auto">
           {validationError}
         </div>
       )}
@@ -130,7 +129,7 @@ const FactoryStep = () => {
         {/* Dropdown */}
         {isLoadingFactories ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 size={24} className="animate-spin text-indigo-500" />
+            <Loader2 size={24} className="animate-spin text-av-orange-light0" />
           </div>
         ) : (
           <div className="space-y-2">
@@ -154,10 +153,10 @@ const FactoryStep = () => {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="bg-indigo-50 border border-indigo-100 rounded-3xl p-6"
+              className="bg-av-orange-light border border-av-orange/20 rounded-3xl p-6"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center">
+                <div className="w-8 h-8 bg-av-orange rounded-[16px] flex items-center justify-center">
                   <Check size={16} className="text-white" />
                 </div>
                 <h3 className="font-bold text-slate-900">Selected Factory</h3>
@@ -182,7 +181,7 @@ const FactoryStep = () => {
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                  <div className="w-10 h-10 rounded-[16px] bg-av-orange flex items-center justify-center text-white shadow-lg shadow-av-orange/20">
                     <Plus size={20} />
                   </div>
                   <h3 className="text-lg font-bold text-slate-900">New Factory</h3>
@@ -241,7 +240,7 @@ const FactoryStep = () => {
                     onChange={handleAddFormChange}
                     placeholder="Building number, street, district, city..."
                     rows={3}
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-[16px] text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-av-orange focus:ring-2 focus:ring-av-orange/10 transition-all resize-none"
                   />
                 </div>
               </div>
@@ -250,7 +249,7 @@ const FactoryStep = () => {
                 <button
                   onClick={handleSaveFactory}
                   disabled={isSaving}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-av-orange text-white rounded-[16px] font-bold text-sm hover:bg-av-orange-hover transition-all disabled:opacity-50"
                 >
                   {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                   {isSaving ? 'Saving...' : 'Save Factory'}

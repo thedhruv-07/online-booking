@@ -87,16 +87,16 @@ const SettingsPage = () => {
         <p className="text-sm text-slate-500 mt-1">Manage your app preferences and configurations.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-sm">
         {/* Notifications */}
         <div className="p-6 border-b border-slate-100 flex items-start gap-4">
-          <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center shrink-0">
-            <Bell className="text-indigo-600" size={20} />
+          <div className="w-10 h-10 bg-av-orange-light rounded-lg flex items-center justify-center shrink-0">
+            <Bell className="text-av-orange" size={20} />
           </div>
           <div className="flex-1">
             <h3 className="text-base font-bold text-slate-900">Notifications</h3>
             <p className="text-sm text-slate-500 mb-4">Choose what updates you want to receive via email.</p>
-            
+
             <div className="space-y-3">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <input 
@@ -104,7 +104,7 @@ const SettingsPage = () => {
                   name="bookingUpdates"
                   checked={formData.notifications.bookingUpdates}
                   onChange={handleNotificationChange}
-                  className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-600 transition-colors" 
+                  className="w-4 h-4 text-av-orange border-slate-300 rounded focus:ring-av-orange transition-colors" 
                 />
                 <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">Booking status updates</span>
               </label>
@@ -114,7 +114,7 @@ const SettingsPage = () => {
                   name="paymentReminders"
                   checked={formData.notifications.paymentReminders}
                   onChange={handleNotificationChange}
-                  className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-600 transition-colors" 
+                  className="w-4 h-4 text-av-orange border-slate-300 rounded focus:ring-av-orange transition-colors" 
                 />
                 <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">Payment receipts and reminders</span>
               </label>
@@ -124,7 +124,7 @@ const SettingsPage = () => {
                   name="marketing"
                   checked={formData.notifications.marketing}
                   onChange={handleNotificationChange}
-                  className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-600 transition-colors" 
+                  className="w-4 h-4 text-av-orange border-slate-300 rounded focus:ring-av-orange transition-colors" 
                 />
                 <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">Marketing and promotional emails</span>
               </label>
@@ -142,7 +142,7 @@ const SettingsPage = () => {
             <p className="text-sm text-slate-500 mb-4">Manage your password and security preferences.</p>
             <button 
               onClick={() => setShowPasswordModal(true)}
-              className="text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-lg transition-colors"
+              className="text-sm font-bold text-av-orange hover:text-av-orange-hover bg-av-orange-light px-4 py-2 rounded-lg transition-colors"
             >
               Change Password
             </button>
@@ -157,7 +157,7 @@ const SettingsPage = () => {
           <div className="flex-1">
             <h3 className="text-base font-bold text-slate-900">Regional Preferences</h3>
             <p className="text-sm text-slate-500 mb-4">Set your default language and timezone.</p>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Language</label>
@@ -165,7 +165,7 @@ const SettingsPage = () => {
                   name="language"
                   value={formData.preferences.language}
                   onChange={handlePreferenceChange}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all cursor-pointer"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-all cursor-pointer"
                 >
                   <option value="English (US)">English (US)</option>
                   <option value="Spanish">Spanish</option>
@@ -181,7 +181,7 @@ const SettingsPage = () => {
                   name="timezone"
                   value={formData.preferences.timezone}
                   onChange={handlePreferenceChange}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all cursor-pointer"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-all cursor-pointer"
                 >
                   <option value="UTC (GMT+0)">UTC (GMT+0)</option>
                   <option value="EST (GMT-5)">EST (GMT-5)</option>
@@ -209,7 +209,7 @@ const SettingsPage = () => {
       {/* Change Password Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200">
+          <div className="bg-white rounded-[16px] shadow-xl max-w-md w-full overflow-hidden border border-slate-200">
             <div className="p-6 border-b border-slate-100">
               <h3 className="text-lg font-bold text-slate-900">Change Password</h3>
               <p className="text-sm text-slate-500">Enter your current password and a new one below.</p>
@@ -221,7 +221,7 @@ const SettingsPage = () => {
                   type="password"
                   value={passwordData.currentPassword}
                   onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange outline-none transition-all"
                   required
                 />
               </div>
@@ -231,7 +231,7 @@ const SettingsPage = () => {
                   type="password"
                   value={passwordData.newPassword}
                   onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange outline-none transition-all"
                   required
                 />
               </div>
@@ -241,7 +241,7 @@ const SettingsPage = () => {
                   type="password"
                   value={passwordData.confirmPassword}
                   onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange outline-none transition-all"
                   required
                 />
               </div>
@@ -256,7 +256,7 @@ const SettingsPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+                  className="bg-av-orange text-white px-6 py-2 rounded-lg font-bold hover:bg-av-orange-hover transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
                 >
                   {loading && <Loader2 size={16} className="animate-spin" />}
                   Update Password

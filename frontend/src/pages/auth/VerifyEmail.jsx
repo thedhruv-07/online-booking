@@ -43,7 +43,7 @@ const VerifyEmail = () => {
   };
 
   const handleResend = async () => {
-    // In production, call API to resend verification email
+
     alert('Verification email resent! (Demo)');
   };
 
@@ -64,7 +64,7 @@ const VerifyEmail = () => {
             Resend Verification Email
           </Button>
           <p className="mt-4">
-            <Link to="/login" className="text-blue-600 hover:text-blue-500">
+            <Link to="/login" className="text-av-navy hover:text-blue-500">
               Return to Login
             </Link>
           </p>
@@ -119,7 +119,7 @@ const VerifyEmail = () => {
             Resend Verification Email
           </Button>
           <p className="mt-4">
-            <Link to="/login" className="text-blue-600 hover:text-blue-500">
+            <Link to="/login" className="text-av-navy hover:text-blue-500">
               Return to Login
             </Link>
           </p>

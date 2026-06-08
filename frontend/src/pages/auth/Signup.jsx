@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../store/authStore';
 import { getCountries } from '../../utils/geoData';
-import AuthNavbar from '../../components/layout/AuthNavbar';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -65,12 +64,12 @@ const Signup = () => {
           </div>
           <h2 className="text-3xl font-bold text-slate-900 mb-4">Check your email</h2>
           <p className="text-slate-500 font-medium mb-8">
-            We've sent a verification link to <span className="text-indigo-600 font-bold">{formData.email}</span>. 
+            We've sent a verification link to <span className="text-av-orange font-bold">{formData.email}</span>. 
             Please verify your account to continue.
           </p>
           <Link 
             to="/login" 
-            className="inline-flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-700 text-lg transition-colors"
+            className="inline-flex items-center gap-2 text-av-orange font-bold hover:text-av-orange-hover text-lg transition-colors"
           >
             Return to Login
           </Link>
@@ -81,11 +80,10 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 pt-24 pb-12">
-      <AuthNavbar />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-2xl w-full bg-white rounded-xl shadow-lg border border-slate-200 p-8 sm:p-12"
+        className="max-w-2xl w-full bg-white rounded-[16px] shadow-lg border border-slate-200 p-8 sm:p-12"
       >
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-slate-800 mb-6">Registration</h1>
@@ -119,7 +117,7 @@ const Signup = () => {
               value={formData.firstName}
               onChange={handleChange}
               placeholder="Enter first name ..."
-              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-colors"
               required
             />
           </div>
@@ -135,7 +133,7 @@ const Signup = () => {
               value={formData.lastName}
               onChange={handleChange}
               placeholder="Enter last name ..."
-              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-colors"
               required
             />
           </div>
@@ -151,7 +149,7 @@ const Signup = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email id ..."
-              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-colors"
               required
             />
           </div>
@@ -168,7 +166,7 @@ const Signup = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password ..."
-                className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+                className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-colors"
                 required
               />
               <div className="flex items-center gap-2 mt-2">
@@ -177,7 +175,7 @@ const Signup = () => {
                   id="showPassword"
                   checked={showPassword}
                   onChange={(e) => setShowPassword(e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                  className="w-4 h-4 text-av-orange border-slate-300 rounded focus:ring-av-orange cursor-pointer"
                 />
                 <label htmlFor="showPassword" className="text-sm text-slate-600 cursor-pointer">
                   Show Password
@@ -195,7 +193,7 @@ const Signup = () => {
               name="country"
               value={formData.country}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors appearance-none"
+              className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-colors appearance-none"
               required
             >
               <option value="">Select Country</option>
@@ -211,7 +209,7 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
-              className="bg-indigo-600 text-white px-10 py-3 rounded font-bold hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all flex items-center justify-center gap-2"
+              className="bg-av-orange text-white px-10 py-3 rounded font-bold hover:bg-av-orange-hover focus:ring-4 focus:ring-av-orange/20 transition-all flex items-center justify-center gap-2"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Register'}
             </button>
@@ -220,7 +218,7 @@ const Signup = () => {
 
         <p className="text-center mt-8 text-slate-500 text-sm">
           Already have an account?{' '}
-          <Link to="/login" className="text-indigo-600 font-bold hover:text-indigo-700">
+          <Link to="/login" className="text-av-orange font-bold hover:text-av-orange-hover">
             Sign In
           </Link>
         </p>

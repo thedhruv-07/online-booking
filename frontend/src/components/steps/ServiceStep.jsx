@@ -28,7 +28,7 @@ const serviceIcons = {
 
 const ServiceStep = () => {
   const { updateStepData, bookingData, nextStep } = useBooking();
-  
+
   const [selectedServices, setSelectedServices] = useState(bookingData.service?.selected || []);
   const [openCategories, setOpenCategories] = useState(['Inspection+', 'Inspection', 'Audit']);
   const [locationData, setLocationData] = useState({ 
@@ -75,12 +75,12 @@ const ServiceStep = () => {
 
   const handleBundleSelect = (bundle) => {
     const allIncludedSelected = bundle.includes.every(id => selectedServices.includes(id));
-    
+
     if (allIncludedSelected) {
-      // If all are selected, deselect them all
+
       setSelectedServices(prev => prev.filter(id => !bundle.includes.includes(id)));
     } else {
-      // If some/none are selected, select them all (avoid duplicates)
+
       setSelectedServices(prev => [...new Set([...prev, ...bundle.includes])]);
     }
   };
@@ -116,9 +116,9 @@ const ServiceStep = () => {
       </div>
 
       {/* Location Selector */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-[16px] p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
+          <div className="w-10 h-10 bg-av-orange-light rounded-full flex items-center justify-center text-av-orange">
             <Globe size={20} />
           </div>
           <div>
@@ -137,7 +137,7 @@ const ServiceStep = () => {
             <select
               value={locationData.country}
               onChange={handleCountryChange}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
+              className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-av-orange/20 transition-all cursor-pointer"
             >
               <option value="US">Standard (Global / US)</option>
               <optgroup label="Covered Regions">
@@ -163,7 +163,7 @@ const ServiceStep = () => {
           const isOpen = openCategories.includes(category);
 
           return (
-            <div key={category} className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+            <div key={category} className="border border-slate-200 rounded-[16px] overflow-hidden bg-white shadow-sm">
               <button 
                 onClick={() => toggleCategory(category)}
                 className="w-full flex items-center justify-between p-6 bg-slate-50 hover:bg-slate-100 transition-colors border-b border-slate-100"
@@ -176,7 +176,7 @@ const ServiceStep = () => {
                 </div>
                 <ChevronDown className={cn("text-slate-500 transition-transform duration-300", isOpen && "rotate-180")} />
               </button>
-              
+
               <AnimatePresence>
                 {isOpen && (
                   <motion.div 
@@ -198,17 +198,17 @@ const ServiceStep = () => {
                                 key={bundle.id}
                                 onClick={() => handleBundleSelect(bundle)}
                                 className={cn(
-                                  "flex flex-col sm:flex-row sm:items-center justify-between p-5 transition-colors border-b border-slate-50 cursor-pointer hover:bg-indigo-50/20",
-                                  isAllSelected && "bg-indigo-50/40"
+                                  "flex flex-col sm:flex-row sm:items-center justify-between p-5 transition-colors border-b border-slate-50 cursor-pointer hover:bg-av-orange-light/20",
+                                  isAllSelected && "bg-av-orange-light/40"
                                 )}
                               >
                                 <div className="flex items-start gap-4 mb-3 sm:mb-0">
                                   <div className="mt-1">
                                     {isAllSelected ? (
-                                      <CheckSquare size={20} className="text-indigo-600" />
+                                      <CheckSquare size={20} className="text-av-orange" />
                                     ) : someSelected ? (
-                                      <div className="w-5 h-5 bg-indigo-100 rounded flex items-center justify-center">
-                                         <div className="w-2.5 h-0.5 bg-indigo-600 rounded-full" />
+                                      <div className="w-5 h-5 bg-av-orange-light rounded flex items-center justify-center">
+                                         <div className="w-2.5 h-0.5 bg-av-orange rounded-full" />
                                       </div>
                                     ) : (
                                       <Square size={20} className="text-slate-300" />
@@ -241,13 +241,13 @@ const ServiceStep = () => {
                                 onClick={() => handleSelect(service.id)}
                                 className={cn(
                                   "flex flex-col sm:flex-row sm:items-center justify-between p-5 transition-colors border-b border-slate-50 last:border-b-0 cursor-pointer hover:bg-slate-50",
-                                  isSelected && "bg-indigo-50/30"
+                                  isSelected && "bg-av-orange-light/30"
                                 )}
                               >
                                 <div className="flex items-start gap-4 mb-3 sm:mb-0">
                                   <div className="mt-1">
                                     {isSelected ? (
-                                      <CheckSquare size={20} className="text-indigo-600" />
+                                      <CheckSquare size={20} className="text-av-orange" />
                                     ) : (
                                       <Square size={20} className="text-slate-300" />
                                     )}
@@ -255,7 +255,7 @@ const ServiceStep = () => {
                                   <div>
                                     <h4 className={cn(
                                       "text-base font-bold",
-                                      isSelected ? "text-indigo-900" : "text-slate-700"
+                                      isSelected ? "text-av-navy" : "text-slate-700"
                                     )}>
                                       {service.name}
                                     </h4>
@@ -266,7 +266,7 @@ const ServiceStep = () => {
                                 <div className="sm:ml-4 flex items-center shrink-0">
                                     <div className={cn(
                                       "font-bold text-lg",
-                                      isSelected ? "text-indigo-700" : "text-slate-700"
+                                      isSelected ? "text-av-orange-hover" : "text-slate-700"
                                     )}>
                                       ${price}
                                     </div>
@@ -276,7 +276,7 @@ const ServiceStep = () => {
                           })}
                         </>
                       ) : (
-                        // Render Individual Services
+
                         categoryServices.map((service) => {
                           const isSelected = selectedServices.includes(service.id);
                           const price = service.pricing[locationData.region];
@@ -287,13 +287,13 @@ const ServiceStep = () => {
                               onClick={() => handleSelect(service.id)}
                               className={cn(
                                 "flex flex-col sm:flex-row sm:items-center justify-between p-5 transition-colors border-b border-slate-50 last:border-b-0 cursor-pointer hover:bg-slate-50",
-                                isSelected && "bg-indigo-50/30"
+                                isSelected && "bg-av-orange-light/30"
                               )}
                             >
                               <div className="flex items-start gap-4 mb-3 sm:mb-0">
                                 <div className="mt-1">
                                   {isSelected ? (
-                                    <CheckSquare size={20} className="text-indigo-600" />
+                                    <CheckSquare size={20} className="text-av-orange" />
                                   ) : (
                                     <Square size={20} className="text-slate-300" />
                                   )}
@@ -301,7 +301,7 @@ const ServiceStep = () => {
                                 <div>
                                   <h4 className={cn(
                                     "text-base font-bold",
-                                    isSelected ? "text-indigo-900" : "text-slate-700"
+                                    isSelected ? "text-av-navy" : "text-slate-700"
                                   )}>
                                     {service.name}
                                   </h4>
@@ -312,7 +312,7 @@ const ServiceStep = () => {
                               <div className="sm:ml-4 flex items-center shrink-0">
                                   <div className={cn(
                                     "font-bold text-lg",
-                                    isSelected ? "text-indigo-700" : "text-slate-700"
+                                    isSelected ? "text-av-orange-hover" : "text-slate-700"
                                   )}>
                                     ${price}
                                   </div>
@@ -335,7 +335,7 @@ const ServiceStep = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 transition-transform group-hover:scale-110 duration-300">
+              <div className="w-12 h-12 bg-av-orange-light rounded-[16px] flex items-center justify-center text-av-orange transition-transform group-hover:scale-110 duration-300">
                 <CheckCircle2 size={24} />
               </div>
               <div>
@@ -350,7 +350,7 @@ const ServiceStep = () => {
             </div>
 
             {pricingResult.discount > 0 && (
-              <div className="bg-emerald-50 border border-emerald-100/50 px-4 py-2 rounded-xl flex items-center gap-3">
+              <div className="bg-emerald-50 border border-emerald-100/50 px-4 py-2 rounded-[16px] flex items-center gap-3">
                 <Tag size={16} className="text-emerald-600" />
                 <div className="flex flex-col">
                   <span className="text-emerald-700 font-bold text-xs leading-none">BUNDLE DISCOUNT</span>
@@ -359,14 +359,14 @@ const ServiceStep = () => {
               </div>
             )}
           </div>
-          
+
           <button
             onClick={handleNext}
             disabled={selectedServices.length === 0}
             className={cn(
-              "w-full md:w-auto px-10 py-4 rounded-2xl font-bold text-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed",
+              "w-full md:w-auto px-10 py-4 rounded-[16px] font-bold text-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed",
               selectedServices.length > 0 
-                ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20" 
+                ? "bg-av-orange hover:bg-av-orange-hover text-white shadow-lg shadow-av-orange/20" 
                 : "bg-slate-100 text-slate-400"
             )}
           >
@@ -374,9 +374,6 @@ const ServiceStep = () => {
           </button>
         </div>
       </div>
-
-
-
 
     </div>
   );

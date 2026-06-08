@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../../services/auth.service';
 
-
 /**
  * Admin Users Page - User management
  */
@@ -23,7 +22,6 @@ const Users = () => {
 
     fetchUsers();
   }, []);
-
 
   const getRoleBadge = (role) => {
     const styles = {

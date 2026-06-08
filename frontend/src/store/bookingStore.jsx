@@ -10,7 +10,6 @@ import { bookingService } from '../services/booking.service';
 import { BOOKING_STEPS } from '../utils/constants';
 import { showNotification } from '../utils/helpers';
 
-// Initial state
 const initialState = {
   currentStep: 0,
   steps: BOOKING_STEPS,
@@ -39,7 +38,6 @@ const initialState = {
   isValidating: false,
 };
 
-// Action types
 const BOOKING_ACTIONS = {
   SET_STEP: 'SET_STEP',
   NEXT_STEP: 'NEXT_STEP',
@@ -60,8 +58,6 @@ const BOOKING_ACTIONS = {
   SET_LOADING: 'SET_LOADING',
 };
 
-
-// Reducer
 function bookingReducer(state, action) {
   switch (action.type) {
     case BOOKING_ACTIONS.SET_STEP:
@@ -168,8 +164,6 @@ function bookingReducer(state, action) {
   }
 }
 
-
-// Context
 const BookingContext = createContext(null);
 
 /**
@@ -219,12 +213,10 @@ export function BookingProvider({ children }) {
     return false;
   };
 
-  // Initial data loading
   useEffect(() => {
     loadDraft();
   }, []);
 
-  // Save draft to localStorage on data change
   useEffect(() => {
     const timer = setTimeout(() => {
       if (hasData(state.bookingData)) {
@@ -333,9 +325,8 @@ export function BookingProvider({ children }) {
         ...overrides,
       };
 
-      // Validate all steps before submitting
       for (const step of state.steps) {
-        // Skip validation for overview and payment as they are final stages
+
         if (['overview', 'payment'].includes(step.route)) continue;
 
         let stepData;
@@ -350,11 +341,10 @@ export function BookingProvider({ children }) {
         }
       }
 
-      // Clean and validate files data before submission
       let sanitizedFiles = [];
       if (Array.isArray(mergedData.files)) {
         sanitizedFiles = mergedData.files
-          .filter(f => f && typeof f === 'object') // Ensure we only have objects
+          .filter(f => f && typeof f === 'object') 
           .map(({ file, ...rest }) => ({
             id: rest.id || `file_${Date.now()}`,
             name: rest.name || 'document',
@@ -374,12 +364,10 @@ export function BookingProvider({ children }) {
         savedDraftId: state.savedDraftId,
       });
 
-      // Clear draft after successful submission
       localStorage.removeItem('bookingDraft');
 
       showNotification('Booking created successfully!', 'success');
 
-      // Extract the actual booking object from the { success: true, data: booking } response
       const createdBooking = response.data || response;
 
       return { success: true, booking: createdBooking };
@@ -400,7 +388,7 @@ export function BookingProvider({ children }) {
     try {
       await bookingService.deleteBooking(bookingId);
       showNotification('Booking deleted successfully!', 'success');
-      // Refresh the list
+
       await fetchBookings();
       return { success: true };
     } catch (error) {
@@ -427,7 +415,6 @@ export function BookingProvider({ children }) {
     loadDraft,
     clearDraft,
   };
-
 
   return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;
 }

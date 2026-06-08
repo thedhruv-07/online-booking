@@ -21,7 +21,6 @@ const Payments = () => {
     fetchPayments();
   }, []);
 
-
   const getStatusColor = (status) => {
     const colors = {
       paid: 'bg-green-100 text-green-800',
@@ -31,8 +30,6 @@ const Payments = () => {
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
-
-
 
   const totalRevenue = payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
   const pendingPayments = payments.filter(p => p.status === 'pending');

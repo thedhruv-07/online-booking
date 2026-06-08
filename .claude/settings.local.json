@@ -4,7 +4,10 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(npx eslint *)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(cat backend/.gitignore)",
+      "Bash(cat .gitignore)",
+      "PowerShell(Get-ChildItem C:\\\\Users\\\\dhruv\\\\ -Depth 2 -Directory | Where-Object { $_.Name -match \"linkedin|agent|content\" } | Select-Object FullName)"
     ]
   }
 }

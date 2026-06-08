@@ -3,7 +3,6 @@ const path = require('path');
 
 let cachedTransporter = null;
 
-// Create transporter
 const createTransporter = async () => {
   if (cachedTransporter) return cachedTransporter;
 
@@ -38,7 +37,6 @@ const createTransporter = async () => {
     }
   }
 
-  // Fallback to Ethereal
   const testAccount = await nodemailer.createTestAccount();
   cachedTransporter = nodemailer.createTransport({
     host: 'smtp.ethereal.email',
@@ -59,7 +57,7 @@ const sendEmail = async ({ to, subject, html, attachments }) => {
   try {
     const transporter = await createTransporter();
     const from = process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@bookingapp.com';
-    
+
     const info = await transporter.sendMail({
       from,
       to,
@@ -84,7 +82,7 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
   const companyName = 'Absolute Veritas';
   const appUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
   const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
-  const logoUrl = 'cid:company-logo'; // Use CID for inline image
+  const logoUrl = 'cid:company-logo'; 
   const logoPath = path.join(__dirname, '..', '..', 'frontend', 'public', 'company-logo.png');
 
   const formatDate = (dateString) => {
@@ -95,7 +93,6 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
     });
   };
 
-  // --- ADMIN EMAIL HTML (Data Dense) ---
   const adminHtmlContent = `
     <div style="font-family: Arial, sans-serif; padding: 20px;">
       <h2>New Booking Received</h2>
@@ -107,8 +104,6 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
     </div>
   `;
 
-  // --- USER EMAIL HTML (Premium SaaS Template) ---
-  // AQL Data Extraction
   const lotSize = booking.aql?.lotSize || 'N/A';
   const strictness = booking.aql?.strictnessMode ? booking.aql.strictnessMode.charAt(0).toUpperCase() + booking.aql.strictnessMode.slice(1) : 'Standard';
   const quality = booking.aql?.qualityMode ? booking.aql.qualityMode.charAt(0).toUpperCase() + booking.aql.qualityMode.slice(1) : 'Standard';
@@ -129,27 +124,27 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
   .title { margin: 0; font-size: 28px; font-weight: 800; color: #111827; letter-spacing: -0.5px; }
   .subtitle { margin: 10px 0 0; font-size: 16px; color: #6b7280; line-height: 1.5; }
   .content { padding: 40px; }
-  
+
   .summary-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 32px; }
-  .summary-title { margin: 0 0 16px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #4f46e5; }
+  .summary-title { margin: 0 0 16px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #0B3A70; }
   .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; }
   .summary-label { color: #64748b; font-weight: 500; padding-bottom: 12px; }
   .summary-val { color: #0f172a; font-weight: 600; text-align: right; padding-bottom: 12px; }
   .badge-green { background-color: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; display: inline-block; }
-  
+
   .section { margin-bottom: 32px; }
   .section-title { margin: 0 0 16px; font-size: 18px; font-weight: 700; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
   .data-table { width: 100%; border-collapse: collapse; }
   .data-table td { padding: 10px 0; font-size: 15px; border-bottom: 1px solid #f1f5f9; }
   .data-table td:first-child { color: #64748b; width: 40%; }
   .data-table td:last-child { color: #0f172a; font-weight: 500; }
-  
-  .inspection-note { background-color: #eef2ff; border-left: 4px solid #4f46e5; padding: 16px; border-radius: 0 8px 8px 0; margin-top: 16px; font-size: 14px; color: #3730a3; font-weight: 500; line-height: 1.5; }
-  
+
+  .inspection-note { background-color: #EAF1F8; border-left: 4px solid #0B3A70; padding: 16px; border-radius: 0 8px 8px 0; margin-top: 16px; font-size: 14px; color: #0B3A70; font-weight: 500; line-height: 1.5; }
+
   .actions { padding: 0 40px 40px; text-align: center; }
-  .btn-primary { display: inline-block; background-color: #4f46e5; color: #ffffff !important; text-decoration: none; padding: 10px 22px; border-radius: 6px; font-weight: 500; margin: 0 4px 12px; text-align: center; font-size: 14px; }
+  .btn-primary { display: inline-block; background-color: #F58220; color: #ffffff !important; text-decoration: none; padding: 10px 22px; border-radius: 6px; font-weight: 500; margin: 0 4px 12px; text-align: center; font-size: 14px; }
   .btn-secondary { display: inline-block; background-color: #f8fafc; color: #475569 !important; text-decoration: none; padding: 10px 22px; border-radius: 6px; font-weight: 500; margin: 0 4px 12px; text-align: center; font-size: 14px; border: 1px solid #e2e8f0; }
-  
+
   .footer { text-align: center; padding: 30px 40px; color: #94a3b8; font-size: 13px; line-height: 1.6; }
   .footer a { color: #64748b; text-decoration: underline; }
 </style>
@@ -168,7 +163,7 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
       </tr>
       <tr>
         <td class="content">
-          
+
           <!-- Primary Summary Card -->
           <div class="summary-card">
             <h2 class="summary-title">📦 Booking Summary</h2>
@@ -206,7 +201,7 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
           <div class="section">
             <h3 class="section-title">💳 Payment Summary</h3>
             <table class="data-table">
-              <tr><td>Amount Paid</td><td style="font-weight: 700; color: #4f46e5;">$${payment.amount?.toFixed(2) || '0.00'}</td></tr>
+              <tr><td>Amount Paid</td><td style="font-weight: 700; color: #F58220;">$${payment.amount?.toFixed(2) || '0.00'}</td></tr>
               <tr><td>Payment Method</td><td>${payment.method.replace('_', ' ').toUpperCase()}</td></tr>
               <tr><td>Status</td><td><span class="badge-green">COMPLETED</span></td></tr>
             </table>
@@ -221,7 +216,7 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
               <tr><td>Quality Level</td><td>${quality} Quality</td></tr>
               <tr><td>Sample Size</td><td style="font-weight: 700;">${sampleSize} units</td></tr>
             </table>
-            
+
             <div class="inspection-note">
               <strong>Note:</strong> Our certified inspector will randomly select and thoroughly check ${sampleSize} units from your batch based on your selected quality standards.
             </div>
@@ -232,7 +227,7 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
       <tr>
         <td class="actions">
           <a href="${appUrl}/dashboard/bookings/${booking._id}" class="btn-primary" style="color: white !important;">View Booking</a>
-          <a href="${backendUrl}/api/invoice/download/${booking._id}" class="btn-secondary" style="color: #4f46e5 !important;">Download Invoice</a>
+          <a href="${backendUrl}/api/invoice/download/${booking._id}" class="btn-secondary" style="color: #0B3A70 !important;">Download Invoice</a>
         </td>
       </tr>
       <tr>
@@ -248,7 +243,6 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
 </html>
   `;
 
-  // 1. Send to Admin
   if (adminEmail) {
     await sendEmail({
       to: adminEmail,
@@ -264,7 +258,6 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
     });
   }
 
-  // 2. Send to User
   await sendEmail({
     to: user.email,
     subject: `✅ Booking Confirmed - ID: ${booking._id}`,
@@ -293,7 +286,6 @@ const sendBookingReceiptEmail = async ({ user, booking, receiptPath }) => {
     return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
-  // --- Admin email (with receipt attachment) ---
   if (adminEmail) {
     const adminHtml = `
       <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
@@ -323,7 +315,6 @@ const sendBookingReceiptEmail = async ({ user, booking, receiptPath }) => {
     }
   }
 
-  // --- Client email (no attachment) ---
   const clientEmail = booking.userId?.email || user.email;
   const clientName = booking.userId?.name || user.name;
   const clientHtml = `

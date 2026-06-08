@@ -18,8 +18,8 @@ const PaymentStep = () => {
   const { bookingData, clearDraft } = useBooking();
   const navigate = useNavigate();
 
-  const [paymentMethod, setPaymentMethod] = useState(null); // 'razorpay' | 'bank_transfer'
-  const [stage, setStage] = useState('select');             // 'select' | 'details' | 'upload'
+  const [paymentMethod, setPaymentMethod] = useState(null); 
+  const [stage, setStage] = useState('select');             
   const [receiptFile, setReceiptFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -35,7 +35,7 @@ const PaymentStep = () => {
         <p className="text-slate-600 font-medium">Booking reference not found. Please restart the booking process.</p>
         <button
           onClick={() => navigate('/booking/create')}
-          className="text-indigo-600 font-bold hover:underline"
+          className="text-av-orange font-bold hover:underline"
         >
           Start New Booking
         </button>
@@ -85,7 +85,6 @@ const PaymentStep = () => {
     finishAndNavigate();
   };
 
-  // ─── Stage: select ────────────────────────────────────────────────────────
   if (stage === 'select') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] py-16 space-y-8 max-w-xl mx-auto">
@@ -98,34 +97,34 @@ const PaymentStep = () => {
           {/* Pay Online */}
           <button
             onClick={() => { setPaymentMethod('razorpay'); setStage('details'); }}
-            className="w-full p-6 bg-white border-2 border-slate-200 rounded-3xl text-left hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-50 transition-all group"
+            className="w-full p-6 bg-white border-2 border-slate-200 rounded-3xl text-left hover:border-av-orange hover:shadow-lg hover:shadow-av-orange-light transition-all group"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-                <CreditCard size={24} className="text-indigo-600" />
+              <div className="w-12 h-12 bg-av-orange-light rounded-[16px] flex items-center justify-center group-hover:bg-av-orange-light transition-colors">
+                <CreditCard size={24} className="text-av-orange" />
               </div>
               <div>
                 <div className="font-black text-slate-900 text-lg">Pay Online</div>
                 <div className="text-sm text-slate-500 font-medium">Razorpay / UPI / Net Banking / Card</div>
               </div>
-              <ArrowRight size={20} className="ml-auto text-slate-300 group-hover:text-indigo-500 transition-colors" />
+              <ArrowRight size={20} className="ml-auto text-slate-300 group-hover:text-av-orange-light0 transition-colors" />
             </div>
           </button>
 
           {/* Bank Transfer */}
           <button
             onClick={() => { setPaymentMethod('bank_transfer'); setStage('details'); }}
-            className="w-full p-6 bg-white border-2 border-slate-200 rounded-3xl text-left hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-50 transition-all group"
+            className="w-full p-6 bg-white border-2 border-slate-200 rounded-3xl text-left hover:border-av-orange hover:shadow-lg hover:shadow-av-orange-light transition-all group"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+              <div className="w-12 h-12 bg-emerald-50 rounded-[16px] flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
                 <Building2 size={24} className="text-emerald-600" />
               </div>
               <div>
                 <div className="font-black text-slate-900 text-lg">Bank Transfer</div>
                 <div className="text-sm text-slate-500 font-medium">Direct transfer with receipt upload</div>
               </div>
-              <ArrowRight size={20} className="ml-auto text-slate-300 group-hover:text-indigo-500 transition-colors" />
+              <ArrowRight size={20} className="ml-auto text-slate-300 group-hover:text-av-orange-light0 transition-colors" />
             </div>
           </button>
         </div>
@@ -133,7 +132,6 @@ const PaymentStep = () => {
     );
   }
 
-  // ─── Stage: details ───────────────────────────────────────────────────────
   if (stage === 'details') {
     return (
       <div className="flex flex-col items-center min-h-[60vh] py-16 space-y-8 max-w-xl mx-auto">
@@ -151,7 +149,7 @@ const PaymentStep = () => {
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
               <Hash size={12} /> Booking Reference
             </span>
-            <span className="font-black text-indigo-600 text-lg">{shortId}</span>
+            <span className="font-black text-av-orange text-lg">{shortId}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-500 font-medium">Service</span>
@@ -166,7 +164,7 @@ const PaymentStep = () => {
         {/* Razorpay details */}
         {paymentMethod === 'razorpay' && (
           <>
-            <div className="w-full bg-amber-50 border border-amber-100 rounded-2xl p-5">
+            <div className="w-full bg-amber-50 border border-amber-100 rounded-[16px] p-5">
               <p className="text-sm font-bold text-amber-800 mb-2">How to complete payment:</p>
               <ol className="text-sm text-amber-700 space-y-1 list-decimal ml-4 font-medium">
                 <li>Click <strong>"Proceed to Payment"</strong> below</li>
@@ -180,13 +178,13 @@ const PaymentStep = () => {
                 href="https://absoluteveritas.com/online_payment.php"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                className="w-full flex items-center justify-center gap-2 bg-av-orange text-white py-4 rounded-[16px] font-bold text-lg hover:bg-av-orange-hover transition-all shadow-lg shadow-av-orange/20"
               >
                 Proceed to Payment <ExternalLink size={18} />
               </a>
               <button
                 onClick={() => setStage('upload')}
-                className="w-full flex items-center justify-center gap-2 bg-slate-100 text-slate-700 py-3.5 rounded-2xl font-bold hover:bg-slate-200 transition-all"
+                className="w-full flex items-center justify-center gap-2 bg-slate-100 text-slate-700 py-3.5 rounded-[16px] font-bold hover:bg-slate-200 transition-all"
               >
                 I've completed payment <ArrowRight size={16} />
               </button>
@@ -208,7 +206,7 @@ const PaymentStep = () => {
             </div>
             <button
               onClick={() => setStage('upload')}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+              className="w-full flex items-center justify-center gap-2 bg-av-orange text-white py-4 rounded-[16px] font-bold text-lg hover:bg-av-orange-hover transition-all shadow-lg shadow-av-orange/20"
             >
               I've transferred the payment <ArrowRight size={18} />
             </button>
@@ -216,13 +214,12 @@ const PaymentStep = () => {
         )}
 
         <p className="text-xs text-slate-400 font-medium">
-          Questions? Contact <span className="text-indigo-500">finance@absoluteveritas.com</span>
+          Questions? Contact <span className="text-av-orange-light0">finance@absoluteveritas.com</span>
         </p>
       </div>
     );
   }
 
-  // ─── Stage: upload ────────────────────────────────────────────────────────
   if (stage === 'upload') {
     const isRequired = paymentMethod === 'bank_transfer';
     return (
@@ -256,7 +253,7 @@ const PaymentStep = () => {
           />
           <label
             htmlFor="receipt-upload-input"
-            className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-50 hover:border-indigo-400 transition-all"
+            className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-slate-200 rounded-[16px] cursor-pointer hover:bg-slate-50 hover:border-av-orange/60 transition-all"
           >
             <Upload size={24} className="text-slate-400 mb-2" />
             <p className="text-sm font-bold text-slate-700">
@@ -274,7 +271,7 @@ const PaymentStep = () => {
           <button
             onClick={handleUploadAndFinish}
             disabled={isUploading || !receiptFile}
-            className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 bg-av-orange text-white py-4 rounded-[16px] font-bold text-lg hover:bg-av-orange-hover transition-all shadow-lg shadow-av-orange/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? (
               <>

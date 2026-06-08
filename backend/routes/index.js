@@ -22,9 +22,6 @@ router.use('/invoice', invoiceRoutes);
 router.use('/location', locationRoutes);
 router.use('/user', userRoutes);
 
-// (debug routes removed)
-
-// Health check endpoint
 router.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });

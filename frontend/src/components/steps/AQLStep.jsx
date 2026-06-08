@@ -14,7 +14,7 @@ import { cn } from '../../utils/cn';
 
 const AQLStep = () => {
   const { updateStepData, bookingData, prevStep, nextStep } = useBooking();
-  
+
   const [form, setForm] = useState({
     inspectionType: bookingData.aql?.inspectionType || 'General',
     inspectionLevel: bookingData.aql?.inspectionLevel || 'II',
@@ -35,7 +35,7 @@ const AQLStep = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    // Debounce the calculation
+
     const timer = setTimeout(() => {
       const lotSize = Number(form.lotSize);
       const piecesPerSet = form.unitType === 'Pieces' ? 1 : Number(form.piecesPerSet);
@@ -101,14 +101,14 @@ const AQLStep = () => {
     <div className="space-y-12">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto mb-10">
-        <div className="mx-auto w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-indigo-100">
+        <div className="mx-auto w-16 h-16 bg-av-orange-light text-av-orange rounded-[16px] flex items-center justify-center mb-6 shadow-sm border border-av-orange/20">
           <Calculator size={32} />
         </div>
         <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">AQL Configuration</h2>
         <p className="text-slate-500 font-medium leading-relaxed group relative inline-flex items-center gap-2 cursor-help">
           Configure your ISO 2859-1 Acceptable Quality Limit
-          <Info size={16} className="text-indigo-400" />
-          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-900 text-white text-xs rounded-xl p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 shadow-xl pointer-events-none">
+          <Info size={16} className="text-av-orange/60" />
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-900 text-white text-xs rounded-[16px] p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 shadow-xl pointer-events-none">
             AQL is based on the internationally recognized ISO 2859-1 standard for quality control sampling.
           </span>
         </p>
@@ -142,7 +142,7 @@ const AQLStep = () => {
                 { value: 'Special', label: 'Special' }
               ]}
             />
-            
+
             <Select
               label="Inspection Level"
               name="inspectionLevel"
@@ -237,17 +237,17 @@ const AQLStep = () => {
 
         {/* Bottom: Results Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto w-full">
-          <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl text-center shadow-sm relative overflow-hidden group">
-            <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest block mb-1">Sample Size</span>
+          <div className="bg-av-orange-light border border-av-orange/20 p-4 rounded-[16px] text-center shadow-sm relative overflow-hidden group">
+            <span className="text-[10px] font-bold text-av-orange uppercase tracking-widest block mb-1">Sample Size</span>
             <div className="text-3xl font-black text-slate-900 tracking-tight">
               {result.sampleSize > 0 ? result.sampleSize : '-'}
             </div>
             {result.codeLetter !== '-' && (
-              <span className="text-[10px] text-indigo-500 font-bold mt-1 block bg-white/50 w-max mx-auto px-2 py-0.5 rounded-full">Code Letter: {result.codeLetter}</span>
+              <span className="text-[10px] text-av-orange-light0 font-bold mt-1 block bg-white/50 w-max mx-auto px-2 py-0.5 rounded-full">Code Letter: {result.codeLetter}</span>
             )}
           </div>
 
-          <div className="bg-rose-50 border border-rose-100 p-4 rounded-2xl text-center shadow-sm relative overflow-hidden group">
+          <div className="bg-rose-50 border border-rose-100 p-4 rounded-[16px] text-center shadow-sm relative overflow-hidden group">
             <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest block mb-1">Major Defects</span>
             <div className="text-3xl font-black text-slate-900 tracking-tight">
               {result.sampleSize > 0 ? result.major : '-'}
@@ -255,7 +255,7 @@ const AQLStep = () => {
             <span className="text-[10px] text-rose-500 font-bold mt-1 block bg-white/50 w-max mx-auto px-2 py-0.5 rounded-full">Allowed</span>
           </div>
 
-          <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl text-center shadow-sm relative overflow-hidden group">
+          <div className="bg-amber-50 border border-amber-100 p-4 rounded-[16px] text-center shadow-sm relative overflow-hidden group">
             <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest block mb-1">Minor Defects</span>
             <div className="text-3xl font-black text-slate-900 tracking-tight">
               {result.sampleSize > 0 ? result.minor : '-'}

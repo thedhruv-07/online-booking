@@ -6,7 +6,6 @@ import { createContext, useContext, useReducer, useEffect } from 'react';
 import { authService } from '../services/auth.service';
 import { showNotification } from '../utils/helpers';
 
-// Initial state
 const initialState = {
   user: null,
   isAuthenticated: false,
@@ -14,7 +13,6 @@ const initialState = {
   error: null,
 };
 
-// Action types
 const AUTH_ACTIONS = {
   LOGIN_START: 'LOGIN_START',
   LOGIN_SUCCESS: 'LOGIN_SUCCESS',
@@ -37,7 +35,6 @@ const AUTH_ACTIONS = {
   RESET_PASSWORD_FAILURE: 'RESET_PASSWORD_FAILURE',
 };
 
-// Reducer
 function authReducer(state, action) {
   switch (action.type) {
     case AUTH_ACTIONS.LOGIN_START:
@@ -102,7 +99,6 @@ function authReducer(state, action) {
   }
 }
 
-// Context
 const AuthContext = createContext(null);
 
 /**
@@ -111,7 +107,6 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Check for existing session
   useEffect(() => {
     checkAuth();
   }, []);
@@ -143,7 +138,7 @@ export function AuthProvider({ children }) {
     try {
       const response = await authService.getProfile();
       const user = response.user || response.data?.user;
-      
+
       if (user) {
         dispatch({
           type: AUTH_ACTIONS.LOGIN_SUCCESS,
@@ -345,7 +340,7 @@ export function AuthProvider({ children }) {
     try {
       const response = await authService.updateProfile(userData);
       const user = response.user || response.data?.user;
-      
+
       if (user) {
         dispatch({
           type: AUTH_ACTIONS.UPDATE_USER,

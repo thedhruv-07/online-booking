@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Direction</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e5e5e5; padding: 32px; min-height: 100vh; }
+  h1 { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #888; margin-bottom: 32px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+  .card {
+    border: 2px solid #2a2a2a;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    background: #1a1a1a;
+  }
+  .card:hover { border-color: #555; transform: translateY(-2px); }
+  .card.selected { border-color: #F58220; }
+
+  .preview {
+    height: 280px;
+    overflow: hidden;
+    position: relative;
+    background: #f8fafc;
+  }
+
+  .card-body { padding: 16px; border-top: 1px solid #2a2a2a; }
+  .card-body h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .card-body p { font-size: 12px; color: #888; line-height: 1.5; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .tag-rec { background: rgba(245,130,32,0.15); color: #F58220; }
+  .tag-bold { background: rgba(99,102,241,0.15); color: #818cf8; }
+  .tag-clean { background: rgba(34,197,94,0.15); color: #4ade80; }
+
+  .indicator {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1a1a1a; border: 1px solid #333; border-radius: 30px;
+    padding: 10px 24px; font-size: 13px; color: #888;
+  }
+  .indicator span { color: #F58220; font-weight: 600; }
+
+  /* ---- OPTION A: Corporate Minimal ---- */
+  .opt-a { background: #fff; height: 100%; display: flex; }
+  .opt-a .sidebar { width: 52px; background: #0B3A70; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 16px 0; gap: 20px; }
+  .opt-a .sidebar .dot { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+  .opt-a .sidebar .dot.active { background: #F58220; }
+  .opt-a .main { flex: 1; display: flex; flex-direction: column; }
+  .opt-a .topbar { height: 44px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; padding: 0 20px; gap: 12px; }
+  .opt-a .search { flex: 1; height: 28px; border-radius: 6px; background: #f3f4f6; }
+  .opt-a .avatar { width: 28px; height: 28px; border-radius: 50%; background: #0B3A70; }
+  .opt-a .content { padding: 20px; flex: 1; }
+  .opt-a .page-title { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px; font-family: 'Segoe UI'; }
+  .opt-a .page-sub { font-size: 10px; color: #6b7280; margin-bottom: 14px; }
+  .opt-a .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  .opt-a .stat { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; }
+  .opt-a .stat-val { font-size: 18px; font-weight: 700; color: #111; }
+  .opt-a .stat-label { font-size: 9px; color: #9ca3af; margin-top: 2px; }
+  .opt-a .table-header { font-size: 10px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px 6px 0 0; display: flex; gap: 12px; }
+  .opt-a .table-row { font-size: 10px; color: #374151; padding: 8px 12px; background: #fff; border: 1px solid #e5e7eb; border-top: none; display: flex; gap: 12px; align-items: center; }
+  .opt-a .badge { font-size: 9px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+  .opt-a .badge-p { background: #fef3c7; color: #92400e; }
+  .opt-a .badge-c { background: #d1fae5; color: #065f46; }
+  .opt-a .col1 { flex: 2; }
+  .opt-a .col2 { flex: 1.5; }
+  .opt-a .col3 { flex: 1; }
+  .opt-a .col4 { flex: 1; text-align: right; }
+
+  /* ---- OPTION B: Dark Enterprise ---- */
+  .opt-b { background: #0f172a; height: 100%; display: flex; }
+  .opt-b .sidebar { width: 180px; background: #0f172a; border-right: 1px solid #1e293b; height: 100%; padding: 16px; }
+  .opt-b .logo { font-size: 11px; font-weight: 700; color: #f1f5f9; margin-bottom: 20px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .opt-b .nav-item { padding: 7px 10px; border-radius: 6px; font-size: 10px; color: #64748b; display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+  .opt-b .nav-item.active { background: rgba(245,130,32,0.12); color: #F58220; }
+  .opt-b .nav-icon { width: 14px; height: 14px; border-radius: 3px; background: currentColor; opacity: 0.5; }
+  .opt-b .main { flex: 1; display: flex; flex-direction: column; }
+  .opt-b .topbar { height: 44px; border-bottom: 1px solid #1e293b; display: flex; align-items: center; padding: 0 16px; gap: 12px; }
+  .opt-b .search { flex: 1; height: 26px; border-radius: 5px; background: #1e293b; border: 1px solid #334155; }
+  .opt-b .avatar { width: 26px; height: 26px; border-radius: 50%; background: #F58220; }
+  .opt-b .content { padding: 16px; flex: 1; }
+  .opt-b .page-title { font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 2px; }
+  .opt-b .page-sub { font-size: 10px; color: #475569; margin-bottom: 12px; }
+  .opt-b .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+  .opt-b .stat { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; }
+  .opt-b .stat-val { font-size: 17px; font-weight: 700; color: #f1f5f9; }
+  .opt-b .stat-label { font-size: 9px; color: #64748b; margin-top: 2px; }
+  .opt-b .stat-orange { border-color: rgba(245,130,32,0.25); }
+  .opt-b .table-wrap { background: #1e293b; border: 1px solid #334155; border-radius: 8px; overflow: hidden; }
+  .opt-b .table-header { font-size: 9px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 12px; background: #162032; display: flex; gap: 12px; }
+  .opt-b .table-row { font-size: 10px; color: #94a3b8; padding: 8px 12px; border-top: 1px solid #1e293b; display: flex; gap: 12px; align-items: center; }
+  .opt-b .badge { font-size: 9px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+  .opt-b .badge-p { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .opt-b .badge-c { background: rgba(34,197,94,0.12); color: #4ade80; }
+  .opt-b .col1 { flex: 2; }
+  .opt-b .col2 { flex: 1.5; }
+  .opt-b .col3 { flex: 1; }
+  .opt-b .col4 { flex: 1; }
+
+  /* ---- OPTION C: Clean Professional ---- */
+  .opt-c { background: #fafafa; height: 100%; display: flex; }
+  .opt-c .sidebar { width: 200px; background: #fff; border-right: 1px solid #f0f0f0; height: 100%; padding: 16px; }
+  .opt-c .logo { font-size: 12px; font-weight: 800; color: #0B3A70; margin-bottom: 22px; letter-spacing: -0.02em; }
+  .opt-c .nav-section { font-size: 9px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; margin-top: 14px; font-weight: 600; }
+  .opt-c .nav-item { padding: 7px 10px; border-radius: 6px; font-size: 10px; color: #6b7280; display: flex; align-items: center; gap: 8px; margin-bottom: 1px; }
+  .opt-c .nav-item.active { background: #fff4ea; color: #c96b00; font-weight: 600; }
+  .opt-c .nav-icon { width: 12px; height: 12px; border-radius: 2px; background: currentColor; opacity: 0.6; }
+  .opt-c .main { flex: 1; display: flex; flex-direction: column; }
+  .opt-c .topbar { height: 44px; border-bottom: 1px solid #f0f0f0; background: #fff; display: flex; align-items: center; padding: 0 20px; gap: 12px; }
+  .opt-c .breadcrumb { font-size: 11px; color: #9ca3af; flex: 1; }
+  .opt-c .avatar { width: 28px; height: 28px; border-radius: 50%; background: #0B3A70; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff; font-weight: 700; }
+  .opt-c .content { padding: 20px; flex: 1; }
+  .opt-c .page-title { font-size: 17px; font-weight: 700; color: #0B3A70; margin-bottom: 2px; }
+  .opt-c .page-sub { font-size: 10px; color: #9ca3af; margin-bottom: 14px; }
+  .opt-c .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  .opt-c .stat { background: #fff; border: 1px solid #f0f0f0; border-radius: 8px; padding: 10px; border-left: 3px solid transparent; }
+  .opt-c .stat.orange { border-left-color: #F58220; }
+  .opt-c .stat.navy { border-left-color: #0B3A70; }
+  .opt-c .stat-val { font-size: 18px; font-weight: 700; color: #111; }
+  .opt-c .stat-label { font-size: 9px; color: #9ca3af; margin-top: 2px; }
+  .opt-c .table-wrap { background: #fff; border: 1px solid #f0f0f0; border-radius: 8px; overflow: hidden; }
+  .opt-c .table-header { font-size: 9px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 12px; background: #fafafa; display: flex; gap: 12px; border-bottom: 1px solid #f0f0f0; }
+  .opt-c .table-row { font-size: 10px; color: #374151; padding: 8px 12px; border-top: 1px solid #f5f5f5; display: flex; gap: 12px; align-items: center; }
+  .opt-c .badge { font-size: 9px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+  .opt-c .badge-p { background: #fef3c7; color: #92400e; }
+  .opt-c .badge-c { background: #dcfce7; color: #166534; }
+  .opt-c .col1 { flex: 2; }
+  .opt-c .col2 { flex: 1.5; }
+  .opt-c .col3 { flex: 1; }
+  .opt-c .col4 { flex: 1; }
+</style>
+</head>
+<body>
+<h1>Which design direction feels right for Absolute Veritas?</h1>
+<p class="subtitle">All three use your brand colors (orange #F58220 + navy #0B3A70). Click a card to select.</p>
+
+<div class="cards">
+
+  <!-- OPTION A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="opt-a">
+        <div class="sidebar">
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="main">
+          <div class="topbar">
+            <div class="search"></div>
+            <div class="avatar"></div>
+          </div>
+          <div class="content">
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">Inspection overview · June 2026</div>
+            <div class="stats">
+              <div class="stat"><div class="stat-val">2</div><div class="stat-label">Total Bookings</div></div>
+              <div class="stat"><div class="stat-val">0</div><div class="stat-label">Scheduled</div></div>
+              <div class="stat"><div class="stat-val">0</div><div class="stat-label">Completed</div></div>
+              <div class="stat"><div class="stat-val">0</div><div class="stat-label">Pending Pay</div></div>
+            </div>
+            <div class="table-header">
+              <span class="col1">Booking</span>
+              <span class="col2">Service</span>
+              <span class="col3">Status</span>
+              <span class="col4">Amount</span>
+            </div>
+            <div class="table-row">
+              <span class="col1">BK-001</span>
+              <span class="col2">Pre-shipment</span>
+              <span class="col3"><span class="badge badge-p">Pending</span></span>
+              <span class="col4">$368</span>
+            </div>
+            <div class="table-row">
+              <span class="col1">BK-002</span>
+              <span class="col2">DPI</span>
+              <span class="col3"><span class="badge badge-c">Confirmed</span></span>
+              <span class="col4">$268</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-clean">Option A</div>
+      <h3>Clean Enterprise</h3>
+      <p>Light background, icon-only sidebar, crisp data tables. Feels like Stripe or Linear. Serious and trustworthy.</p>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="opt-b">
+        <div class="sidebar">
+          <div class="logo">Absolute Veritas</div>
+          <div class="nav-item active"><div class="nav-icon"></div>Dashboard</div>
+          <div class="nav-item"><div class="nav-icon"></div>Bookings</div>
+          <div class="nav-item"><div class="nav-icon"></div>Create</div>
+          <div class="nav-item"><div class="nav-icon"></div>Payments</div>
+        </div>
+        <div class="main">
+          <div class="topbar">
+            <div class="search"></div>
+            <div class="avatar"></div>
+          </div>
+          <div class="content">
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">Welcome back, Dhruv</div>
+            <div class="stats">
+              <div class="stat stat-orange"><div class="stat-val" style="color:#F58220">2</div><div class="stat-label">Total Bookings</div></div>
+              <div class="stat"><div class="stat-val">0</div><div class="stat-label">Scheduled</div></div>
+              <div class="stat"><div class="stat-val">0</div><div class="stat-label">Completed</div></div>
+              <div class="stat"><div class="stat-val">0</div><div class="stat-label">Pending Pay</div></div>
+            </div>
+            <div class="table-wrap">
+              <div class="table-header">
+                <span class="col1">Booking ID</span>
+                <span class="col2">Service</span>
+                <span class="col3">Status</span>
+                <span class="col4">Amount</span>
+              </div>
+              <div class="table-row">
+                <span class="col1" style="color:#f1f5f9">BK-001</span>
+                <span class="col2">Pre-shipment</span>
+                <span class="col3"><span class="badge badge-p">Pending</span></span>
+                <span class="col4" style="color:#f1f5f9">$368</span>
+              </div>
+              <div class="table-row">
+                <span class="col1" style="color:#f1f5f9">BK-002</span>
+                <span class="col2">DPI</span>
+                <span class="col3"><span class="badge badge-c">Confirmed</span></span>
+                <span class="col4" style="color:#f1f5f9">$268</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-bold">Option B</div>
+      <h3>Dark Professional</h3>
+      <p>Dark background with orange accents, expanded sidebar. Feels like Vercel or Raycast. Premium and modern.</p>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="opt-c">
+        <div class="sidebar">
+          <div class="logo">Absolute Veritas</div>
+          <div class="nav-section">Main</div>
+          <div class="nav-item active"><div class="nav-icon"></div>Dashboard</div>
+          <div class="nav-item"><div class="nav-icon"></div>My Bookings</div>
+          <div class="nav-section">Actions</div>
+          <div class="nav-item"><div class="nav-icon"></div>Create Booking</div>
+          <div class="nav-item"><div class="nav-icon"></div>Payments</div>
+        </div>
+        <div class="main">
+          <div class="topbar">
+            <div class="breadcrumb">Dashboard / Overview</div>
+            <div class="avatar">DK</div>
+          </div>
+          <div class="content">
+            <div class="page-title">Overview</div>
+            <div class="page-sub">Manage your inspection bookings</div>
+            <div class="stats">
+              <div class="stat orange"><div class="stat-val">2</div><div class="stat-label">Total Bookings</div></div>
+              <div class="stat navy"><div class="stat-val">0</div><div class="stat-label">Scheduled</div></div>
+              <div class="stat"><div class="stat-val">0</div><div class="stat-label">Completed</div></div>
+              <div class="stat"><div class="stat-val">0</div><div class="stat-label">Pending Pay</div></div>
+            </div>
+            <div class="table-wrap">
+              <div class="table-header">
+                <span class="col1">Booking</span>
+                <span class="col2">Service</span>
+                <span class="col3">Status</span>
+                <span class="col4">Amount</span>
+              </div>
+              <div class="table-row">
+                <span class="col1">BK-001</span>
+                <span class="col2">Pre-shipment</span>
+                <span class="col3"><span class="badge badge-p">Pending</span></span>
+                <span class="col4">$368</span>
+              </div>
+              <div class="table-row">
+                <span class="col1">BK-002</span>
+                <span class="col2">DPI</span>
+                <span class="col3"><span class="badge badge-c">Confirmed</span></span>
+                <span class="col4">$268</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-rec">Option C — Recommended</div>
+      <h3>Structured Professional</h3>
+      <p>White sidebar with navy branding, colored left-border stats, clean tables. Feels like Notion or Intercom. Timeless and corporate.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="indicator" id="indicator">No selection yet</div>
+
+<script>
+function toggleSelect(el) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const labels = { a: 'Option A — Clean Enterprise', b: 'Option B — Dark Professional', c: 'Option C — Structured Professional' };
+  document.getElementById('indicator').innerHTML = 'Selected: <span>' + labels[el.dataset.choice] + '</span>';
+
+  try {
+    fetch('/__select', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ choice: el.dataset.choice, text: labels[el.dataset.choice] })
+    });
+  } catch(e) {}
+}
+</script>
+</body>
+</html>

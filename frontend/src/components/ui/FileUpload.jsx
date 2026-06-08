@@ -10,7 +10,7 @@ const FileUpload = ({
   multiple = false,
   maxFiles = 5,
   accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png',
-  maxSize = 10 * 1024 * 1024, // 10MB
+  maxSize = 10 * 1024 * 1024, 
   existingFiles = [],
   onRemoveFile,
   className = '',
@@ -58,8 +58,7 @@ const FileUpload = ({
     formData.append('file', file);
 
     try {
-      // Import api dynamically or use a prop if preferred, 
-      // but here we'll assume it's available or we can use fetch
+
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/upload/file`, {
         method: 'POST',
         headers: {
@@ -69,9 +68,9 @@ const FileUpload = ({
       });
 
       if (!response.ok) throw new Error('Upload failed');
-      
+
       const data = await response.json();
-      return data; // { id, name, url, size }
+      return data; 
     } catch (error) {
       console.error('File upload error:', error);
       throw error;
@@ -99,13 +98,13 @@ const FileUpload = ({
             const result = await uploadFile(file);
             uploadedFiles.push({
               ...result,
-              file // Keep original file object if needed
+              file 
             });
           } catch (err) {
             setErrors(prev => [...prev, `Failed to upload ${file.name}`]);
           }
         }
-        
+
         setIsUploading(false);
         if (uploadedFiles.length > 0) {
           onFilesSelected(uploadedFiles, multiple);
@@ -148,7 +147,6 @@ const FileUpload = ({
         }
       }
 
-      // Reset input
       e.target.value = '';
     },
     [onFilesSelected, multiple, maxSize, accept]
@@ -183,7 +181,7 @@ const FileUpload = ({
           className="hidden"
           disabled={isUploading}
         />
-        
+
         {isUploading ? (
           <div className="py-4">
             <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>

@@ -8,7 +8,7 @@ import { useBooking } from '../../hooks/useBooking';
  */
 const PaymentsPage = () => {
   const { bookings } = useBooking();
-  
+
   const paidBookings = (bookings || []).filter(b => b.paymentStatus === 'paid');
   const pendingBookings = (bookings || []).filter(b => b.paymentStatus === 'pending' || !b.paymentStatus);
 
@@ -22,22 +22,22 @@ const PaymentsPage = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-[16px] border border-gray-200 p-5">
           <p className="text-xs text-gray-500 mb-1">Total Payments</p>
           <p className="text-2xl font-semibold text-gray-900">{paidBookings.length}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-[16px] border border-gray-200 p-5">
           <p className="text-xs text-gray-500 mb-1">Pending Payments</p>
           <p className="text-2xl font-semibold text-orange-600">{pendingBookings.length}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-[16px] border border-gray-200 p-5">
           <p className="text-xs text-gray-500 mb-1">Total Bookings</p>
           <p className="text-2xl font-semibold text-gray-900">{(bookings || []).length}</p>
         </div>
       </div>
 
       {/* Payment List */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-[16px] border border-gray-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100">
           <h2 className="text-base font-semibold text-gray-900">Payment History</h2>
         </div>
@@ -71,7 +71,7 @@ const PaymentsPage = () => {
             <p className="text-xs text-gray-400 mt-1">Payments will appear here after you complete a booking</p>
             <Link 
               to="/booking/create"
-              className="inline-flex items-center gap-1.5 mt-4 text-sm text-indigo-600 font-medium hover:text-indigo-700"
+              className="inline-flex items-center gap-1.5 mt-4 text-sm text-av-orange font-medium hover:text-av-orange-hover"
             >
               Create a booking <ArrowRight size={14} />
             </Link>

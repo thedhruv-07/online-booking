@@ -1,11 +1,9 @@
 const Booking = require('../models/Booking');
 
-// @desc    Create new booking
-// @route   POST /api/bookings
 exports.createBooking = async (req, res, next) => {
   try {
     const { calculateFinalPrice } = await import('../../shared/pricing.js');
-    // 1. Backend IP Detection for Pricing Integrity
+
     let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     if (ip === '::1' || ip === '127.0.0.1' || !ip) { ip = ''; } else { ip = ip.split(',')[0].trim(); }
 
@@ -20,7 +18,6 @@ exports.createBooking = async (req, res, next) => {
       console.warn('IP detection failed during booking creation, using fallback.');
     }
 
-    // Fallback Logic: Detect succeeds -> force it. Detect fails -> check req.body.service.country (ISO-2 only)
     let finalCountry = 'US';
     if (detectedCountry) {
       finalCountry = detectedCountry;
@@ -31,11 +28,9 @@ exports.createBooking = async (req, res, next) => {
       }
     }
 
-    // 2. Securely calculate price
     const selectedServices = req.body.service?.selected || [];
     const pricingResult = calculateFinalPrice(selectedServices, finalCountry);
 
-    // 3. Add file processing fee if applicable
     let cleanFiles = [];
     if (req.body.files) {
       let rawFiles = req.body.files;
@@ -58,7 +53,7 @@ exports.createBooking = async (req, res, next) => {
       service: {
         ...pricingResult,
         name: req.body.service?.name,
-        totalAmount: pricingResult.totalAmount // already updated with fee
+        totalAmount: pricingResult.totalAmount 
       },
       inspectionDate: req.body.product?.inspectionDate || req.body.inspectionDate,
       product: req.body.product,
@@ -95,8 +90,6 @@ exports.createBooking = async (req, res, next) => {
   }
 };
 
-// @desc    Get all bookings for user
-// @route   GET /api/bookings
 exports.getBookings = async (req, res, next) => {
   try {
     const bookings = await Booking.find({ userId: req.user._id }).sort({ createdAt: -1 });
@@ -110,8 +103,6 @@ exports.getBookings = async (req, res, next) => {
   }
 };
 
-// @desc    Get single booking
-// @route   GET /api/bookings/:id
 exports.getBooking = async (req, res, next) => {
   try {
     const booking = await Booking.findOne({ _id: req.params.id, userId: req.user._id });
@@ -127,8 +118,6 @@ exports.getBooking = async (req, res, next) => {
   }
 };
 
-// @desc    Update booking
-// @route   PUT /api/bookings/:id
 exports.updateBooking = async (req, res, next) => {
   try {
     let booking = await Booking.findOne({ _id: req.params.id, userId: req.user._id });
@@ -136,18 +125,16 @@ exports.updateBooking = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
-    // Only recalculate if service or files are being updated
     if (req.body.service || req.body.bookingFiles) {
       const { calculateFinalPrice } = await import('../../shared/pricing.js');
       const selectedServices = req.body.service?.selected || booking.service.selected;
       const country = req.body.service?.country || booking.service.country;
-      
+
       const pricingResult = calculateFinalPrice(selectedServices, country);
-      
-      // Check files for fee
+
       const hasFiles = (req.body.bookingFiles && req.body.bookingFiles.length > 0) || 
                        (booking.bookingFiles && booking.bookingFiles.length > 0);
-      
+
       if (hasFiles) {
         pricingResult.totalAmount += 50;
       }
@@ -169,7 +156,7 @@ exports.updateBooking = async (req, res, next) => {
     for (const field of ALLOWED_FIELDS) {
       if (req.body[field] !== undefined) updateData[field] = req.body[field];
     }
-    // Include server-recalculated pricing when it was computed above
+
     if (req.body.service)        updateData.service        = req.body.service;
     if (req.body.quoteBreakdown) updateData.quoteBreakdown = req.body.quoteBreakdown;
 
@@ -186,8 +173,6 @@ exports.updateBooking = async (req, res, next) => {
   }
 };
 
-// @desc    Cancel booking
-// @route   POST /api/bookings/:id/cancel
 exports.cancelBooking = async (req, res, next) => {
   try {
     const booking = await Booking.findOne({ _id: req.params.id, userId: req.user._id });
@@ -205,11 +190,9 @@ exports.cancelBooking = async (req, res, next) => {
   }
 };
 
-// @desc    Get booking quote
-// @route   POST /api/bookings/quote
 exports.getQuote = async (req, res, next) => {
   try {
-    // Simple mock quote logic
+
     const totalAmount = req.body.totalAmount || 249.00;
     res.status(200).json({
       success: true,
@@ -227,12 +210,10 @@ exports.getQuote = async (req, res, next) => {
   }
 };
 
-// @desc    Delete booking
-// @route   DELETE /api/bookings/:id
 exports.deleteBooking = async (req, res, next) => {
   try {
     const booking = await Booking.findOne({ _id: req.params.id, userId: req.user._id });
-    
+
     if (!booking) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }

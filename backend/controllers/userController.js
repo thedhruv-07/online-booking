@@ -1,6 +1,5 @@
 const User = require('../models/User');
 
-// GET /api/user/factories
 exports.getFactories = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id).select('savedFactories');
@@ -10,7 +9,6 @@ exports.getFactories = async (req, res, next) => {
   }
 };
 
-// POST /api/user/factories
 exports.createFactory = async (req, res, next) => {
   try {
     const { name, location, phone } = req.body;
@@ -22,7 +20,6 @@ exports.createFactory = async (req, res, next) => {
     user.savedFactories.push(newFactory);
     await user.save();
 
-    // Return the newly created factory (last element)
     const created = user.savedFactories[user.savedFactories.length - 1];
     res.status(201).json(created);
   } catch (err) {
@@ -30,7 +27,6 @@ exports.createFactory = async (req, res, next) => {
   }
 };
 
-// GET /api/user/contacts
 exports.getContacts = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id).select('savedContacts');
@@ -40,7 +36,6 @@ exports.getContacts = async (req, res, next) => {
   }
 };
 
-// POST /api/user/contacts
 exports.createContact = async (req, res, next) => {
   try {
     const { name, email, phone, countryCode, designation, position } = req.body;

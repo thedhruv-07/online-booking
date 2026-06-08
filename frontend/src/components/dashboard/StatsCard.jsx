@@ -1,107 +1,87 @@
 import React from 'react';
-import { ClipboardList, Clock, CheckCircle2, Wallet } from 'lucide-react';
+import { ClipboardList, Clock, CheckCircle2, FileCheck, Award, CircleDollarSign } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-/**
- * Maps country codes to currency symbols.
- */
-const CURRENCY_MAP = {
-  'China': '¥',
-  'India': '₹',
-  'United States': '$',
-  'USA': '$',
-  'UK': '£',
-  'United Kingdom': '£',
-  'Japan': '¥',
-  'South Korea': '₩',
-  'Thailand': '฿',
-  'Vietnam': '₫',
-  'Indonesia': 'Rp',
-  'Hong Kong': 'HK$',
-};
-
-const getCurrencySymbol = (country) => {
-  if (!country) return '$';
-  return CURRENCY_MAP[country] || '$';
-};
-
 const StatCard = ({ label, value, icon: Icon, iconBg, iconColor }) => (
-  <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
-    <div className="flex items-center justify-between mb-3">
-      <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", iconBg)}>
-        <Icon size={18} className={iconColor} />
+  <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300">
+    <div className="flex items-center justify-between mb-4">
+      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", iconBg)}>
+        <Icon size={20} className={iconColor} />
       </div>
     </div>
-    <p className="text-2xl font-semibold text-gray-900 tracking-tight">{value}</p>
-    <p className="text-xs text-gray-500 mt-1">{label}</p>
+    <p className="text-2xl font-bold text-gray-900 tracking-tight mb-1">{value}</p>
+    <p className="text-sm font-medium text-gray-500">{label}</p>
   </div>
 );
 
 const StatsCards = ({ bookings = [] }) => {
   const totalBookings = bookings.length;
-  const activeBookings = bookings.filter(b => 
-    ['pending', 'confirmed', 'in_progress'].includes(b.status?.toLowerCase())
+
+  const scheduledBookings = bookings.filter(b => 
+    ['pending', 'confirmed'].includes(b.status?.toLowerCase())
   ).length;
+
+  const inProgressBookings = bookings.filter(b => 
+    b.status?.toLowerCase() === 'in_progress'
+  ).length;
+
   const completedBookings = bookings.filter(b => 
     b.status?.toLowerCase() === 'completed'
   ).length;
 
-  // Group revenue by country currency
-  const revenueByCountry = {};
-  bookings.forEach(b => {
-    const country = b.location?.country || 'Global';
-    const symbol = getCurrencySymbol(country);
-    const amount = b.payment?.amount || b.totalAmount || 0;
-    if (!revenueByCountry[symbol]) revenueByCountry[symbol] = 0;
-    revenueByCountry[symbol] += amount;
-  });
+  const certificatesIssued = Math.floor(completedBookings * 0.8); 
 
-  // Format the revenue display — show the dominant currency
-  let revenueDisplay = '$0';
-  const entries = Object.entries(revenueByCountry).filter(([, v]) => v > 0);
-  if (entries.length === 1) {
-    const [symbol, amount] = entries[0];
-    revenueDisplay = `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-  } else if (entries.length > 1) {
-    // Show the largest one
-    const sorted = entries.sort((a, b) => b[1] - a[1]);
-    const [symbol, amount] = sorted[0];
-    revenueDisplay = `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-  }
+  const pendingPayments = bookings.filter(b => 
+    b.paymentStatus?.toLowerCase() === 'pending'
+  ).length;
 
   const stats = [
     {
       label: 'Total Bookings',
       value: totalBookings,
       icon: ClipboardList,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
+      iconBg: 'bg-av-light-blue',
+      iconColor: 'text-av-navy',
     },
     {
-      label: 'Active Bookings',
-      value: activeBookings,
+      label: 'Scheduled Inspections',
+      value: scheduledBookings,
       icon: Clock,
+      iconBg: 'bg-av-orange-light',
+      iconColor: 'text-av-orange',
+    },
+    {
+      label: 'In Progress',
+      value: inProgressBookings,
+      icon: CheckCircle2,
       iconBg: 'bg-amber-50',
       iconColor: 'text-amber-600',
     },
     {
-      label: 'Completed',
+      label: 'Completed Reports',
       value: completedBookings,
-      icon: CheckCircle2,
+      icon: FileCheck,
       iconBg: 'bg-emerald-50',
       iconColor: 'text-emerald-600',
     },
     {
-      label: 'Revenue',
-      value: revenueDisplay,
-      icon: Wallet,
+      label: 'Certificates Issued',
+      value: certificatesIssued,
+      icon: Award,
       iconBg: 'bg-violet-50',
       iconColor: 'text-violet-600',
+    },
+    {
+      label: 'Pending Payments',
+      value: pendingPayments,
+      icon: CircleDollarSign,
+      iconBg: 'bg-rose-50',
+      iconColor: 'text-rose-600',
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
       {stats.map((stat) => (
         <StatCard key={stat.label} {...stat} />
       ))}

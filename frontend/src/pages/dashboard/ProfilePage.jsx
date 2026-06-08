@@ -44,10 +44,10 @@ const ProfilePage = () => {
         <p className="text-sm text-slate-500 mt-1">Manage your personal information and preferences.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-sm">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-sm">
+            <div className="w-16 h-16 bg-av-orange rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-sm">
               {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
             </div>
             <div>
@@ -58,13 +58,13 @@ const ProfilePage = () => {
           {!isEditing && (
             <button 
               onClick={() => setIsEditing(true)}
-              className="text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-lg transition-colors"
+              className="text-sm font-bold text-av-orange hover:text-av-orange-hover bg-av-orange-light px-4 py-2 rounded-lg transition-colors"
             >
               Edit Profile
             </button>
           )}
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -77,7 +77,7 @@ const ProfilePage = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange outline-none transition-all"
                   required
                 />
               ) : (
@@ -104,7 +104,7 @@ const ProfilePage = () => {
                 Active
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
                 <Building size={16} className="text-slate-400" /> Company
@@ -116,7 +116,7 @@ const ProfilePage = () => {
                   value={formData.company}
                   onChange={handleChange}
                   placeholder="Enter your company name"
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange outline-none transition-all"
                 />
               ) : (
                 <div className={cn("w-full px-4 py-2.5 border border-slate-200 rounded-lg font-medium", 
@@ -138,7 +138,7 @@ const ProfilePage = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="e.g. +1 234 567 890"
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange outline-none transition-all"
                 />
               ) : (
                 <div className={cn("w-full px-4 py-2.5 border border-slate-200 rounded-lg font-medium", 
@@ -169,7 +169,7 @@ const ProfilePage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50"
+                className="flex items-center gap-2 bg-av-orange text-white px-6 py-2 rounded-lg font-bold hover:bg-av-orange-hover transition-colors shadow-sm disabled:opacity-50"
               >
                 {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                 Save Changes

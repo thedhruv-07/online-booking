@@ -18,7 +18,7 @@ export const getCountries = () => {
  */
 export const getStatesByCountry = (countryIsoCode) => {
   if (!countryIsoCode) return [];
-  
+
   return State.getStatesOfCountry(countryIsoCode).map(state => ({
     id: state.isoCode,
     name: state.name

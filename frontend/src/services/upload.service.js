@@ -76,7 +76,7 @@ export const uploadService = {
    * @returns {Object} { valid: boolean, error?: string }
    */
   validateFile: (file, config = {}) => {
-    const maxSize = config.maxSize || 10 * 1024 * 1024; // 10MB default
+    const maxSize = config.maxSize || 10 * 1024 * 1024; 
     const allowedTypes = config.allowedTypes || [
       'application/pdf',
       'image/jpeg',

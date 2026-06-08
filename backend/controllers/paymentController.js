@@ -52,12 +52,11 @@ const notifyReportApp = async ({ eventType, booking, payment, user, receiptUrl =
     } : null,
   };
 
-  // Idempotency: prefer payment id, fallback to booking id+eventType
   const idempotencyKey = (payload.payment && payload.payment.id) ? `payment:${payload.payment.id}` : `booking:${payload.booking.id}:${eventType}`;
 
   try {
     const existing = await WebhookDelivery.findOne({ idempotencyKey, status: 'sent' });
-    if (existing) return; // already sent
+    if (existing) return; 
 
     const delivery = await WebhookDelivery.create({
       url: REPORT_APP_WEBHOOK_URL,
@@ -67,7 +66,6 @@ const notifyReportApp = async ({ eventType, booking, payment, user, receiptUrl =
       nextAttemptAt: Date.now(),
     });
 
-    // enqueue Bull job for processing
     try {
       const { addDeliveryJob } = require('../queues/webhookQueue');
       await addDeliveryJob(delivery._id.toString(), { attempts: delivery.maxAttempts });
@@ -95,16 +93,13 @@ exports.createPayment = async (req, res, next) => {
       throw new AppError('Booking not found', 404);
     }
 
-    // 🛡️ RE-CALCULATE PRICE FOR INTEGRITY
     const { calculateFinalPrice } = await import('../../shared/pricing.js');
     const pricingResult = calculateFinalPrice(booking.service.selected, booking.service.country);
-    
-    // Add file fee if applicable
+
     if (booking.bookingFiles && booking.bookingFiles.length > 0) {
       pricingResult.totalAmount += 50;
     }
 
-    // STRICT COMPARISON
     if (Math.abs(pricingResult.totalAmount - booking.service.totalAmount) > 0.01) {
       console.error(`PAYMENT TAMPERING DETECTED: DB=${booking.service.totalAmount}, Calc=${pricingResult.totalAmount}`);
       throw new AppError('Price mismatch detected. Please contact support or restart booking.', 400);
@@ -436,7 +431,7 @@ exports.uploadBankReceipt = async (req, res, next) => {
       uploadedAt: new Date(),
     };
     booking.payment.method = safeMethod;
-    // payment.status intentionally stays 'pending' — admin confirms manually
+
     await booking.save();
 
     try {

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidebar Style</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e5e5e5; padding: 32px; min-height: 100vh; }
+  h1 { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #888; margin-bottom: 32px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+  .card {
+    border: 2px solid #2a2a2a;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    background: #1a1a1a;
+  }
+  .card:hover { border-color: #555; transform: translateY(-2px); }
+  .card.selected { border-color: #F58220; }
+
+  .preview {
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-body { padding: 16px; border-top: 1px solid #2a2a2a; }
+  .card-body h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .card-body p { font-size: 12px; color: #888; line-height: 1.5; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .tag-rec { background: rgba(245,130,32,0.15); color: #F58220; }
+  .tag-alt { background: rgba(148,163,184,0.15); color: #94a3b8; }
+
+  .indicator {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1a1a1a; border: 1px solid #333; border-radius: 30px;
+    padding: 10px 24px; font-size: 13px; color: #888;
+  }
+  .indicator span { color: #F58220; font-weight: 600; }
+
+  /* Shared dashboard shell */
+  .shell { background: #fafafa; height: 100%; display: flex; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
+
+  /* ---- OPTION A: Always-expanded sidebar ---- */
+  .sb-a { width: 220px; background: #fff; border-right: 1px solid #f0f0f0; height: 100%; display: flex; flex-direction: column; padding: 0; flex-shrink: 0; }
+  .sb-a .logo-area { padding: 16px 16px 12px; border-bottom: 1px solid #f0f0f0; }
+  .sb-a .logo-text { font-size: 11px; font-weight: 800; color: #0B3A70; letter-spacing: -0.02em; line-height: 1.2; }
+  .sb-a .logo-sub { font-size: 8px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 1px; }
+  .sb-a .nav { padding: 12px 10px; flex: 1; }
+  .sb-a .nav-section { font-size: 8.5px; color: #c4c4c4; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin: 10px 6px 5px; }
+  .sb-a .nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 7px; font-size: 11px; color: #6b7280; margin-bottom: 1px; }
+  .sb-a .nav-item.active { background: #fff7ee; color: #c06000; font-weight: 600; }
+  .sb-a .nav-item.active .nav-icon { background: #F58220; }
+  .sb-a .nav-icon { width: 14px; height: 14px; border-radius: 3px; background: #d1d5db; flex-shrink: 0; }
+  .sb-a .nav-bottom { padding: 10px; border-top: 1px solid #f0f0f0; }
+  .sb-a .user-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 7px; }
+  .sb-a .user-avatar { width: 26px; height: 26px; border-radius: 50%; background: #0B3A70; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; font-weight: 700; }
+  .sb-a .user-name { font-size: 10px; font-weight: 600; color: #374151; }
+  .sb-a .user-role { font-size: 8px; color: #9ca3af; }
+
+  /* ---- OPTION B: Icon + label compact ---- */
+  .sb-b { width: 64px; background: #fff; border-right: 1px solid #f0f0f0; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 12px 0; flex-shrink: 0; }
+  .sb-b .logo-dot { width: 32px; height: 32px; border-radius: 8px; background: #0B3A70; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+  .sb-b .logo-dot span { font-size: 11px; font-weight: 800; color: #fff; }
+  .sb-b .nav-icon-btn { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; cursor: pointer; }
+  .sb-b .nav-icon-btn.active { background: #fff7ee; }
+  .sb-b .icon-sq { width: 18px; height: 18px; border-radius: 4px; background: #d1d5db; }
+  .sb-b .icon-sq.orange { background: #F58220; }
+  .sb-b .divider { width: 32px; height: 1px; background: #f0f0f0; margin: 8px 0; }
+  .sb-b .user-avatar-sm { width: 32px; height: 32px; border-radius: 50%; background: #0B3A70; margin-top: auto; }
+
+  /* ---- OPTION C: Two-tone sidebar ---- */
+  .sb-c-rail { width: 52px; background: #0B3A70; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 4px; flex-shrink: 0; }
+  .sb-c-logo { width: 32px; height: 32px; border-radius: 8px; background: #F58220; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
+  .sb-c-logo span { font-size: 11px; font-weight: 800; color: #fff; }
+  .sb-c-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .sb-c-icon.active { background: rgba(255,255,255,0.15); }
+  .sb-c-icon-sq { width: 16px; height: 16px; border-radius: 3px; background: rgba(255,255,255,0.4); }
+  .sb-c-icon-sq.active { background: #fff; }
+  .sb-c-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.1); margin: 6px 0; }
+  .sb-c-rail .spacer { flex: 1; }
+  .sb-c-rail .user-sm { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+
+  .sb-c-panel { width: 168px; background: #fff; height: 100%; padding: 16px 12px; flex-shrink: 0; }
+  .sb-c-section { font-size: 8.5px; color: #c4c4c4; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin: 10px 4px 5px; }
+  .sb-c-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; font-size: 10px; color: #6b7280; margin-bottom: 1px; }
+  .sb-c-item.active { background: #fff7ee; color: #c06000; font-weight: 600; }
+  .sb-c-item-dot { width: 6px; height: 6px; border-radius: 50%; background: #d1d5db; flex-shrink: 0; }
+  .sb-c-item.active .sb-c-item-dot { background: #F58220; }
+
+  /* Shared main area */
+  .main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .topbar { height: 44px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; padding: 0 16px; gap: 10px; }
+  .topbar .bc { font-size: 10px; color: #9ca3af; flex: 1; }
+  .topbar .avatar { width: 26px; height: 26px; border-radius: 50%; background: #0B3A70; }
+  .content { padding: 16px; }
+  .pg-title { font-size: 14px; font-weight: 700; color: #0B3A70; margin-bottom: 10px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+  .stat { background: #fff; border: 1px solid #f0f0f0; border-radius: 7px; padding: 8px 10px; border-left: 3px solid #e5e7eb; }
+  .stat.o { border-left-color: #F58220; }
+  .stat.n { border-left-color: #0B3A70; }
+  .stat-v { font-size: 16px; font-weight: 700; color: #111; }
+  .stat-l { font-size: 8px; color: #9ca3af; }
+  .table-wrap { background: #fff; border: 1px solid #f0f0f0; border-radius: 7px; overflow: hidden; }
+  .table-hdr { font-size: 8px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.08em; padding: 7px 10px; background: #fafafa; display: flex; gap: 10px; border-bottom: 1px solid #f0f0f0; }
+  .table-row { font-size: 9px; color: #374151; padding: 7px 10px; border-top: 1px solid #f5f5f5; display: flex; gap: 10px; align-items: center; }
+  .badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+  .badge-p { background: #fef3c7; color: #92400e; }
+  .badge-c { background: #dcfce7; color: #166534; }
+  .col1 { flex: 2; }
+  .col2 { flex: 1.5; }
+  .col3 { flex: 1; }
+</style>
+</head>
+<body>
+<h1>How should the sidebar behave?</h1>
+<p class="subtitle">You've chosen the Structured Professional direction. Now pick a sidebar style. Click to select.</p>
+
+<div class="cards">
+
+  <!-- A: Always expanded -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="shell">
+        <div class="sb-a">
+          <div class="logo-area">
+            <div class="logo-text">Absolute Veritas</div>
+            <div class="logo-sub">Inspection Portal</div>
+          </div>
+          <div class="nav">
+            <div class="nav-section">Main</div>
+            <div class="nav-item active"><div class="nav-icon"></div>Dashboard</div>
+            <div class="nav-item"><div class="nav-icon"></div>My Bookings</div>
+            <div class="nav-section">Actions</div>
+            <div class="nav-item"><div class="nav-icon"></div>Create Booking</div>
+            <div class="nav-item"><div class="nav-icon"></div>Payments</div>
+            <div class="nav-section">Account</div>
+            <div class="nav-item"><div class="nav-icon"></div>Profile</div>
+            <div class="nav-item"><div class="nav-icon"></div>Settings</div>
+          </div>
+          <div class="nav-bottom">
+            <div class="user-row">
+              <div class="user-avatar">DK</div>
+              <div><div class="user-name">Dhruv Kumar</div><div class="user-role">cs@absoluteveritas.com</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="main-area">
+          <div class="topbar"><div class="bc">Dashboard / Overview</div><div class="avatar"></div></div>
+          <div class="content">
+            <div class="pg-title">Dashboard</div>
+            <div class="stats">
+              <div class="stat o"><div class="stat-v">2</div><div class="stat-l">Total Bookings</div></div>
+              <div class="stat n"><div class="stat-v">0</div><div class="stat-l">Scheduled</div></div>
+              <div class="stat"><div class="stat-v">0</div><div class="stat-l">Completed</div></div>
+            </div>
+            <div class="table-wrap">
+              <div class="table-hdr"><span class="col1">Booking</span><span class="col2">Service</span><span class="col3">Status</span></div>
+              <div class="table-row"><span class="col1">BK-001</span><span class="col2">Pre-shipment</span><span class="col3"><span class="badge badge-p">Pending</span></span></div>
+              <div class="table-row"><span class="col1">BK-002</span><span class="col2">DPI</span><span class="col3"><span class="badge badge-c">Confirmed</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-rec">Option A — Recommended</div>
+      <h3>Always Expanded</h3>
+      <p>Full text labels always visible. No collapse. Simple, readable, great for business users who don't live in the app.</p>
+    </div>
+  </div>
+
+  <!-- B: Icon only -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="shell">
+        <div class="sb-b">
+          <div class="logo-dot"><span>AV</span></div>
+          <div class="nav-icon-btn active"><div class="icon-sq orange"></div></div>
+          <div class="nav-icon-btn"><div class="icon-sq"></div></div>
+          <div class="nav-icon-btn"><div class="icon-sq"></div></div>
+          <div class="nav-icon-btn"><div class="icon-sq"></div></div>
+          <div class="divider"></div>
+          <div class="nav-icon-btn"><div class="icon-sq"></div></div>
+          <div class="nav-icon-btn"><div class="icon-sq"></div></div>
+          <div style="flex:1"></div>
+          <div class="user-avatar-sm"></div>
+        </div>
+        <div class="main-area">
+          <div class="topbar"><div class="bc">Dashboard / Overview</div><div class="avatar"></div></div>
+          <div class="content">
+            <div class="pg-title">Dashboard</div>
+            <div class="stats">
+              <div class="stat o"><div class="stat-v">2</div><div class="stat-l">Total Bookings</div></div>
+              <div class="stat n"><div class="stat-v">0</div><div class="stat-l">Scheduled</div></div>
+              <div class="stat"><div class="stat-v">0</div><div class="stat-l">Completed</div></div>
+            </div>
+            <div class="table-wrap">
+              <div class="table-hdr"><span class="col1">Booking</span><span class="col2">Service</span><span class="col3">Status</span></div>
+              <div class="table-row"><span class="col1">BK-001</span><span class="col2">Pre-shipment</span><span class="col3"><span class="badge badge-p">Pending</span></span></div>
+              <div class="table-row"><span class="col1">BK-002</span><span class="col2">DPI</span><span class="col3"><span class="badge badge-c">Confirmed</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-alt">Option B</div>
+      <h3>Icon-Only Compact</h3>
+      <p>Narrow rail with icons only. Maximizes content space. Works well when users know the app well. Less discoverability.</p>
+    </div>
+  </div>
+
+  <!-- C: Two-tone rail -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="shell">
+        <div class="sb-c-rail">
+          <div class="sb-c-logo"><span>AV</span></div>
+          <div class="sb-c-icon active"><div class="sb-c-icon-sq active"></div></div>
+          <div class="sb-c-icon"><div class="sb-c-icon-sq"></div></div>
+          <div class="sb-c-icon"><div class="sb-c-icon-sq"></div></div>
+          <div class="sb-c-divider"></div>
+          <div class="sb-c-icon"><div class="sb-c-icon-sq"></div></div>
+          <div class="sb-c-icon"><div class="sb-c-icon-sq"></div></div>
+          <div class="spacer"></div>
+          <div class="user-sm"></div>
+        </div>
+        <div class="sb-c-panel">
+          <div style="font-size:9px;font-weight:800;color:#0B3A70;margin-bottom:14px;">Absolute Veritas</div>
+          <div class="sb-c-section">Main</div>
+          <div class="sb-c-item active"><div class="sb-c-item-dot"></div>Dashboard</div>
+          <div class="sb-c-item"><div class="sb-c-item-dot"></div>My Bookings</div>
+          <div class="sb-c-section">Actions</div>
+          <div class="sb-c-item"><div class="sb-c-item-dot"></div>Create Booking</div>
+          <div class="sb-c-item"><div class="sb-c-item-dot"></div>Payments</div>
+          <div class="sb-c-section">Account</div>
+          <div class="sb-c-item"><div class="sb-c-item-dot"></div>Profile</div>
+        </div>
+        <div class="main-area">
+          <div class="topbar"><div class="bc">Dashboard</div><div class="avatar"></div></div>
+          <div class="content">
+            <div class="pg-title">Dashboard</div>
+            <div class="stats">
+              <div class="stat o"><div class="stat-v">2</div><div class="stat-l">Total Bookings</div></div>
+              <div class="stat n"><div class="stat-v">0</div><div class="stat-l">Scheduled</div></div>
+              <div class="stat"><div class="stat-v">0</div><div class="stat-l">Completed</div></div>
+            </div>
+            <div class="table-wrap">
+              <div class="table-hdr"><span class="col1">Booking</span><span class="col2">Service</span><span class="col3">Status</span></div>
+              <div class="table-row"><span class="col1">BK-001</span><span class="col2">Pre-shipment</span><span class="col3"><span class="badge badge-p">Pending</span></span></div>
+              <div class="table-row"><span class="col1">BK-002</span><span class="col2">DPI</span><span class="col3"><span class="badge badge-c">Confirmed</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tag tag-alt">Option C</div>
+      <h3>Two-Tone Rail</h3>
+      <p>Navy icon rail on the left + white text panel. Very distinct brand presence. More complex but visually striking.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="indicator" id="indicator">No selection yet</div>
+
+<script>
+function toggleSelect(el) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const labels = { a: 'Option A — Always Expanded', b: 'Option B — Icon-Only Compact', c: 'Option C — Two-Tone Rail' };
+  document.getElementById('indicator').innerHTML = 'Selected: <span>' + labels[el.dataset.choice] + '</span>';
+  try {
+    fetch('/__select', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ choice: el.dataset.choice, text: labels[el.dataset.choice] })
+    });
+  } catch(e) {}
+}
+</script>
+</body>
+</html>

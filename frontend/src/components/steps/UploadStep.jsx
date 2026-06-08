@@ -24,8 +24,7 @@ const UploadStep = () => {
     try {
       const uploaded = await Promise.all(
         bookingData.files.map(async (entry) => {
-          // If the entry already has a URL it was uploaded earlier by FileUpload
-          // and we should not re-upload it. Just forward the metadata.
+
           if (entry && (entry.url || entry.filename && entry.url)) {
             return {
               filename: entry.filename || entry.name || 'document',
@@ -44,7 +43,6 @@ const UploadStep = () => {
             };
           }
 
-          // Fallback for unknown shapes
           return {
             filename: entry.filename || entry.name || 'document',
             url: entry.url || '',
@@ -64,7 +62,7 @@ const UploadStep = () => {
   return (
     <div className="space-y-8">
       <div className="text-center max-w-2xl mx-auto mb-10">
-        <div className="mx-auto w-16 h-16 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+        <div className="mx-auto w-16 h-16 bg-rose-50 text-rose-600 rounded-[16px] flex items-center justify-center mb-6 shadow-sm">
           <FileText size={32} />
         </div>
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Upload Documents</h2>

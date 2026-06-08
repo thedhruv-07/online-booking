@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
     paymentReminders: { type: Boolean, default: true },
     marketing: { type: Boolean, default: false },
   },
-  // Saved factories for quick reuse in booking flow
+
   savedFactories: [
     {
       name: { type: String, required: true },
@@ -58,7 +58,7 @@ const userSchema = new mongoose.Schema({
       createdAt: { type: Date, default: Date.now },
     },
   ],
-  // Saved contacts for booking flow (contact persons)
+
   savedContacts: [
     {
       name: { type: String, required: true },

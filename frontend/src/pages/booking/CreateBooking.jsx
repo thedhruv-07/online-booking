@@ -1,5 +1,5 @@
 import { useBooking } from '../../hooks/useBooking';
-import { Stepper, BookingLayout } from '../../components/booking';
+import { Stepper } from '../../components/booking';
 import {
   ServiceStep,
   LocationStep,
@@ -46,12 +46,11 @@ const CreateBooking = () => {
   return (
     <>
       <Stepper />
-      <div className="mt-6">
+      <div className="booking-form-content py-6 max-w-4xl mx-auto">
         {renderStep()}
       </div>
     </>
   );
 };
-
 
 export default CreateBooking;

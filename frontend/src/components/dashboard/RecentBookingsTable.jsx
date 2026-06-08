@@ -5,11 +5,11 @@ import { cn } from '../../utils/cn';
 import { useBooking } from '../../hooks/useBooking';
 
 const statusConfig = {
-  pending: { label: 'Pending', className: 'bg-amber-50 text-amber-700 border-amber-200', icon: Clock },
-  confirmed: { label: 'Confirmed', className: 'bg-blue-50 text-blue-700 border-blue-200', icon: CheckCircle },
-  in_progress: { label: 'In Progress', className: 'bg-indigo-50 text-indigo-700 border-indigo-200', icon: AlertCircle },
-  completed: { label: 'Completed', className: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: CheckCircle },
-  cancelled: { label: 'Cancelled', className: 'bg-red-50 text-red-700 border-red-200', icon: XCircle },
+  pending: { label: 'Pending', className: 'badge-scheduled', icon: Clock },
+  confirmed: { label: 'Confirmed', className: 'badge-confirmed', icon: CheckCircle },
+  in_progress: { label: 'In Progress', className: 'badge-in-progress', icon: AlertCircle },
+  completed: { label: 'Completed', className: 'badge-completed', icon: CheckCircle },
+  cancelled: { label: 'Cancelled', className: 'badge-cancelled', icon: XCircle },
 };
 
 const paymentConfig = {
@@ -44,17 +44,16 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
     setConfirmDeleteId(null);
   };
 
-  // Filter bookings
   const filtered = bookings.filter(b => {
     const matchesSearch = !searchQuery || 
       b._id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       b.service?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       b.contact?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       b.contact?.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || b.status?.toLowerCase() === statusFilter;
     const matchesPayment = paymentFilter === 'all' || b.paymentStatus?.toLowerCase() === paymentFilter;
-    
+
     return matchesSearch && matchesStatus && matchesPayment;
   });
 
@@ -62,9 +61,9 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-12">
+      <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-12 shadow-av-card">
         <div className="flex flex-col items-center justify-center min-h-[300px]">
-          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <div className="w-8 h-8 border-2 border-av-orange border-t-transparent rounded-full animate-spin mb-4"></div>
           <p className="text-sm text-gray-500">Loading bookings...</p>
         </div>
       </div>
@@ -73,7 +72,7 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-[16px] border border-[#E2E8F0] overflow-hidden shadow-av-card">
         {/* Header */}
         <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -82,7 +81,7 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
           </div>
           <Link 
             to="/dashboard/bookings" 
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors"
+            className="text-sm font-medium text-av-orange hover:text-av-orange-hover flex items-center gap-1 transition-colors"
           >
             View all
             <ArrowRight size={14} />
@@ -98,13 +97,13 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-300"
+              className="w-full pl-8 pr-3 py-1.5 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-av-orange focus:border-av-orange"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-sm bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="text-sm bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-av-orange"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -116,7 +115,7 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="text-sm bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="text-sm bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-av-orange"
           >
             <option value="all">All Payments</option>
             <option value="paid">Paid</option>
@@ -162,7 +161,6 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
                       </td>
                       <td className="px-5 py-3.5">
                         <span className={cn(
-                          "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border",
                           status.className
                         )}>
                           {status.label}
@@ -180,7 +178,7 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
                         <div className="flex items-center justify-end gap-2">
                           <Link 
                             to={`/dashboard/bookings/${booking._id}`}
-                            className="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            className="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-av-orange hover:bg-av-orange-light rounded-lg transition-colors"
                             title="View details"
                           >
                             <Eye size={16} />

@@ -27,8 +27,8 @@ const ForgotPassword = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full text-center">
-          <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-auto h-16 w-16 bg-av-light-blue rounded-full flex items-center justify-center mb-4">
+            <svg className="h-8 w-8 text-av-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
@@ -37,7 +37,7 @@ const ForgotPassword = () => {
             We've sent a password reset link to <span className="font-medium text-gray-900">{email}</span>.
           </p>
           <div className="mt-6">
-            <Link to="/login" className="text-blue-600 hover:text-blue-500 font-medium">
+            <Link to="/login" className="text-av-navy hover:text-blue-500 font-medium">
               Return to login
             </Link>
           </div>
@@ -90,7 +90,7 @@ const ForgotPassword = () => {
           </div>
 
           <div className="text-center">
-            <Link to="/login" className="text-sm font-medium text-blue-600 hover:text-blue-500">
+            <Link to="/login" className="text-sm font-medium text-av-navy hover:text-blue-500">
               Back to login
             </Link>
           </div>

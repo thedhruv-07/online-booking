@@ -11,8 +11,6 @@ const generateToken = (userId) => {
   );
 };
 
-// @desc    Register user
-// @route   POST /api/auth/signup
 exports.signup = async (req, res, next) => {
   try {
     const { email, password, name, phone } = req.body;
@@ -33,7 +31,6 @@ exports.signup = async (req, res, next) => {
       verificationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
-    // Send verification email
     sendVerificationEmail(email, verificationToken, name).catch(err => {
       console.error('Failed to send verification email:', err);
     });
@@ -51,8 +48,6 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -94,8 +89,6 @@ exports.login = async (req, res, next) => {
   }
 };
 
-// @desc    Verify email
-// @route   GET /api/auth/verify-email
 exports.verifyEmail = async (req, res, next) => {
   try {
     const token = req.query.token || req.body.token;
@@ -124,8 +117,6 @@ exports.verifyEmail = async (req, res, next) => {
   }
 };
 
-// @desc    Forgot password
-// @route   POST /api/auth/forgot-password
 exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -154,8 +145,6 @@ exports.forgotPassword = async (req, res, next) => {
   }
 };
 
-// @desc    Reset password
-// @route   POST /api/auth/reset-password
 exports.resetPassword = async (req, res, next) => {
   try {
     const { token, password } = req.body;
@@ -179,8 +168,6 @@ exports.resetPassword = async (req, res, next) => {
   }
 };
 
-// @desc    Resend verification
-// @route   POST /api/auth/resend-verification
 exports.resendVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -204,8 +191,6 @@ exports.resendVerification = async (req, res, next) => {
   }
 };
 
-// @desc    Get current user profile
-// @route   GET /api/auth/profile
 exports.getProfile = async (req, res, next) => {
   try {
     res.json({ success: true, user: req.user });
@@ -214,14 +199,12 @@ exports.getProfile = async (req, res, next) => {
   }
 };
 
-// @desc    Update user profile
-// @route   PUT /api/auth/profile
 exports.updateProfile = async (req, res, next) => {
   try {
     const { name, phone, company, preferences, notifications } = req.body;
-    
+
     const user = await User.findById(req.user._id);
-    
+
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -229,11 +212,11 @@ exports.updateProfile = async (req, res, next) => {
     if (name) user.name = name;
     if (phone) user.phone = phone;
     if (company !== undefined) user.company = company;
-    
+
     if (preferences) {
       user.preferences = { ...user.preferences, ...preferences };
     }
-    
+
     if (notifications) {
       user.notifications = { ...user.notifications, ...notifications };
     }
@@ -250,14 +233,12 @@ exports.updateProfile = async (req, res, next) => {
   }
 };
 
-// @desc    Update password
-// @route   PUT /api/auth/update-password
 exports.updatePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    
+
     const user = await User.findById(req.user._id);
-    
+
     if (!user || !(await user.comparePassword(currentPassword))) {
       return res.status(401).json({ success: false, message: 'Invalid current password' });
     }
@@ -274,8 +255,6 @@ exports.updatePassword = async (req, res, next) => {
   }
 };
 
-// @desc    Logout user
-// @route   POST /api/auth/logout
 exports.logout = async (req, res, next) => {
   try {
     res.cookie('token', 'none', {
