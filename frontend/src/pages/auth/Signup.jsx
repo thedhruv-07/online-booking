@@ -54,10 +54,10 @@ const Signup = () => {
   if (submitted) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-100 p-10 text-center"
+          className="max-w-md w-full bg-white rounded-xl shadow-av-card border border-slate-100 p-10 text-center"
         >
           <div className="mx-auto w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
             <CheckCircle2 className="w-12 h-12 text-emerald-600" />
@@ -83,7 +83,7 @@ const Signup = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-2xl w-full bg-white rounded-[16px] shadow-lg border border-slate-200 p-8 sm:p-12"
+        className="max-w-2xl w-full bg-white rounded-xl shadow-av-card border border-slate-200 p-8 sm:p-12"
       >
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-slate-800 mb-6">Registration</h1>

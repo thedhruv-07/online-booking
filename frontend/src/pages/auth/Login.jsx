@@ -41,16 +41,10 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-20">
-      {/* Background Decor */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-av-orange-light rounded-full blur-[120px] opacity-60"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-av-light-blue rounded-full blur-[120px] opacity-60"></div>
-      </div>
-
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10"
+        className="max-w-md w-full bg-white rounded-xl shadow-av-card border border-slate-100 p-8 sm:p-10"
       >
         <div className="text-center mb-10">
           <div className="mx-auto mb-6 flex justify-center">
@@ -61,10 +55,10 @@ const Login = () => {
         </div>
 
         {(error || validationError) && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-[16px] text-rose-600 text-sm font-medium"
+            className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-lg text-rose-600 text-sm font-medium"
           >
             {error || validationError}
             {error && error.includes('verify your email') && (
