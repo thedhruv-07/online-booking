@@ -31,7 +31,7 @@ const Stepper = () => {
               onClick={() => index <= currentStep && goToStep(index)}
               disabled={index > currentStep}
               className={cn(
-                "step-item flex items-center gap-2 min-w-max px-3.5 py-2 rounded-full text-[13px] font-semibold border transition-colors",
+                "step-item flex items-center gap-2 min-w-max px-3.5 py-2 rounded-lg text-[13px] font-semibold border transition-colors",
                 isActive
                   ? "bg-av-orange text-white border-av-orange shadow-sm"
                   : isCompleted
@@ -40,7 +40,7 @@ const Stepper = () => {
               )}
             >
               <span className={cn(
-                "flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold",
+                "flex items-center justify-center w-5 h-5 rounded text-[11px] font-bold",
                 isActive ? "bg-white/20 text-white" : isCompleted ? "bg-white/20 text-white" : "bg-slate-100 text-slate-400"
               )}>
                 {index + 1}
