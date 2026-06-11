@@ -76,7 +76,7 @@ const Modal = ({
       {/* Modal */}
       <div
         ref={modalRef}
-        className={`relative bg-white rounded-[16px] shadow-xl w-full ${sizes[size]} transform transition-transform duration-300 ${
+        className={`relative bg-white rounded-xl shadow-xl w-full ${sizes[size]} transform transition-transform duration-300 ${
           isOpen ? 'scale-100' : 'scale-95'
         }`}
         role="dialog"
@@ -113,7 +113,7 @@ const Modal = ({
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-[16px]">
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-xl">
             {footer}
           </div>
         )}
