@@ -64,7 +64,7 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
       <div className="bg-white rounded-lg border border-slate-100 p-12 shadow-av-card">
         <div className="flex flex-col items-center justify-center min-h-[300px]">
           <div className="w-8 h-8 border-2 border-av-orange border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-sm text-gray-500">Loading bookings...</p>
+          <p className="text-sm text-slate-500">Loading bookings...</p>
         </div>
       </div>
     );
@@ -74,10 +74,10 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
     <>
       <div className="bg-white rounded-lg border border-slate-100 overflow-hidden shadow-av-card">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Recent Bookings</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{bookings.length} total bookings</p>
+            <h2 className="text-base font-semibold text-slate-900">Recent Bookings</h2>
+            <p className="text-xs text-slate-500 mt-0.5">{bookings.length} total bookings</p>
           </div>
           <Link 
             to="/dashboard/bookings" 
@@ -89,21 +89,21 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
         </div>
 
         {/* Filters */}
-        <div className="px-5 py-3 border-b border-gray-50 flex flex-wrap items-center gap-3 bg-gray-50/50">
+        <div className="px-5 py-3 border-b border-slate-50 flex flex-wrap items-center gap-3 bg-slate-50/50">
           <div className="relative flex-1 min-w-[200px] max-w-xs">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
             <input
               type="text"
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-av-orange focus:border-av-orange"
+              className="w-full pl-8 pr-3 py-1.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-av-orange focus:border-av-orange"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-sm bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-av-orange"
+            className="text-sm bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-1 focus:ring-av-orange"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -115,7 +115,7 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="text-sm bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 focus:outline-none focus:ring-1 focus:ring-av-orange"
+            className="text-sm bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-1 focus:ring-av-orange"
           >
             <option value="all">All Payments</option>
             <option value="paid">Paid</option>
@@ -127,16 +127,16 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
-                <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
-                <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Actions</th>
+              <tr className="border-b border-slate-100">
+                <th className="px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Booking ID</th>
+                <th className="px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Service</th>
+                <th className="px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+                <th className="px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Payment</th>
+                <th className="px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-slate-50">
               {displayBookings.length > 0 ? (
                 displayBookings.map((booking) => {
                   const status = statusConfig[booking.status?.toLowerCase()] || statusConfig.pending;
@@ -144,17 +144,17 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
                   const isDeleting = deletingId === booking._id;
 
                   return (
-                    <tr key={booking._id} className={cn("hover:bg-gray-50/50 transition-colors", isDeleting && "opacity-50")}>
+                    <tr key={booking._id} className={cn("hover:bg-slate-50/50 transition-colors", isDeleting && "opacity-50")}>
                       <td className="px-5 py-3.5">
-                        <span className="text-xs font-mono text-gray-500">
+                        <span className="text-xs font-mono text-slate-500">
                           #{booking._id?.slice(-8).toUpperCase()}
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <div className="text-sm font-medium text-gray-900">{booking.service?.name || 'Inspection'}</div>
-                        <div className="text-xs text-gray-500">{booking.factory?.name || booking.location?.city || '—'}</div>
+                        <div className="text-sm font-medium text-slate-900">{booking.service?.name || 'Inspection'}</div>
+                        <div className="text-xs text-slate-500">{booking.factory?.name || booking.location?.city || '—'}</div>
                       </td>
-                      <td className="px-5 py-3.5 text-sm text-gray-600">
+                      <td className="px-5 py-3.5 text-sm text-slate-600">
                         {new Date(booking.date || booking.createdAt).toLocaleDateString('en-US', {
                           month: 'short', day: 'numeric', year: 'numeric'
                         })}
@@ -176,9 +176,9 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
                       </td>
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Link 
+                          <Link
                             to={`/dashboard/bookings/${booking._id}`}
-                            className="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-av-orange hover:bg-av-orange-light rounded-lg transition-colors"
+                            className="inline-flex items-center justify-center w-8 h-8 text-slate-400 hover:text-av-orange hover:bg-av-orange-light rounded-lg transition-colors"
                             title="View details"
                           >
                             <Eye size={16} />
@@ -186,7 +186,7 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
                           <button
                             onClick={() => initiateDelete(booking._id)}
                             disabled={isDeleting}
-                            className="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                            className="inline-flex items-center justify-center w-8 h-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                             title="Delete booking"
                           >
                             {isDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
@@ -200,11 +200,11 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
                 <tr>
                   <td colSpan="6" className="px-5 py-16 text-center">
                     <div className="flex flex-col items-center">
-                      <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-300 mb-3">
+                      <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-300 mb-3">
                         <ClipboardList size={24} />
                       </div>
-                      <p className="text-sm text-gray-500 font-medium">No bookings found</p>
-                      <p className="text-xs text-gray-400 mt-1">Create your first booking to get started</p>
+                      <p className="text-sm text-slate-500 font-medium">No bookings found</p>
+                      <p className="text-xs text-slate-400 mt-1">Create your first booking to get started</p>
                     </div>
                   </td>
                 </tr>

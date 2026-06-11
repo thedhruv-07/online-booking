@@ -33,7 +33,7 @@ const actions = [
 const QuickActions = () => {
   return (
     <div className="bg-white rounded-lg border border-slate-100 p-5 shadow-av-card">
-      <h3 className="text-sm font-bold text-gray-900 mb-4 tracking-wide uppercase">Quick Actions</h3>
+      <h3 className="text-sm font-bold text-slate-900 mb-4 tracking-wide uppercase">Quick Actions</h3>
       <div className="space-y-3">
         {actions.map((action) => (
           <Link
@@ -45,10 +45,10 @@ const QuickActions = () => {
               <action.icon size={18} className={action.iconColor} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-gray-900">{action.label}</p>
-              <p className="text-xs text-gray-500 truncate mt-0.5">{action.description}</p>
+              <p className="text-sm font-bold text-slate-900">{action.label}</p>
+              <p className="text-xs text-slate-500 truncate mt-0.5">{action.description}</p>
             </div>
-            <ArrowRight size={16} className="text-gray-300 group-hover:text-av-orange transition-colors shrink-0" />
+            <ArrowRight size={16} className="text-slate-300 group-hover:text-av-orange transition-colors shrink-0" />
           </Link>
         ))}
       </div>

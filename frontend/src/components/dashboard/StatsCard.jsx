@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../../utils/cn';
 
 const ACCENT_COLORS = [
   'border-l-av-orange',
@@ -10,7 +11,7 @@ const ACCENT_COLORS = [
 ];
 
 const StatCard = ({ label, value, accentClass }) => (
-  <div className={`bg-white border border-slate-100 rounded-lg p-4 border-l-[3px] shadow-av-card ${accentClass}`}>
+  <div className={cn('bg-white border border-slate-100 rounded-lg p-4 border-l-[3px] shadow-av-card', accentClass)}>
     <p className="text-2xl font-bold text-slate-900 tracking-tight leading-none">{value}</p>
     <p className="text-xs font-medium text-slate-400 mt-2">{label}</p>
   </div>
