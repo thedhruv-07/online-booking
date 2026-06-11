@@ -61,7 +61,7 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-12 shadow-av-card">
+      <div className="bg-white rounded-lg border border-slate-100 p-12 shadow-av-card">
         <div className="flex flex-col items-center justify-center min-h-[300px]">
           <div className="w-8 h-8 border-2 border-av-orange border-t-transparent rounded-full animate-spin mb-4"></div>
           <p className="text-sm text-gray-500">Loading bookings...</p>
@@ -72,7 +72,7 @@ const BookingsTable = ({ bookings = [], isLoading }) => {
 
   return (
     <>
-      <div className="bg-white rounded-[16px] border border-[#E2E8F0] overflow-hidden shadow-av-card">
+      <div className="bg-white rounded-lg border border-slate-100 overflow-hidden shadow-av-card">
         {/* Header */}
         <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
