@@ -1,139 +1,114 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  ClipboardList, 
-  PlusCircle, 
+import {
+  LayoutDashboard,
+  ClipboardList,
+  PlusCircle,
   CreditCard,
-  User, 
-  Settings, 
-  LogOut, 
-  ChevronLeft, 
-  ChevronRight,
-  FileText,
-  Award
+  User,
+  Settings,
+  LogOut,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../store/authStore.jsx';
-import useUIStore from '../../store/uiStore.js';
 
-const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
-  { icon: ClipboardList, label: 'My Bookings', to: '/dashboard/bookings' },
-  { icon: PlusCircle, label: 'Create Booking', to: '/booking/create', highlight: true },
-  { icon: CreditCard, label: 'Payments', to: '/dashboard/payments' },
+const NAV_SECTIONS = [
+  {
+    label: 'Overview',
+    items: [
+      { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
+      { icon: ClipboardList, label: 'My Bookings', to: '/dashboard/bookings' },
+    ],
+  },
+  {
+    label: 'Actions',
+    items: [
+      { icon: PlusCircle, label: 'Create Booking', to: '/booking/create' },
+      { icon: CreditCard, label: 'Payments', to: '/dashboard/payments' },
+    ],
+  },
+  {
+    label: 'Account',
+    items: [
+      { icon: User, label: 'Profile', to: '/profile' },
+      { icon: Settings, label: 'Settings', to: '/settings' },
+    ],
+  },
 ];
 
-const bottomItems = [
-  { icon: User, label: 'Profile', to: '/profile' },
-  { icon: Settings, label: 'Settings', to: '/settings' },
-];
-
-const SidebarLink = ({ icon: Icon, label, to, isCollapsed, highlight }) => (
+const SidebarLink = ({ icon: Icon, label, to }) => (
   <NavLink
     to={to}
     end={to === '/dashboard'}
     className={({ isActive }) =>
       cn(
-        'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group text-[13px] font-medium',
-        highlight && !isActive && 'text-av-orange bg-av-orange-light hover:bg-[#FFE8D6]',
-        !highlight && !isActive && 'text-gray-600 hover:bg-av-orange-light hover:text-av-orange',
-        isActive && 'bg-av-orange text-white shadow-sm shadow-av-orange/20'
+        'flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors duration-150 text-[13px] font-medium',
+        isActive
+          ? 'bg-orange-50 text-orange-700 font-semibold'
+          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
       )
     }
   >
-    <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={isCollapsed ? 2 : 1.8} />
-    <AnimatePresence mode="wait">
-      {!isCollapsed && (
-        <motion.span
-          initial={{ opacity: 0, width: 0 }}
-          animate={{ opacity: 1, width: 'auto' }}
-          exit={{ opacity: 0, width: 0 }}
-          className="whitespace-nowrap overflow-hidden"
-        >
-          {label}
-        </motion.span>
-      )}
-    </AnimatePresence>
+    <Icon size={16} strokeWidth={1.75} className="shrink-0" />
+    {label}
   </NavLink>
 );
 
 const Sidebar = () => {
-  const { isSidebarCollapsed, toggleSidebar } = useUIStore();
   const { logout, user } = useAuth();
+  const initials = user?.name
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'U';
 
   return (
-    <motion.aside
-      animate={{ width: isSidebarCollapsed ? '72px' : '240px' }}
-      transition={{ duration: 0.2, ease: 'easeInOut' }}
-      className="fixed left-0 top-0 h-screen bg-white border-r border-gray-200 z-50 flex flex-col"
-    >
+    <aside className="fixed left-0 top-0 h-screen w-[232px] bg-white border-r border-slate-100 z-50 flex flex-col">
       {/* Logo */}
-      <div className="h-16 px-4 flex items-center justify-between border-b border-gray-100">
-        <div className="flex items-center gap-2.5 overflow-hidden">
-          {isSidebarCollapsed ? (
-            <div className="w-8 h-8 flex items-center justify-center shrink-0">
-              <img src="/company-logo.png" alt="AV" className="w-8 h-8 object-contain" />
+      <div className="px-5 py-4 border-b border-slate-100">
+        <div className="flex items-center">
+          <img
+            src="/company-logo.png"
+            alt="Absolute Veritas"
+            className="h-9 object-contain max-w-[160px]"
+          />
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto custom-scrollbar py-3 px-3 space-y-4">
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.label}>
+            <p className="px-3 mb-1.5 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+              {section.label}
+            </p>
+            <div className="space-y-0.5">
+              {section.items.map((item) => (
+                <SidebarLink key={item.to} {...item} />
+              ))}
             </div>
-          ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex items-center"
-              >
-                <img src="/company-logo.png" alt="Absolute Veritas Inspection Service" className="h-10 object-contain max-w-[180px]" />
-              </motion.div>
-            </AnimatePresence>
-          )}
-        </div>
-        <button
-          onClick={toggleSidebar}
-          className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-        >
-          {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
-      </div>
-
-      {/* Main Nav */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar py-4 px-3">
-        <div className="space-y-1">
-          {navItems.map((item) => (
-            <SidebarLink key={item.label} {...item} isCollapsed={isSidebarCollapsed} />
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom Nav */}
-      <div className="border-t border-gray-100 py-3 px-3 space-y-1">
-        {bottomItems.map((item) => (
-          <SidebarLink key={item.to} {...item} isCollapsed={isSidebarCollapsed} />
+          </div>
         ))}
+      </nav>
+
+      {/* User + Logout */}
+      <div className="border-t border-slate-100 p-3 space-y-0.5">
+        <div className="flex items-center gap-2.5 px-3 py-2">
+          <div className="w-7 h-7 rounded-full bg-av-navy flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+            {initials}
+          </div>
+          <div className="min-w-0">
+            <p className="text-[12px] font-semibold text-slate-800 truncate">{user?.name || 'User'}</p>
+            <p className="text-[10px] text-slate-400 truncate">{user?.email || ''}</p>
+          </div>
+        </div>
         <button
           onClick={logout}
-          className={cn(
-            'flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium',
-            'text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200'
-          )}
+          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-[13px] font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors duration-150"
         >
-          <LogOut className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} />
-          <AnimatePresence mode="wait">
-            {!isSidebarCollapsed && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="whitespace-nowrap"
-              >
-                Log out
-              </motion.span>
-            )}
-          </AnimatePresence>
+          <LogOut size={16} strokeWidth={1.75} className="shrink-0" />
+          Log out
         </button>
       </div>
-    </motion.aside>
+    </aside>
   );
 };
 
