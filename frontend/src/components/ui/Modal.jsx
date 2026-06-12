@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { cn } from '../../utils/cn';
 
 /**
  * Modal component for dialogs
@@ -76,25 +77,27 @@ const Modal = ({
       {/* Modal */}
       <div
         ref={modalRef}
-        className={`relative bg-white rounded-xl shadow-xl w-full ${sizes[size]} transform transition-transform duration-300 ${
+        className={cn(
+          'relative bg-white rounded-xl shadow-av-card w-full transform transition-transform duration-300',
+          sizes[size],
           isOpen ? 'scale-100' : 'scale-95'
-        }`}
+        )}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
             <h3
               id="modal-title"
-              className="text-lg font-semibold text-gray-900"
+              className="text-lg font-semibold text-slate-900"
             >
               {title}
             </h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-av-orange rounded-full p-1"
+              className="text-slate-400 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-av-orange rounded p-1"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path

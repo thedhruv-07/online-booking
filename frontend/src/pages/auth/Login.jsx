@@ -84,7 +84,7 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="name@company.com"
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-[16px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-all font-medium"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-all font-medium"
                 required
               />
             </div>
@@ -105,7 +105,7 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-[16px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-all font-medium"
+                className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-av-orange/20 focus:border-av-orange transition-all font-medium"
                 required
               />
               <button
@@ -126,7 +126,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-av-orange text-white py-4 rounded-[16px] font-bold text-lg hover:bg-av-orange-hover focus:ring-4 focus:ring-av-orange/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-av-orange/20"
+            className="w-full bg-av-orange text-white py-4 rounded-lg font-bold text-lg hover:bg-av-orange-hover focus:ring-4 focus:ring-av-orange/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-av-orange/20"
           >
             {loading ? (
               <Loader2 className="w-6 h-6 animate-spin" />
