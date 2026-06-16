@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ExternalLink, ArrowRight, ArrowLeft, Hash, Building2, CreditCard, Upload } from 'lucide-react';
 import { useBooking } from '../../hooks/useBooking';
+import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { paymentService } from '../../services/payment.service';
 import { bookingService } from '../../services/booking.service';
@@ -16,7 +17,9 @@ const BANK_DETAILS = [
 
 const PaymentStep = () => {
   const { bookingData, clearDraft } = useBooking();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = user?.role === 'admin';
 
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [stage, setStage] = useState('select');
@@ -140,8 +143,8 @@ const PaymentStep = () => {
             </div>
           </button>
 
-          {/* Demo payment — dev only */}
-          {import.meta.env.DEV && (
+          {/* Demo payment — admin only */}
+          {(import.meta.env.DEV || isAdmin) && (
             <button
               onClick={handleDemoPayment}
               disabled={isDemoLoading}
