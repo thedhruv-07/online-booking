@@ -100,8 +100,6 @@ const BookingDetails = () => {
     );
   }
 
-  const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').split('/api')[0];
-
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-20">
       {/* Header */}
@@ -247,40 +245,36 @@ const BookingDetails = () => {
                 <span className="text-sm font-semibold text-slate-900 sm:w-2/3 sm:text-right">{booking.aql?.codeLetter || '—'}</span>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-slate-50 transition-colors gap-2">
-                <span className="text-sm font-medium text-slate-500 sm:w-1/3">Strictness Mode</span>
-                <span className="text-sm font-semibold text-slate-900 sm:w-2/3 sm:text-right capitalize">{booking.aql?.strictnessMode || 'Standard'}</span>
+                <span className="text-sm font-medium text-slate-500 sm:w-1/3">Inspection Type</span>
+                <span className="text-sm font-semibold text-slate-900 sm:w-2/3 sm:text-right capitalize">{booking.aql?.inspectionType || 'General'}</span>
               </div>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-slate-50 transition-colors gap-2">
-                <span className="text-sm font-medium text-slate-500 sm:w-1/3">Quality Mode</span>
-                <span className="text-sm font-semibold text-slate-900 sm:w-2/3 sm:text-right capitalize">{booking.aql?.qualityMode || 'Standard'}</span>
-              </div>
-              
+
               {/* Defect Limits */}
               <div className="bg-slate-50 p-4 border-t border-slate-200">
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Major Defects (AQL {booking.aql?.aqlMajor || '—'})</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Major Defects (AQL {booking.aql?.majorDefectLimit ?? '—'})</span>
                     <div className="flex gap-4">
                       <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 flex-1">
                         <span className="text-[10px] font-bold text-emerald-600 block">Accept</span>
-                        <span className="text-lg font-bold text-slate-900">{booking.aql?.majorLimits?.ac ?? '—'}</span>
+                        <span className="text-lg font-bold text-slate-900">{booking.aql?.acceptPoint ?? '—'}</span>
                       </div>
                       <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 flex-1">
                         <span className="text-[10px] font-bold text-rose-600 block">Reject</span>
-                        <span className="text-lg font-bold text-slate-900">{booking.aql?.majorLimits?.re ?? '—'}</span>
+                        <span className="text-lg font-bold text-slate-900">{booking.aql?.acceptPoint != null ? booking.aql.acceptPoint + 1 : '—'}</span>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Minor Defects (AQL {booking.aql?.aqlMinor || '—'})</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Minor Defects (AQL {booking.aql?.minorDefectLimit ?? '—'})</span>
                     <div className="flex gap-4">
                       <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 flex-1">
                         <span className="text-[10px] font-bold text-emerald-600 block">Accept</span>
-                        <span className="text-lg font-bold text-slate-900">{booking.aql?.minorLimits?.ac ?? '—'}</span>
+                        <span className="text-lg font-bold text-slate-900">{booking.aql?.rejectPoint ?? '—'}</span>
                       </div>
                       <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 flex-1">
                         <span className="text-[10px] font-bold text-rose-600 block">Reject</span>
-                        <span className="text-lg font-bold text-slate-900">{booking.aql?.minorLimits?.re ?? '—'}</span>
+                        <span className="text-lg font-bold text-slate-900">{booking.aql?.rejectPoint != null ? booking.aql.rejectPoint + 1 : '—'}</span>
                       </div>
                     </div>
                   </div>
@@ -368,12 +362,12 @@ const BookingDetails = () => {
                     <div className="flex items-center gap-3 mb-3">
                       <FileText size={16} className="text-slate-400" />
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-slate-900 truncate">{file.name}</div>
-                        <div className="text-[10px] text-slate-500 uppercase">{file.type?.split('/')[1] || 'DOC'} • {(file.size / 1024).toFixed(1)} KB</div>
+                        <div className="text-sm font-medium text-slate-900 truncate">{file.filename || file.name || 'Document'}</div>
+                        <div className="text-[10px] text-slate-500 uppercase">{(file.mimetype || file.type)?.split('/')[1] || 'DOC'}</div>
                       </div>
                     </div>
-                    <a 
-                      href={`${baseUrl}${file.url}`}
+                    <a
+                      href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-[10px] font-bold text-slate-700 transition-colors text-center flex items-center justify-center gap-2"

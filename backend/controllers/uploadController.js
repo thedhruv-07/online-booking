@@ -3,6 +3,9 @@ const { AppError } = require('../middleware/errorHandler');
 const path = require('path');
 const fs = require('fs');
 
+const BACKEND_URL = (process.env.BACKEND_URL || 'http://localhost:3001').replace(/\/$/, '');
+const uploadDir = path.join(__dirname, '..', 'uploads');
+
 /**
  * ✅ Upload single file
  */
@@ -15,7 +18,7 @@ exports.uploadFile = async (req, res, next) => {
     const file = await Upload.create({
       userId: req.user._id,
       name: req.file.originalname,
-      url: `/uploads/${req.file.filename}`,
+      url: `${BACKEND_URL}/uploads/${req.file.filename}`,
       size: req.file.size,
       type: req.file.mimetype,
       category: 'file',
@@ -46,7 +49,7 @@ exports.uploadFiles = async (req, res, next) => {
         return Upload.create({
           userId: req.user._id,
           name: file.originalname,
-          url: `/uploads/${file.filename}`,
+          url: `${BACKEND_URL}/uploads/${file.filename}`,
           size: file.size,
           type: file.mimetype,
           category: 'file',
@@ -80,7 +83,7 @@ exports.uploadBookingDocument = async (req, res, next) => {
       userId: req.user._id,
       bookingId: req.body.bookingId,
       name: req.file.originalname,
-      url: `/uploads/${req.file.filename}`,
+      url: `${BACKEND_URL}/uploads/${req.file.filename}`,
       size: req.file.size,
       type: req.file.mimetype,
       category: 'booking',
@@ -109,7 +112,7 @@ exports.deleteFile = async (req, res, next) => {
       throw new AppError('File not found', 404);
     }
 
-    const filePath = path.join(__dirname, '..', '..', file.url);
+    const filePath = path.join(uploadDir, path.basename(file.url));
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }

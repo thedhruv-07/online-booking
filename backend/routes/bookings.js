@@ -38,6 +38,12 @@ router.get('/:id/report-data', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
+    const isOwner = booking.userId && booking.userId._id.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
     if (!REPORT_ELIGIBLE_STATUSES.includes(booking.status)) {
       return res.status(403).json({ success: false, message: 'Report data not available until booking is confirmed' });
     }
