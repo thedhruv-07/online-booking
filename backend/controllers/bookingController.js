@@ -1,4 +1,6 @@
 const Booking = require('../models/Booking');
+const { sendRazorpayNotificationEmail } = require('../utils/sendEmail');
+const { notifyReportApp } = require('./paymentController');
 
 exports.createBooking = async (req, res, next) => {
   try {
@@ -164,6 +166,21 @@ exports.updateBooking = async (req, res, next) => {
       new: true,
       runValidators: true
     });
+
+    if (updateData.payment?.method === 'razorpay') {
+      sendRazorpayNotificationEmail({ user: req.user, booking }).catch(err => {
+        console.error('Razorpay notification email failed:', err.message);
+      });
+      notifyReportApp({
+        eventType: 'booking.payment.received',
+        booking,
+        payment: booking.payment,
+        user: req.user,
+      }).catch(err => {
+        console.error('Webhook notify failed (razorpay):', err.message);
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: booking

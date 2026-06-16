@@ -18,11 +18,12 @@ const PaymentStep = () => {
   const { bookingData, clearDraft } = useBooking();
   const navigate = useNavigate();
 
-  const [paymentMethod, setPaymentMethod] = useState(null); 
-  const [stage, setStage] = useState('select');             
+  const [paymentMethod, setPaymentMethod] = useState(null);
+  const [stage, setStage] = useState('select');
   const [receiptFile, setReceiptFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
 
   const bookingId    = bookingData.payment?.bookingId;
   const totalAmount  = bookingData.payment?.totalAmount ?? bookingData.service?.totalAmount ?? 0;
@@ -73,6 +74,17 @@ const PaymentStep = () => {
     } catch (err) {
       setUploadError(err.message || 'Upload failed. Please try again.');
       setIsUploading(false);
+    }
+  };
+
+  const handleDemoPayment = async () => {
+    setIsDemoLoading(true);
+    try {
+      await paymentService.demoSuccess(bookingId);
+      finishAndNavigate();
+    } catch (err) {
+      console.error('Demo payment failed:', err.message);
+      setIsDemoLoading(false);
     }
   };
 
@@ -127,6 +139,27 @@ const PaymentStep = () => {
               <ArrowRight size={20} className="ml-auto text-slate-300 group-hover:text-av-orange-light0 transition-colors" />
             </div>
           </button>
+
+          {/* Demo payment — dev only */}
+          {import.meta.env.DEV && (
+            <button
+              onClick={handleDemoPayment}
+              disabled={isDemoLoading}
+              className="w-full p-5 bg-violet-50 border-2 border-dashed border-violet-200 rounded-3xl text-left hover:border-violet-400 hover:bg-violet-100 transition-all group disabled:opacity-60"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-violet-100 rounded-[16px] flex items-center justify-center">
+                  <span className="text-xl">🧪</span>
+                </div>
+                <div>
+                  <div className="font-black text-violet-700 text-base">
+                    {isDemoLoading ? 'Processing…' : 'Demo Payment (Dev Only)'}
+                  </div>
+                  <div className="text-xs text-violet-500 font-medium">Instantly marks booking confirmed, triggers all emails</div>
+                </div>
+              </div>
+            </button>
+          )}
         </div>
       </div>
     );

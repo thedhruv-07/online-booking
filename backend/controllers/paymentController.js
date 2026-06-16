@@ -19,7 +19,7 @@ const toAbsoluteUrl = (maybeRelativeUrl) => {
  * Enqueue webhook delivery to Report App. This creates a persistent delivery
  * record which a background worker will process with retries and HMAC signature.
  */
-const notifyReportApp = async ({ eventType, booking, payment, user, receiptUrl = null }) => {
+const notifyReportApp = exports.notifyReportApp = async ({ eventType, booking, payment, user, receiptUrl = null }) => {
   if (!REPORT_APP_WEBHOOK_URL) return;
 
   const payload = {
@@ -56,7 +56,7 @@ const notifyReportApp = async ({ eventType, booking, payment, user, receiptUrl =
 
   try {
     const existing = await WebhookDelivery.findOne({ idempotencyKey, status: 'sent' });
-    if (existing) return; 
+    if (existing) return;
 
     const delivery = await WebhookDelivery.create({
       url: REPORT_APP_WEBHOOK_URL,
@@ -66,14 +66,38 @@ const notifyReportApp = async ({ eventType, booking, payment, user, receiptUrl =
       nextAttemptAt: Date.now(),
     });
 
+    const crypto = require('crypto');
+    const SECRET = process.env.REPORT_APP_WEBHOOK_SECRET || '';
+    const body = JSON.stringify(payload);
+    const signature = SECRET
+      ? `sha256=${crypto.createHmac('sha256', SECRET).update(body).digest('hex')}`
+      : null;
+
     try {
-      const { addDeliveryJob } = require('../queues/webhookQueue');
-      await addDeliveryJob(delivery._id.toString(), { attempts: delivery.maxAttempts });
-    } catch (qErr) {
-      console.error('Failed to enqueue Bull job:', qErr.message);
+      const res = await fetch(REPORT_APP_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(SECRET ? { 'x-webhook-secret': SECRET } : {}),
+          ...(signature ? { 'x-webhook-signature': signature } : {}),
+        },
+        body,
+      });
+      const text = await res.text();
+      delivery.status = res.ok ? 'sent' : 'failed';
+      delivery.attempts = 1;
+      delivery.lastError = res.ok ? null : `HTTP ${res.status}: ${text}`;
+      await delivery.save();
+      console.log(`Webhook ${res.ok ? '✅ sent' : '❌ failed'} [${res.status}] → ${REPORT_APP_WEBHOOK_URL}`);
+    } catch (fetchErr) {
+      delivery.attempts = 1;
+      delivery.lastError = fetchErr.message;
+      delivery.status = 'failed';
+      await delivery.save();
+      console.warn('Webhook delivery failed:', fetchErr.message);
     }
   } catch (err) {
-    console.error('Failed to enqueue webhook delivery:', err.message);
+    console.error('Failed to deliver webhook:', err.message);
   }
 };
 
@@ -225,7 +249,7 @@ exports.handleBankTransfer = async (req, res, next) => {
     }
 
     if (req.file) {
-      payment.bankReceiptUrl = `/uploads/${req.file.filename}`;
+      payment.bankReceiptUrl = `${BACKEND_PUBLIC_URL}/uploads/${req.file.filename}`;
     }
 
     payment.status = 'completed';
@@ -235,7 +259,7 @@ exports.handleBankTransfer = async (req, res, next) => {
     const receiptUpdate = req.file ? {
       'payment.receiptFile': {
         filename: req.file.filename,
-        url: `/uploads/${req.file.filename}`,
+        url: `${BACKEND_PUBLIC_URL}/uploads/${req.file.filename}`,
         mimetype: req.file.mimetype,
       }
     } : {};
@@ -426,7 +450,7 @@ exports.uploadBankReceipt = async (req, res, next) => {
 
     booking.payment.receiptFile = {
       filename: req.file.filename,
-      url: `/uploads/${req.file.filename}`,
+      url: `${BACKEND_PUBLIC_URL}/uploads/${req.file.filename}`,
       mimetype: req.file.mimetype,
       uploadedAt: new Date(),
     };

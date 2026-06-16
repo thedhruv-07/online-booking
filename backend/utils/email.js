@@ -1,155 +1,63 @@
-const nodemailer = require('nodemailer');
-const path = require('path');
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-try {
-  require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
-} catch (e) {
-
-}
-
-let cachedTransporter = null;
-
-const createTransporter = async () => {
-  if (cachedTransporter) return cachedTransporter;
-
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-    const isGmail = (process.env.SMTP_HOST || '').includes('gmail.com');
-    const transporter = nodemailer.createTransport(isGmail ? {
-      service: 'gmail',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    } : {
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: process.env.SMTP_PORT || 465,
-      secure: process.env.SMTP_PORT == 465 || !process.env.SMTP_PORT,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    try {
-      await transporter.verify();
-      console.log('✅ SMTP CONNECTION SUCCESSFUL - Real emails will be sent!');
-      cachedTransporter = transporter;
-      return transporter;
-    } catch (error) {
-      console.error('❌ SMTP CONNECTION ERROR:', error.message);
-      console.log('👉 Tip: Ensure you are using an "App Password", not your regular password.');
-      throw error;
-    }
-  }
-
-  console.log('ℹ️ No SMTP credentials - Using Ethereal (Test Mode)');
-  const testAccount = await nodemailer.createTestAccount();
-  cachedTransporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
-    secure: false,
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
-    },
-  });
-  return cachedTransporter;
-};
-
-/**
- * Send an email
- * @param {string} to
- * @param {string} subject
- * @param {string} html
- * @returns {Promise<{messageId: string, previewUrl?: string}>}
- */
 const sendEmail = async (to, subject, html) => {
-  try {
-    const transporter = await createTransporter();
-    const from = process.env.FROM_EMAIL || 'noreply@bookingapp.com';
-    console.log(`-----------------------------------`);
-    console.log(`📧 Attempting to send email to: ${to}`);
-    console.log(`📝 Subject: ${subject}`);
-    const info = await transporter.sendMail({
-      from,
-      to,
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) throw new Error('BREVO_API_KEY is not set');
+
+  const res = await fetch(BREVO_API_URL, {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: 'Absolute Veritas', email: process.env.FROM_EMAIL || 'cs@absoluteveritas.com' },
+      to: [{ email: to }],
       subject,
-      html,
-    });
+      htmlContent: html,
+    }),
+  });
 
-    console.log(`✅ Email sent successfully! ID: ${info.messageId}`);
-
-    const previewUrl = nodemailer.getTestMessageUrl(info);
-    if (previewUrl) {
-      console.log(`\x1b[36m%s\x1b[0m`, `🔗 PREVIEW LINK (CLICK THIS): ${previewUrl}`);
-      console.log(`-----------------------------------`);
-      return { messageId: info.messageId, previewUrl };
-    }
-    return { messageId: info.messageId };
-  } catch (error) {
-    console.error('Error sending email:', error);
-    throw error;
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Brevo API ${res.status}: ${err}`);
   }
+
+  const result = await res.json();
+  console.log(`✅ Email sent to ${to} | messageId: ${result.messageId}`);
+  return { messageId: result.messageId };
 };
 
-/**
- * Send verification email
- * @param {string} email
- * @param {string} token
- * @param {string} name
- */
 const sendVerificationEmail = async (email, token, name) => {
   const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-  const subject = 'Verify your email - Absolute Veritas';
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2>Welcome to Absolute Veritas, ${name}!</h2>
-      <p>Please verify your email address by clicking the link below:</p>
-      <p><a href="${verificationUrl}" style="background-color: #F58220; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Email</a></p>
-      <p>If the button doesn't work, copy and paste this URL into your browser:</p>
-      <p><code>${verificationUrl}</code></p>
-      <p>This link will expire in 24 hours.</p>
-      <p>If you didn't create an account, you can ignore this email.</p>
-    </div>
-  `;
-  return sendEmail(email, subject, html);
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+      <h2 style="color:#0B3A70;">Welcome to Absolute Veritas, ${name}!</h2>
+      <p>Please verify your email address by clicking the button below:</p>
+      <p style="margin:24px 0;">
+        <a href="${verificationUrl}" style="background:#F58220;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;display:inline-block;">Verify Email</a>
+      </p>
+      <p style="color:#64748b;font-size:14px;">Or copy this link into your browser:<br><code style="color:#475569;">${verificationUrl}</code></p>
+      <p style="color:#94a3b8;font-size:13px;margin-top:24px;">This link expires in 24 hours. If you didn't create an account, you can ignore this email.</p>
+    </div>`;
+  return sendEmail(email, 'Verify your email — Absolute Veritas', html);
 };
 
-/**
- * Send password reset email
- * @param {string} email
- * @param {string} token
- * @param {string} name
- */
 const sendPasswordResetEmail = async (email, token, name) => {
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-  const subject = 'Reset your password - Absolute Veritas';
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2>Hello ${name},</h2>
-      <p>You requested to reset your password. Click the link below to set a new password:</p>
-      <p><a href="${resetUrl}" style="background-color: #F58220; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
-      <p>If the button doesn't work, copy and paste this URL into your browser:</p>
-      <p><code>${resetUrl}</code></p>
-      <p>This link will expire in 1 hour.</p>
-      <p>If you didn't request a password reset, please ignore this email.</p>
-    </div>
-  `;
-  return sendEmail(email, subject, html);
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+      <h2 style="color:#0B3A70;">Password Reset — Absolute Veritas</h2>
+      <p>Hello ${name},</p>
+      <p>You requested to reset your password. Click the button below to set a new one:</p>
+      <p style="margin:24px 0;">
+        <a href="${resetUrl}" style="background:#F58220;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;display:inline-block;">Reset Password</a>
+      </p>
+      <p style="color:#64748b;font-size:14px;">Or copy this link:<br><code style="color:#475569;">${resetUrl}</code></p>
+      <p style="color:#94a3b8;font-size:13px;margin-top:24px;">This link expires in 1 hour. If you didn't request this, please ignore.</p>
+    </div>`;
+  return sendEmail(email, 'Reset your password — Absolute Veritas', html);
 };
 
-module.exports = {
-  sendEmail,
-  sendVerificationEmail,
-  sendPasswordResetEmail,
-};
-
-if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-  createTransporter().then(() => {
-
-  }).catch(err => {
-    console.error('❌ SMTP INITIALIZATION FAILED:', err.message);
-  });
-} else {
-  console.log('ℹ️ No SMTP credentials - Using Ethereal (Test Mode)');
-}
+module.exports = { sendEmail, sendVerificationEmail, sendPasswordResetEmail };

@@ -10,7 +10,7 @@ const Bookings = () => {
     const fetchAllBookings = async () => {
       try {
         const data = await bookingService.getAllBookings();
-        setAllBookings(data);
+        setAllBookings(data.bookings || data);
       } catch (error) {
         console.error('Failed to fetch admin bookings:', error);
       } finally {
@@ -85,17 +85,20 @@ const Bookings = () => {
                 </tr>
               ) : allBookings.length > 0 ? (
                 allBookings.map((booking) => (
-                  <tr key={booking.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">{booking.id}</td>
-                    <td className="px-6 py-4 text-gray-500">{booking.user}</td>
-                    <td className="px-6 py-4 text-gray-900">{booking.service}</td>
+                  <tr key={booking._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 font-mono text-xs text-gray-900">{booking._id?.slice(-8).toUpperCase()}</td>
+                    <td className="px-6 py-4 text-gray-500">
+                      <div className="font-medium text-gray-900">{booking.userId?.name || '—'}</div>
+                      <div className="text-xs text-gray-400">{booking.userId?.email || '—'}</div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-900">{(booking.service?.selected || []).join(', ') || '—'}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 inline-flex text-xs font-semibold rounded-full ${getStatusColor(booking.status)}`}>
-                        {booking.status.replace('_', ' ')}
+                        {booking.status?.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-900">{formatCurrency(booking.amount)}</td>
-                    <td className="px-6 py-4 text-gray-500">{booking.date}</td>
+                    <td className="px-6 py-4 text-gray-900">{formatCurrency(booking.service?.totalAmount ?? 0)}</td>
+                    <td className="px-6 py-4 text-gray-500">{new Date(booking.createdAt).toLocaleDateString()}</td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex space-x-3">
                         <button className="text-blue-600 hover:text-blue-800">View</button>
