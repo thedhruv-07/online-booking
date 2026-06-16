@@ -230,9 +230,9 @@ const FileUpload = ({
       {existingFiles.length > 0 && (
         <div className="mt-4 space-y-2">
           <p className="text-sm font-medium text-gray-700">Uploaded Files:</p>
-          {existingFiles.map((file) => (
+          {existingFiles.map((file, idx) => (
             <div
-              key={file.id}
+              key={file.id || file.filename || file.name || idx}
               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
             >
               <div className="flex items-center space-x-3">
@@ -248,14 +248,16 @@ const FileUpload = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {file.name}
+                    {file.name || file.filename || file.file?.name || 'Document'}
                   </p>
-                  <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                  {(file.size || file.file?.size) ? (
+                    <p className="text-xs text-gray-500">{formatFileSize(file.size || file.file?.size)}</p>
+                  ) : null}
                 </div>
               </div>
               {onRemoveFile && (
                 <button
-                  onClick={() => removeFile(file.id)}
+                  onClick={() => removeFile(file.id || file.filename || file.name || idx)}
                   className="ml-4 text-red-500 hover:text-red-700 transition-colors"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

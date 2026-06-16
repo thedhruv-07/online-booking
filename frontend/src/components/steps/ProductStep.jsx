@@ -23,10 +23,16 @@ const ProductStep = () => {
   const [validationError, setValidationError] = useState('');
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const numericFields = ['quantity', 'piecesInSet'];
+    let finalValue = value;
+    if (type === 'number' && numericFields.includes(name)) {
+      const num = parseInt(value, 10);
+      if (value !== '' && (isNaN(num) || num < 1)) finalValue = '1';
+    }
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: finalValue
     }));
     if (validationError) setValidationError('');
   };
@@ -126,6 +132,7 @@ const ProductStep = () => {
             value={formData.quantity}
             onChange={handleChange}
             placeholder="Enter Quantity ..."
+            min="1"
             required
             className="rounded-md border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
           />
@@ -143,6 +150,7 @@ const ProductStep = () => {
             value={formData.piecesInSet}
             onChange={handleChange}
             placeholder="Enter Pieces In Set ..."
+            min="1"
             className="rounded-md border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
           />
         </div>

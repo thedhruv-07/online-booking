@@ -67,7 +67,9 @@ exports.createBooking = async (req, res, next) => {
       status: req.body.status || 'draft',
       payment: {
         status: 'pending',
-        method: req.body.payment?.method || null,
+        method: ['razorpay', 'paypal', 'bank_transfer'].includes(req.body.payment?.method)
+          ? req.body.payment.method
+          : null,
       },
       quoteBreakdown: {
         basePrice: pricingResult.basePrice,

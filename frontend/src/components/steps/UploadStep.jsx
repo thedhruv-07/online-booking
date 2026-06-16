@@ -20,6 +20,10 @@ const UploadStep = () => {
 
   const handleNext = async () => {
     setUploadError(null);
+    if (bookingData.files.length === 0) {
+      setUploadError('Please upload at least one document before continuing.');
+      return;
+    }
     setUploading(true);
     try {
       const uploaded = await Promise.all(
@@ -98,7 +102,7 @@ const UploadStep = () => {
       <StepNavigation
         onBack={prevStep}
         onNext={handleNext}
-        isValid={!uploading}
+        isValid={bookingData.files.length > 0 && !uploading}
         nextLabel={uploading ? 'Uploading...' : 'Continue to Factory'}
       />
     </div>

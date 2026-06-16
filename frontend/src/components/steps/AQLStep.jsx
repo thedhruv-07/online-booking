@@ -15,12 +15,19 @@ import { cn } from '../../utils/cn';
 const AQLStep = () => {
   const { updateStepData, bookingData, prevStep, nextStep } = useBooking();
 
+  const savedLotSize = bookingData.aql?.lotSize && Number(bookingData.aql.lotSize) > 0
+    ? String(bookingData.aql.lotSize)
+    : '';
+  const savedPiecesPerSet = bookingData.aql?.piecesPerSet && Number(bookingData.aql.piecesPerSet) > 0
+    ? String(bookingData.aql.piecesPerSet)
+    : '';
+
   const [form, setForm] = useState({
     inspectionType: bookingData.aql?.inspectionType || 'General',
     inspectionLevel: bookingData.aql?.inspectionLevel || 'II',
     unitType: bookingData.aql?.unitType || 'Pieces',
-    lotSize: bookingData.aql?.lotSize || bookingData.product?.quantity || '',
-    piecesPerSet: bookingData.aql?.piecesPerSet || '1',
+    lotSize: savedLotSize || (bookingData.product?.quantity ? String(bookingData.product.quantity) : ''),
+    piecesPerSet: savedPiecesPerSet || (bookingData.product?.piecesInSet ? String(bookingData.product.piecesInSet) : '1'),
     majorAQL: bookingData.aql?.majorAQL || '2.5',
     minorAQL: bookingData.aql?.minorAQL || '4.0',
   });
@@ -72,8 +79,14 @@ const AQLStep = () => {
   }, [form]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    const numericFields = ['lotSize', 'piecesPerSet'];
+    let finalValue = value;
+    if (type === 'number' && numericFields.includes(name)) {
+      const num = parseInt(value, 10);
+      if (value !== '' && (isNaN(num) || num < 1)) finalValue = '1';
+    }
+    setForm(prev => ({ ...prev, [name]: finalValue }));
   };
 
   const handleContinue = () => {
