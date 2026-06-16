@@ -123,7 +123,7 @@ const SearchableSelect = ({
           </div>
 
           {/* Options List */}
-          <div className="max-h-[280px] overflow-y-auto overscroll-contain">
+          <div className="max-h-[240px] overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => {
                 const val = option.value || option.id;

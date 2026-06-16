@@ -200,7 +200,7 @@ const ContactStep = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-white border border-slate-100 rounded-3xl p-8 shadow-xl shadow-slate-200/40 overflow-hidden"
+              className="bg-white border border-slate-100 rounded-3xl p-8 shadow-xl shadow-slate-200/40"
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
