@@ -100,6 +100,13 @@ const BookingDetails = () => {
     );
   }
 
+  const backendOrigin = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/api$/, '');
+  const resolveFileUrl = (url) => {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url)) return url;
+    return `${backendOrigin}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-20">
       {/* Header */}
@@ -366,15 +373,21 @@ const BookingDetails = () => {
                         <div className="text-[10px] text-slate-500 uppercase">{(file.mimetype || file.type)?.split('/')[1] || 'DOC'}</div>
                       </div>
                     </div>
-                    <a
-                      href={file.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-[10px] font-bold text-slate-700 transition-colors text-center flex items-center justify-center gap-2"
-                    >
-                      <Eye size={12} />
-                      VIEW FILE
-                    </a>
+                    {resolveFileUrl(file.url) ? (
+                      <a
+                        href={resolveFileUrl(file.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-[10px] font-bold text-slate-700 transition-colors text-center flex items-center justify-center gap-2"
+                      >
+                        <Eye size={12} />
+                        VIEW FILE
+                      </a>
+                    ) : (
+                      <div className="w-full py-1.5 border border-slate-100 rounded-md text-[10px] font-bold text-slate-300 text-center">
+                        FILE UNAVAILABLE
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (
