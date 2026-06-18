@@ -13,10 +13,7 @@ const statusDot = {
 
 const UpcomingBookings = ({ bookings = [] }) => {
 
-  const upcoming = bookings
-    .filter(b => !['completed', 'cancelled'].includes(b.status?.toLowerCase()))
-    .sort((a, b) => new Date(a.date || a.createdAt) - new Date(b.date || b.createdAt))
-    .slice(0, 5);
+  const upcoming = bookings;
 
   return (
     <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-6 shadow-av-card">
@@ -47,7 +44,7 @@ const UpcomingBookings = ({ bookings = [] }) => {
                 </p>
               </div>
               <span className="text-xs font-bold text-gray-400 shrink-0 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-                {new Date(booking.date || booking.createdAt).toLocaleDateString('en-US', {
+                {new Date(booking.inspectionDate || booking.createdAt).toLocaleDateString('en-US', {
                   month: 'short', day: 'numeric'
                 })}
               </span>

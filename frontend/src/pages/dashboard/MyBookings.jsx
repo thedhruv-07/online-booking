@@ -50,10 +50,13 @@ const MyBookings = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [confirmTarget, setConfirmTarget] = useState(null);   
+  const [cancelTarget, setCancelTarget] = useState(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [confirmTarget, setConfirmTarget] = useState(null);
   const [receiptFile, setReceiptFile] = useState(null);
   const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
   const [receiptError, setReceiptError] = useState('');
+  const [downloadingId, setDownloadingId] = useState(null);
 
   useEffect(() => {
     fetchBookings({ 
@@ -119,6 +122,43 @@ const MyBookings = () => {
       window.alert(err.response?.data?.message || 'Failed to delete booking.');
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleDownloadInvoice = async (e, bookingId) => {
+    e.stopPropagation();
+    setActiveDropdown(null);
+    if (downloadingId) return;
+    setDownloadingId(bookingId);
+    try {
+      const blobData = await api.get(`/invoice/${bookingId}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([blobData], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Invoice-${bookingId.slice(-8).toUpperCase()}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      toast.error('Failed to download invoice. Please try again.');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const confirmCancel = async () => {
+    if (!cancelTarget) return;
+    setIsCancelling(true);
+    try {
+      await api.post(`/bookings/${cancelTarget._id}/cancel`);
+      setCancelTarget(null);
+      fetchBookings({ search: searchTerm, status: activeFilter, page: currentPage });
+      toast.success('Booking cancelled.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to cancel booking.');
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -324,17 +364,18 @@ const MyBookings = () => {
                                 <Trash2 size={16} />
                                 Delete Booking
                               </button>
-                              <button 
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-av-orange-light hover:text-av-orange transition-colors"
-                                onClick={() => window.alert('Invoice download coming soon!')}
+                              <button
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-av-orange-light hover:text-av-orange transition-colors disabled:opacity-50"
+                                disabled={downloadingId === booking._id}
+                                onClick={(e) => handleDownloadInvoice(e, booking._id)}
                               >
                                 <Download size={16} />
-                                Download Invoice
+                                {downloadingId === booking._id ? 'Downloading…' : 'Download Invoice'}
                               </button>
                               <div className="h-px bg-slate-50 my-1 mx-2"></div>
-                              <button 
+                              <button
                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
-                                onClick={() => window.alert('Please contact support to cancel this booking.')}
+                                onClick={(e) => { e.stopPropagation(); setActiveDropdown(null); setCancelTarget(booking); }}
                               >
                                 <XCircle size={16} />
                                 Cancel Booking
@@ -450,6 +491,44 @@ const MyBookings = () => {
                   <Trash2 size={16} />
                   Delete
                 </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Cancel Confirmation Modal */}
+      <Modal
+        isOpen={!!cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        size="sm"
+      >
+        <div className="text-center py-4">
+          <div className="mx-auto w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6">
+            <XCircle className="w-8 h-8 text-amber-500" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Cancel Booking</h3>
+          <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-xs mx-auto">
+            Are you sure you want to cancel{' '}
+            <span className="text-slate-800 font-bold">{cancelTarget?.service?.name || 'this booking'}</span>?
+            This cannot be undone.
+          </p>
+          <div className="flex items-center gap-3 mt-8">
+            <button
+              onClick={() => setCancelTarget(null)}
+              className="flex-1 px-5 py-3 bg-slate-100 text-slate-700 rounded-[16px] font-bold hover:bg-slate-200 transition-all"
+            >
+              Keep Booking
+            </button>
+            <button
+              onClick={confirmCancel}
+              disabled={isCancelling}
+              className="flex-1 px-5 py-3 bg-amber-500 text-white rounded-[16px] font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-100 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isCancelling ? (
+                <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Cancelling...</>
+              ) : (
+                <><XCircle size={16} />Yes, Cancel</>
               )}
             </button>
           </div>

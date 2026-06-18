@@ -23,8 +23,11 @@ export const bookingService = {
    * @returns {Promise<Booking[]>}
    */
   getBookings: async (filters = {}) => {
-    const queryParams = new URLSearchParams(filters).toString();
-    const response = await api.get(`/bookings?${queryParams}`);
+    const clean = Object.fromEntries(
+      Object.entries(filters).filter(([, v]) => v !== '' && v != null)
+    );
+    const queryParams = new URLSearchParams(clean).toString();
+    const response = await api.get(`/bookings${queryParams ? `?${queryParams}` : ''}`);
     return response;
   },
 

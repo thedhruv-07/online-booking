@@ -96,11 +96,38 @@ exports.createBooking = async (req, res, next) => {
 
 exports.getBookings = async (req, res, next) => {
   try {
-    const bookings = await Booking.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    const { status, search, page = 1, limit = 20 } = req.query;
+
+    const query = { userId: req.user._id };
+
+    if (status) query.status = status;
+
+    if (search) {
+      const regex = new RegExp(search, 'i');
+      query.$or = [
+        { 'service.name': regex },
+        { 'factory.name': regex },
+        { 'product.name': regex },
+      ];
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [bookings, total] = await Promise.all([
+      Booking.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+      Booking.countDocuments(query),
+    ]);
+
     res.status(200).json({
       success: true,
-      count: bookings.length,
-      data: bookings
+      data: bookings,
+      pagination: {
+        total,
+        page: pageNum,
+        pages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error) {
     next(error);

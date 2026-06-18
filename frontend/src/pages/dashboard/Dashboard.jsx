@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBooking } from '../../hooks/useBooking';
+import { api } from '../../services/api';
 import StatsCards from '../../components/dashboard/StatsCard';
 import BookingsTable from '../../components/dashboard/RecentBookingsTable';
 import QuickActions from '../../components/dashboard/QuickActions';
@@ -8,7 +9,15 @@ import UpcomingBookings from '../../components/dashboard/UpcomingBookings';
 import RecentActivity from '../../components/dashboard/RecentActivity';
 
 const Dashboard = () => {
-  const { bookings, isLoading } = useBooking();
+  const { bookings, isLoading, fetchBookings } = useBooking();
+  const [upcomingBookings, setUpcomingBookings] = useState([]);
+
+  useEffect(() => {
+    fetchBookings({ limit: 20 });
+    api.get('/bookings/upcoming')
+      .then(res => setUpcomingBookings(res.data || []))
+      .catch(() => setUpcomingBookings([]));
+  }, []);
 
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
@@ -53,7 +62,7 @@ const Dashboard = () => {
         </div>
         <div className="xl:col-span-4 space-y-5">
           <QuickActions />
-          <UpcomingBookings bookings={bookings || []} />
+          <UpcomingBookings bookings={upcomingBookings} />
           <RecentActivity bookings={bookings || []} />
         </div>
       </div>

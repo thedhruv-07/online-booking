@@ -20,6 +20,22 @@ router.route('/')
 
 router.post('/quote', getQuote);
 
+router.get('/upcoming', async (req, res) => {
+  try {
+    const Booking = require('../models/Booking');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const bookings = await Booking.find({
+      userId: req.user._id,
+      inspectionDate: { $gte: today },
+      status: { $nin: ['cancelled', 'completed'] },
+    }).sort({ inspectionDate: 1 }).limit(5);
+    res.json({ success: true, data: bookings });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.route('/:id')
   .get(getBooking)
   .put(updateBooking)
