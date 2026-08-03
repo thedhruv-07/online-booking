@@ -31,7 +31,10 @@
       "Bash(gh auth *)",
       "PowerShell(cmdkey /delete:\"LegacyGeneric:target=git:https://github.com\")",
       "Bash(git reset *)",
-      "Bash(echo \"exit code: $?\")"
+      "Bash(echo \"exit code: $?\")",
+      "Bash(echo \"grep exit: $?\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | content-type: %{content_type} | size: %{size_download} bytes\\\\n\" https://bookingapp0.netlify.app/company-logo-email.png)",
+      "Bash(curl -sI https://bookingapp0.netlify.app/company-logo-email.png)"
     ]
   }
 }
