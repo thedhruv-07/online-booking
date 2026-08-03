@@ -1,9 +1,14 @@
 const express = require('express');
 const uploadController = require('../controllers/uploadController');
 const { auth } = require('../middleware/auth');
+const { requireApiSecret } = require('../middleware/apiSecret');
 const { upload, handleMulterError } = require('../utils/storage');
 
 const router = express.Router();
+
+// Service-to-service route — registered before router.use(auth) below, same
+// reasoning as the report-data route in routes/bookings.js.
+router.get('/booking/:bookingId/service', requireApiSecret, uploadController.getBookingFilesForService);
 
 router.use(auth);
 

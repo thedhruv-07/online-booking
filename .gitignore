@@ -39,4 +39,6 @@ coverage/
 
 # Misc
 *.tgz
-.cache/.claude/worktrees/
+.cache/
+.claude/worktrees/
+.claude/settings.local.json

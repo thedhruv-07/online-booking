@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(node -e ' *)",
+      "Bash(git rm *)",
+      "Bash(Test-Path \"c:/Projects/booking-app-react/frontend/src/store/uiStore.js\")",
+      "Bash(Test-Path \"c:/Projects/booking-app-react/frontend/src/components/dashboard/WelcomeBanner.jsx\")",
+      "Bash(xargs grep -l \"WelcomeBanner\\\\|WelcomeHeader\")",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const j=JSON.parse\\(d\\); \\(j.events||[]\\).forEach\\(e=>console.log\\(e.date, e.email, e.event, e.reason||''\\)\\);\")",
+      "Read(//c/Projects/**)",
+      "Read(//c/Users/dhruv/**)",
+      "Read(//c/Projects/report-app-main/**)",
+      "Read(//c/Projects/report-app-main/backend/controllers/**)",
+      "Bash(grep -i \"mongo\" \"c:/Projects/report-app-main/backend/.env\" 2>/dev/null | sed 's/PASS=.*/PASS=***/')",
+      "Read(//c/Projects/report-app-main/backend/**)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | Select-Object State, OwningProcess\")",
+      "Bash(netstat -ano)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('hex'\\)\\)\")",
+      "Bash(git check-ignore *)",
+      "WebFetch(domain:developers.brevo.com)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | content-type: %{content_type}\\\\n\" https://absoluteveritas.com/company-logo.png)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | content-type: %{content_type}\\\\n\" https://bookingapp0.netlify.app/company-logo.png)",
+      "Bash(curl -sD - https://absoluteveritas.com/company-logo.png -o /tmp/logo_test.html)",
+      "Read(//tmp/**)",
+      "Bash(npm start *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:3001/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{}')",
+      "Bash(curl -sI https://bookingapp0.netlify.app/company-logo.png)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | time: %{time_total}s | content-type: %{content_type}\\\\n\" https://bookingapp0.netlify.app/company-logo-email.png)",
+      "Bash(git config *)",
+      "Bash(gh auth *)",
+      "PowerShell(cmdkey /delete:\"LegacyGeneric:target=git:https://github.com\")",
+      "Bash(git reset *)",
+      "Bash(echo \"exit code: $?\")"
+    ]
+  }
+}

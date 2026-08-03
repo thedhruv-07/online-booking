@@ -148,3 +148,27 @@ exports.getBookingFiles = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * ✅ Get booking files for a trusted service caller (no user ownership check)
+ */
+exports.getBookingFilesForService = async (req, res, next) => {
+  try {
+    const files = await Upload.find({
+      bookingId: req.params.bookingId,
+      category: 'booking',
+    });
+
+    res.json(
+      files.map((file) => ({
+        name: file.name,
+        url: file.url,
+        size: file.size,
+        type: file.type,
+        createdAt: file.createdAt,
+      }))
+    );
+  } catch (error) {
+    next(error);
+  }
+};

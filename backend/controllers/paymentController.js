@@ -20,7 +20,10 @@ const toAbsoluteUrl = (maybeRelativeUrl) => {
  * record which a background worker will process with retries and HMAC signature.
  */
 const notifyReportApp = exports.notifyReportApp = async ({ eventType, booking, payment, user, receiptUrl = null }) => {
-  if (!REPORT_APP_WEBHOOK_URL) return;
+  if (!REPORT_APP_WEBHOOK_URL) {
+    console.warn(`notifyReportApp skipped for booking ${booking?._id}: REPORT_APP_WEBHOOK_URL is not set`);
+    return;
+  }
 
   const payload = {
     eventType,
