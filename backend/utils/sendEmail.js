@@ -4,10 +4,23 @@ const path = require('path');
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 /**
+ * Human-readable booking label for display in emails, e.g. AV20260803-A160.
+ * Not a lookup key — links still use the raw booking._id.
+ */
+const formatBookingLabel = (booking) => {
+  const date = new Date(booking.createdAt || Date.now());
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const suffix = booking._id.toString().slice(-4).toUpperCase();
+  return `AV${y}${m}${d}-${suffix}`;
+};
+
+/**
  * Core Brevo HTTP API send.
- * attachments: [{ filename, path?, content?, cid? }]
- *   - with cid  → inlineAttachments (embedded in HTML via cid:xxx)
- *   - without   → regular file attachments
+ * attachments: [{ filename, path?, content? }] — regular file attachments.
+ * Brevo's API has no inline/cid image support, so logos must be referenced
+ * via a publicly reachable <img src> URL instead of an attachment.
  */
 const sendEmail = async ({ to, subject, html, attachments = [] }) => {
   const apiKey = process.env.BREVO_API_KEY;
@@ -25,21 +38,10 @@ const sendEmail = async ({ to, subject, html, attachments = [] }) => {
     htmlContent: html,
   };
 
-  const regular = attachments.filter(a => !a.cid);
-  const inline  = attachments.filter(a =>  a.cid);
-
-  if (regular.length) {
-    body.attachment = regular.map(a => ({
+  if (attachments.length) {
+    body.attachment = attachments.map(a => ({
       name: a.filename,
       content: a.content || fs.readFileSync(a.path).toString('base64'),
-    }));
-  }
-
-  if (inline.length) {
-    body.inlineAttachments = inline.map(a => ({
-      name: a.filename,
-      content: a.content || fs.readFileSync(a.path).toString('base64'),
-      contentId: a.cid,
     }));
   }
 
@@ -70,21 +72,13 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
   const adminEmail = process.env.ADMIN_EMAIL;
   const appUrl     = process.env.FRONTEND_URL || 'http://localhost:5174';
   const backendUrl = process.env.BACKEND_URL  || 'http://localhost:3001';
-  const logoPath   = path.join(__dirname, '..', '..', 'frontend', 'public', 'company-logo.png');
-  const hasLogo    = fs.existsSync(logoPath);
-
-  const logoAttachment = hasLogo
-    ? [{ filename: 'company-logo.png', path: logoPath, cid: 'company-logo' }]
-    : [];
-
-  const logoImg = hasLogo
-    ? `<img src="cid:company-logo" alt="Absolute Veritas" style="height:50px;margin-bottom:24px;" />`
-    : `<p style="font-size:22px;font-weight:800;color:#0B3A70;margin:0 0 24px;">Absolute Veritas</p>`;
+  const logoImg    = `<img src="${appUrl}/company-logo-email.png" alt="Absolute Veritas" style="height:50px;margin-bottom:24px;" />`;
 
   const formatDate = d => new Date(d).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   });
 
+  const bookingLabel = formatBookingLabel(booking);
   const amount     = payment?.amount?.toFixed(2) ?? booking.service?.totalAmount?.toFixed(2) ?? '0.00';
   const method     = (payment?.method || 'N/A').replace(/_/g, ' ').toUpperCase();
   const lotSize    = booking.aql?.lotSize ?? 'N/A';
@@ -101,7 +95,7 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
       <table style="border-collapse:collapse;width:100%;">
         <tr><td style="padding:6px 0;color:#64748b;width:40%;">Name</td><td style="padding:6px 0;font-weight:600;">${user.name}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b;">Email</td><td style="padding:6px 0;font-weight:600;">${user.email}</td></tr>
-        <tr><td style="padding:6px 0;color:#64748b;">Booking ID</td><td style="padding:6px 0;font-family:monospace;">${booking._id}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b;">Booking ID</td><td style="padding:6px 0;font-family:monospace;">${bookingLabel}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b;">Amount</td><td style="padding:6px 0;font-weight:600;">$${amount}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b;">Method</td><td style="padding:6px 0;">${method}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b;">Inspection Date</td><td style="padding:6px 0;">${formatDate(booking.inspectionDate)}</td></tr>
@@ -146,7 +140,7 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
       <tr><td class="label">Service</td><td class="val">${booking.service?.name || (booking.service?.selected || []).join(', ') || 'Inspection Service'}</td></tr>
       <tr><td class="label">Inspection Date</td><td class="val">${formatDate(booking.inspectionDate)}</td></tr>
       <tr><td class="label">Status</td><td class="val"><span class="badge">CONFIRMED</span></td></tr>
-      <tr><td class="label" style="border:none;">Booking ID</td><td class="val" style="border:none;font-family:monospace;color:#64748b;">${booking._id}</td></tr>
+      <tr><td class="label" style="border:none;">Booking ID</td><td class="val" style="border:none;font-family:monospace;color:#64748b;">${bookingLabel}</td></tr>
     </table>
   </div>
 
@@ -201,9 +195,8 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
 
   await sendEmail({
     to: user.email,
-    subject: `Booking Confirmed — ID: ${booking._id}`,
+    subject: `Booking Confirmed — ID: ${bookingLabel}`,
     html: userHtml,
-    attachments: logoAttachment,
   });
 };
 
@@ -213,7 +206,7 @@ const sendBookingEmail = async ({ user, booking, payment }) => {
  */
 const sendBookingReceiptEmail = async ({ user, booking, receiptPath }) => {
   const adminEmail = process.env.ADMIN_EMAIL;
-  const shortId    = booking._id.toString().slice(-8).toUpperCase();
+  const shortId    = formatBookingLabel(booking);
 
   const formatDate = d => d
     ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -224,7 +217,7 @@ const sendBookingReceiptEmail = async ({ user, booking, receiptPath }) => {
       <div style="font-family:Arial,sans-serif;padding:20px;max-width:600px;">
         <h2 style="color:#1e293b;">New Booking Payment Received</h2>
         <table style="width:100%;border-collapse:collapse;">
-          <tr><td style="padding:7px 0;color:#64748b;width:40%;">Booking ID</td><td style="padding:7px 0;font-weight:600;">${booking._id}</td></tr>
+          <tr><td style="padding:7px 0;color:#64748b;width:40%;">Booking ID</td><td style="padding:7px 0;font-weight:600;">${shortId}</td></tr>
           <tr><td style="padding:7px 0;color:#64748b;">Client Name</td><td style="padding:7px 0;font-weight:600;">${user.name}</td></tr>
           <tr><td style="padding:7px 0;color:#64748b;">Client Email</td><td style="padding:7px 0;font-weight:600;">${user.email}</td></tr>
           <tr><td style="padding:7px 0;color:#64748b;">Inspection Type</td><td style="padding:7px 0;font-weight:600;">${(booking.service?.selected || []).join(', ') || 'N/A'}</td></tr>
@@ -262,7 +255,7 @@ const sendBookingReceiptEmail = async ({ user, booking, receiptPath }) => {
       <p>We have received your payment receipt. Our team will verify your payment and confirm your booking within 1–2 business days.</p>
       <h3 style="color:#374151;margin-top:22px;">Booking Details</h3>
       <ul style="line-height:2.2;">
-        <li><strong>Booking ID:</strong> ${booking._id}</li>
+        <li><strong>Booking ID:</strong> ${shortId}</li>
         <li><strong>Inspection Type:</strong> ${(booking.service?.selected || []).join(', ') || 'N/A'}</li>
         <li><strong>Inspection Date:</strong> ${formatDate(booking.inspectionDate)}</li>
         <li><strong>Amount:</strong> ${booking.service?.totalAmount ?? 'N/A'} ${booking.service?.currency || 'USD'}</li>
@@ -284,7 +277,7 @@ const sendRazorpayNotificationEmail = async ({ user, booking }) => {
   const adminEmail = process.env.ADMIN_EMAIL;
   if (!adminEmail) return;
 
-  const shortId    = booking._id.toString().slice(-8).toUpperCase();
+  const shortId    = formatBookingLabel(booking);
   const formatDate = d => d
     ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : 'N/A';
@@ -294,7 +287,7 @@ const sendRazorpayNotificationEmail = async ({ user, booking }) => {
       <h2 style="color:#1e293b;">Razorpay Payment Submitted — Awaiting Verification</h2>
       <p style="color:#475569;">A client has completed payment via Razorpay and is waiting for confirmation.</p>
       <table style="width:100%;border-collapse:collapse;margin-top:14px;">
-        <tr><td style="padding:7px 0;color:#64748b;width:40%;">Booking ID</td><td style="padding:7px 0;font-weight:600;">${booking._id}</td></tr>
+        <tr><td style="padding:7px 0;color:#64748b;width:40%;">Booking ID</td><td style="padding:7px 0;font-weight:600;">${shortId}</td></tr>
         <tr><td style="padding:7px 0;color:#64748b;">Client Name</td><td style="padding:7px 0;font-weight:600;">${user.name}</td></tr>
         <tr><td style="padding:7px 0;color:#64748b;">Client Email</td><td style="padding:7px 0;font-weight:600;">${user.email}</td></tr>
         <tr><td style="padding:7px 0;color:#64748b;">Inspection Type</td><td style="padding:7px 0;font-weight:600;">${(booking.service?.selected || []).join(', ') || 'N/A'}</td></tr>
