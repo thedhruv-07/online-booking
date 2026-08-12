@@ -1,5 +1,5 @@
 /company-logo.png
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=86400
 
 /company-logo-email.png
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=86400
